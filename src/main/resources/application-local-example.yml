@@ -1,0 +1,20 @@
+server:
+  path: http://IP:{port}
+  image:
+    name: image
+    path: '存放路徑 Ex: D:\sodd\UploadFile\${server.image.name}\'
+  file:
+    name: file
+    path: '存放路徑 Ex: D:\sodd\UploadFile\${server.file.name}\'
+logging:
+  level:
+    sqltiming: DEBUG
+    resultsettable: DEBUG
+security:
+  jwt:
+    secret: ur 83hjfnijanfwungn vs9dvng kmqn ifjsijvmfwafnvianvb
+sodd:
+  database:
+    url: jdbc:log4jdbc:mysql://{資料庫IP}:{port}/{資料庫名字}?serverTimezone=Asia/Taipei
+    account: 帳號
+    password: 密碼
