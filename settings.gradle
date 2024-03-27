@@ -1,0 +1,4 @@
+rootProject.name = 'sodd'
+include 'modules:sodd-config'
+include 'modules:sodd-database-config'
+

@@ -1,0 +1,60 @@
+springdoc:
+  swagger-ui:
+    path: /api
+spring:
+  application:
+    name: sodd
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  profiles:
+    active: local
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 250MB
+  datasource:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: ${sodd.database.url}
+    username: ${sodd.database.account}
+    password: ${sodd.database.password}
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: true
+    show-sql: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+      naming:
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        dialect: ${spring.jpa.database-platform}
+        hbm2ddl:
+          auto: ${spring.jpa.hibernate.ddl-auto}
+        show_sql: ${spring.jpa.show-sql}
+        format_sql: ${spring.jpa.show-sql}
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+  image:
+    url: '${server.path}${server.servlet.context-path}${server.image.name}'
+  file:
+    url: '${server.path}${server.servlet.context-path}${server.file.name}'
+logging:
+  config: classpath:log4j2.yml
+  level:
+    jdbc:
+      sqlonly: off
+      audit: off
+      resultset: off
+      connection: off
