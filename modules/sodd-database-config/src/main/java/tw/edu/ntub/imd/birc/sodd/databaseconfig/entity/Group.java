@@ -3,67 +3,39 @@ package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity;
 import lombok.Data;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.Config;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.BooleanTo1And0Converter;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.listener.UserAccountListener;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.listener.GroupListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * 使用者帳號
+ * 群組管理
  *
  * @since 1.0.0
  */
 @Data
 @Entity
-@EntityListeners(UserAccountListener.class)
-@Table(name = "user_account", schema = Config.DATABASE_NAME)
-public class UserAccount {
+@EntityListeners(GroupListener.class)
+@Table(name = "group", schema = Config.DATABASE_NAME)
+public class Group {
     /**
-     * 使用者ID
+     * 群組ID
      *
      * @since 1.0.0
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id", length = 254, nullable = false)
-    private String userId;
+    @Column(name = "id", nullable = false)
+    private Integer id;
     /**
-     * 使用者名稱
+     * 群組名稱
      *
      * @since 1.0.0
      */
-    @Column(name = "user_name", length = 45, nullable = false)
-    private String userName;
+    @Column(name = "name", length = 45, nullable = false)
+    private String name;
     /**
-     * 部門ID
-     *
-     * @since 1.0.0
-     */
-    @Column(name = "department_id", length = 2, nullable = false)
-    private String departmentId;
-    /**
-     * googleID
-     *
-     * @since 1.0.0
-     */
-    @Column(name = "google_id", length = 25)
-    private String googleId;
-    /**
-     * gmail
-     *
-     * @since 1.0.0
-     */
-    @Column(name = "gmail", length = 254, nullable = false)
-    private String gmail;
-    /**
-     * 職務
-     *
-     * @since 1.0.0
-     */
-    @Column(name = "position", length = 45, nullable = false)
-    private String position;
-    /**
-     * 是否啟用(0: 不啟用 1:啟用)
+     * 是否啟用(0: 不啟用, 1: 啟用)
      *
      * @since 1.0.0
      */
@@ -71,7 +43,7 @@ public class UserAccount {
     @Column(name = "available", nullable = false)
     private Boolean available;
     /**
-     * 創建者ID
+     * 創建人ID
      *
      * @since 1.0.0
      */
@@ -85,7 +57,7 @@ public class UserAccount {
     @Column(name = "create_date", nullable = false)
     private LocalDateTime createDate;
     /**
-     * 修改者ID
+     * 修改人ID
      *
      * @since 1.0.0
      */
