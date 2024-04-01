@@ -18,7 +18,7 @@ import java.util.Map;
 @EnableTransactionManagement
 @EntityScan(basePackages = "tw.edu.ntub.imd.birc.sodd.databaseconfig.entity")
 public class Config {
-    public static final String DATABASE_NAME = "";
+    public static final String DATABASE_NAME = "smart_operation_digital_dashboard";
 
     @Bean
     public TransactionInterceptor transactionInterceptor(TransactionManager transactionManager) {
