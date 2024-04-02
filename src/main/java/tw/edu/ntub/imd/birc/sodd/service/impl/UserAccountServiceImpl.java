@@ -22,7 +22,6 @@ import tw.edu.ntub.imd.birc.sodd.service.transformer.UserAccountTransformer;
 import tw.edu.ntub.imd.birc.sodd.util.EmailTransformUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, UserAccount, String> implements UserAccountService, UserDetailsService {
