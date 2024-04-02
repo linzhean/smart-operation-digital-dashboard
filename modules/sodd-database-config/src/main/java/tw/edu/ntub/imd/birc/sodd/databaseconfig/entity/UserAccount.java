@@ -3,6 +3,8 @@ package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity;
 import lombok.Data;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.Config;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.BooleanTo1And0Converter;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.IdentityConverter;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.listener.UserAccountListener;
 
 import javax.persistence.*;
@@ -55,6 +57,14 @@ public class UserAccount {
      */
     @Column(name = "gmail", length = 254, nullable = false)
     private String gmail;
+    /**
+     * 權限(0: 無權限，1: 一般使用者，2: 管理員)
+     *
+     * @since 1.0.0
+     */
+    @Convert(converter = IdentityConverter.class)
+    @Column(name = "identity", length = 1, nullable = false)
+    private Identity identity;
     /**
      * 職務
      *
