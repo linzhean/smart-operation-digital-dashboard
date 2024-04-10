@@ -1,56 +1,43 @@
 package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity;
 
+import lombok.Data;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.Config;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.BooleanTo1And0Converter;
+
 import javax.persistence.*;
 import java.util.Objects;
 
+/**
+ * 部門
+ *
+ * @since 1.0.0
+ */
+@Data
 @Entity
-@Table(name = "department", schema = "113-smart_opeartion_digital_dashboard", catalog = "")
-public class DepartmentEntity {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@Table(name = "department", schema = Config.DATABASE_NAME)
+public class Department {
+    /**
+     * 部門ID
+     *
+     * @since 1.0.0
+     */
     @Id
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private String id;
-    @Basic
-    @Column(name = "name")
+    /**
+     * 部門名稱
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "name", length = 45, nullable = false)
     private String name;
-    @Basic
-    @Column(name = "available")
-    private String available;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAvailable() {
-        return available;
-    }
-
-    public void setAvailable(String available) {
-        this.available = available;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        DepartmentEntity that = (DepartmentEntity) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(available, that.available);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, available);
-    }
+    /**
+     * 是否啟用(0: 不啟用 1:啟用)
+     *
+     * @since 1.0.0
+     */
+    @Convert(converter = BooleanTo1And0Converter.class)
+    @Column(name = "available", nullable = false)
+    private Boolean available;
 }

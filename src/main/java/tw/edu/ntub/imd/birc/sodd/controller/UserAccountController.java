@@ -3,10 +3,8 @@ package tw.edu.ntub.imd.birc.sodd.controller;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import tw.edu.ntub.birc.common.util.StringUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.GroupBean;
 import tw.edu.ntub.imd.birc.sodd.bean.UserAccountBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
@@ -75,6 +73,27 @@ public class UserAccountController {
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
                 .data(data)
+                .build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping(path = "")
+    public ResponseEntity<String> updateUserValueByUserId(@RequestBody UserAccountBean userAccountBean) {
+        String identity = SecurityUtils.getLoginUserIdentity();
+        boolean isManager = identity.equals(Identity.getIdentityName(Identity.ADMIN));
+        if (!isManager && !SecurityUtils.getLoginUserAccount().equals(userAccountBean.getUserId())) {
+            return ResponseEntityBuilder.error()
+                    .errorCode("User - AccessDenied")
+                    .message("您並無此操作之權限，請嘗試重新登入")
+                    .build();
+        }
+
+        if (StringUtils.isNotBlank(userAccountBean.getIdentity().getTypeName())) {
+            userAccountBean.setIdentity(userAccountBean.getIdentity());
+        }
+        userAccountService.update(userAccountBean.getUserId(), userAccountBean);
+        return ResponseEntityBuilder.success()
+                .message("修改成功")
                 .build();
     }
 }
