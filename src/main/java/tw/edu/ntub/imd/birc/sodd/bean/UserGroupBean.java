@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 
 @Data
 public class UserGroupBean {
-    private Integer id;
     private String userId;
     private Integer groupId;
     private Boolean available;

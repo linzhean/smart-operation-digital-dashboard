@@ -19,5 +19,4 @@ public class UserAccountBean {
     private LocalDateTime createDate;
     private String modifyId;
     private LocalDateTime modifyDate;
-
 }
