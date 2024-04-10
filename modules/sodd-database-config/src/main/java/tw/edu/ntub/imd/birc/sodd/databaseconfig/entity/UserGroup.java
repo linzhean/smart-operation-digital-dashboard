@@ -16,22 +16,15 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @EntityListeners(UserGroupListener.class)
+@IdClass(UserGroupId.class)
 @Table(name = "user_group", schema = Config.DATABASE_NAME)
 public class UserGroup {
-    /**
-     * 使用者-群組ID
-     *
-     * @since 1.0.0
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
     /**
      * 使用者ID
      *
      * @since 1.0.0
      */
+    @Id
     @Column(name = "user_id", length = 45, nullable = false)
     private String userId;
     /**
@@ -39,6 +32,7 @@ public class UserGroup {
      *
      * @since 1.0.0
      */
+    @Id
     @Column(name = "group_id", nullable = false)
     private Integer groupId;
     /**
