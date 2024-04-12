@@ -83,6 +83,16 @@ public class GroupController {
                 .build();
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> patchGroupName(@PathVariable("id") Integer id, @RequestParam("name") String name) {
+        GroupBean groupBean = new GroupBean();
+        groupBean.setName(name);
+        groupService.update(id, groupBean);
+        return ResponseEntityBuilder.success()
+                .message("更新成功")
+                .build();
+    }
+
     @DeleteMapping("/user")
     public ResponseEntity<String> removeUserFromGroup(@RequestParam("userId") String userId,
                                                       @RequestParam("groupId") Integer groupId) {
@@ -91,6 +101,16 @@ public class GroupController {
         userGroupService.removeUserFromGroup(userId, groupId, userGroupBean);
         return ResponseEntityBuilder.success()
                 .message("移除成功")
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delGroup(@PathVariable("id") Integer id) {
+        GroupBean groupBean = new GroupBean();
+        groupBean.setAvailable(false);
+        groupService.update(id, groupBean);
+        return ResponseEntityBuilder.success()
+                .message("刪除成功")
                 .build();
     }
 }
