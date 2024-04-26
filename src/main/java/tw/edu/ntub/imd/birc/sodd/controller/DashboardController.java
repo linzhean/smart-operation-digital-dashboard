@@ -2,8 +2,10 @@ package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
 import tw.edu.ntub.imd.birc.sodd.bean.DashboardBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
@@ -43,14 +45,24 @@ public class DashboardController {
                 .build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<String> getById(@PathVariable("id") Integer id) {
-        ObjectData objectData = new ObjectData();
-        DashboardBean dashboardBean = dashboardService.findById(id)
-                .orElseThrow(() -> new NotFoundException("查無此儀表板"));
-        objectData.add("id", dashboardBean.getId());
-        objectData.add("name", dashboardBean.getName());
-
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> patchDashboard(@PathVariable("id") Integer id,
+                                                 @RequestBody DashboardBean dashboardBean,
+                                                 BindingResult bindingResult) {
+        BindingResultUtils.validate(bindingResult);
+        dashboardService.update(id, dashboardBean);
+        return ResponseEntityBuilder.success()
+                .message("更新成功")
+                .build();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delDashboard(@PathVariable("id") Integer id) {
+        DashboardBean dashboardBean = new DashboardBean();
+        dashboardBean.setAvailable(false);
+        dashboardService.update(id, dashboardBean);
+        return ResponseEntityBuilder.success()
+                .message("刪除成功")
+                .build();
+    }
 }
