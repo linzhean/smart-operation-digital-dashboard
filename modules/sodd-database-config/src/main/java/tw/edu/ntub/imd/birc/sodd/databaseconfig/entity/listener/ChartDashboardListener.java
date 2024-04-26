@@ -9,7 +9,6 @@ import javax.persistence.PreUpdate;
 import java.time.LocalDateTime;
 
 public class ChartDashboardListener {
-
     @PrePersist
     public void preSave(ChartDashboard chartDashboard) {
         String userId = SecurityUtils.getLoginUserAccount();
