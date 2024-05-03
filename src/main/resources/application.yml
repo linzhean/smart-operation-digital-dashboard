@@ -50,6 +50,9 @@ server:
     url: '${server.path}${server.servlet.context-path}${server.image.name}'
   file:
     url: '${server.path}${server.servlet.context-path}${server.file.name}'
+google:
+  clientId: 167621640041-hhlmnmjheg2sb1tm2sarmtg14ffag6f1.apps.googleusercontent.com
+  clientSecret: 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
 logging:
   config: classpath:log4j2.yml
   level:
