@@ -9,7 +9,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @OpenAPIDefinition(
         info = @Info(
-                title = "專網後台 - API",
+                title = "數位儀表板後台 - API",
                 description = "此為所有系統API功能列表，如有疑問，請洽負責人員\n" +
                         "\n" +
                         "  以下為標準回傳格式，data請替換成API的RequestBody\n" +

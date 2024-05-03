@@ -17,7 +17,7 @@ compileTestJava.options.encoding = 'UTF-8'
 
 processResources {
 //    exclude('application-local.yml')
-//    exclude('application-local-example.yml')
+    exclude('application-local-example.yml')
 }
 
 tasks.withType(JavaCompile) {
