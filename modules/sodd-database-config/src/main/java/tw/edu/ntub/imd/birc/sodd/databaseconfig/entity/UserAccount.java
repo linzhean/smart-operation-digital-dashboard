@@ -2,6 +2,10 @@ package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity;
 
 import lombok.Data;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.Config;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.BooleanTo1And0Converter;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.IdentityConverter;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.listener.UserAccountListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,10 +17,11 @@ import java.time.LocalDateTime;
  */
 @Data
 @Entity
-@Table(name = "useraccount", schema = Config.DATABASE_NAME)
+@EntityListeners(UserAccountListener.class)
+@Table(name = "user_account", schema = Config.DATABASE_NAME)
 public class UserAccount {
     /**
-     * 帳號ID
+     * 使用者ID
      *
      * @since 1.0.0
      */
@@ -25,45 +30,82 @@ public class UserAccount {
     @Column(name = "user_id", length = 254, nullable = false)
     private String userId;
     /**
-     * 帳號名稱
+     * 使用者名稱
      *
      * @since 1.0.0
      */
-    @Column(name = "name", length = 50, nullable = false)
-    private String name;
+    @Column(name = "user_name", length = 45, nullable = false)
+    private String userName;
     /**
-     * 是否啟用(0: 不啟用，1: 啟用)
+     * 部門ID
      *
      * @since 1.0.0
      */
-    @Column(name = "available", length = 1, nullable = false)
-    private String available;
+    @Column(name = "department_id", length = 2, nullable = false)
+    private String departmentId;
     /**
-     * 最後登入時間
+     * googleID
      *
      * @since 1.0.0
      */
-    @Column(name = "last_login_time", nullable = false)
-    private LocalDateTime lastLoginTime;
+    @Column(name = "google_id", length = 25)
+    private String googleId;
     /**
-     * 創建時間
+     * gmail
      *
      * @since 1.0.0
      */
-    @Column(name = "create_time", nullable = false)
-    private LocalDateTime createTime;
+    @Column(name = "gmail", length = 254, nullable = false)
+    private String gmail;
     /**
-     * 最後修改人
+     * 權限(0: 無權限，1: 一般使用者，2: 管理員)
      *
      * @since 1.0.0
      */
-    @Column(name = "last_update_user_id", length = 254, nullable = false)
-    private String lastUpdateUserId;
+    @Convert(converter = IdentityConverter.class)
+    @Column(name = "identity", length = 1, nullable = false)
+    private Identity identity;
     /**
-     * 最後修改時間
+     * 職務
      *
      * @since 1.0.0
      */
-    @Column(name = "last_update_time", nullable = false)
-    private LocalDateTime lastUpdateTime;
+    @Column(name = "position", length = 45, nullable = false)
+    private String position;
+    /**
+     * 是否啟用(0: 不啟用 1:啟用)
+     *
+     * @since 1.0.0
+     */
+    @Convert(converter = BooleanTo1And0Converter.class)
+    @Column(name = "available", nullable = false)
+    private Boolean available;
+    /**
+     * 創建者ID
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "create_id", length = 254, nullable = false)
+    private String createId;
+    /**
+     * 創建日期
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "create_date", nullable = false)
+    private LocalDateTime createDate;
+    /**
+     * 修改者ID
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "modify_id", length = 254, nullable = false)
+    private String modifyId;
+    /**
+     * 修改日期
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "modify_date", nullable = false)
+    private LocalDateTime modifyDate;
 }
