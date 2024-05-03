@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface DashboardDAO extends BaseDAO<Dashboard, Integer> {
-    List<Dashboard> findByCreateIdAndAvailableIsTrue();
+    List<Dashboard> findByCreateIdAndAvailableIsTrue(String userId);
 
     Optional<Dashboard> findByIdAndAvailableIsTrue(Integer id);
 }
