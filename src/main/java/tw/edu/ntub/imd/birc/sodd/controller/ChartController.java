@@ -80,8 +80,6 @@ public class ChartController {
     @GetMapping("/all")
     public ResponseEntity<String> searchAll() {
         ArrayData arrayData = new ArrayData();
-
-
         for (ChartBean chartBean : chartService.searchAll()) {
             ObjectData objectData = arrayData.addObject();
             objectData.add("id", chartBean.getId());
