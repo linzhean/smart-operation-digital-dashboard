@@ -24,4 +24,22 @@ public class ChartDashboardServiceImpl extends BaseServiceImpl<ChartDashboardBea
     public ChartDashboardBean save(ChartDashboardBean chartDashboardBean) {
         return null;
     }
+
+    @Override
+    public void removeChartFromDashboard(Integer chartId, Integer dashboardId) {
+        ChartDashboardBean chartDashboardBean = new ChartDashboardBean();
+        chartDashboardBean.setAvailable(false);
+        ChartDashboardId chartDashboardId = new ChartDashboardId();
+        chartDashboardId.setChartId(chartId);
+        chartDashboardId.setDashboardId(dashboardId);
+        super.update(chartDashboardId, chartDashboardBean);
+    }
+
+    @Override
+    public ChartDashboardBean save(Integer chartId, Integer dashboardId) {
+        ChartDashboard chartDashboard = new ChartDashboard();
+        chartDashboard.setChartId(chartId);
+        chartDashboard.setDashboardId(dashboardId);
+        return transformer.transferToBean(chartDashboardDAO.save(chartDashboard));
+    }
 }

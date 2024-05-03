@@ -21,6 +21,7 @@ public class ChartGroupServiceImpl extends BaseServiceImpl<ChartGroupBean, Chart
 
     @Override
     public ChartGroupBean save(ChartGroupBean chartGroupBean) {
-        return null;
+        ChartGroup chartGroup = transformer.transferToEntity(chartGroupBean);
+        return transformer.transferToBean(chartGroupDAO.save(chartGroup));
     }
 }

@@ -24,10 +24,8 @@ public class GroupController {
     private final DepartmentService departmentService;
 
     @PostMapping("")
-    public ResponseEntity<String> addGroup(@RequestParam("groupName") String groupName, BindingResult bindingResult) {
+    public ResponseEntity<String> addGroup(@RequestBody GroupBean groupBean, BindingResult bindingResult) {
         BindingResultUtils.validate(bindingResult);
-        GroupBean groupBean = new GroupBean();
-        groupBean.setName(groupName);
         groupService.save(groupBean);
         return ResponseEntityBuilder.success()
                 .message("新增成功")
@@ -84,9 +82,10 @@ public class GroupController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<String> patchGroupName(@PathVariable("id") Integer id, @RequestParam("name") String name) {
-        GroupBean groupBean = new GroupBean();
-        groupBean.setName(name);
+    public ResponseEntity<String> patchGroupName(@PathVariable("id") Integer id,
+                                                 @RequestBody GroupBean groupBean,
+                                                 BindingResult bindingResult) {
+        BindingResultUtils.validate(bindingResult);
         groupService.update(id, groupBean);
         return ResponseEntityBuilder.success()
                 .message("更新成功")

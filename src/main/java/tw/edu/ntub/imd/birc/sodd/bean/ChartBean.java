@@ -10,6 +10,7 @@ public class ChartBean {
     private Integer id;
     private String name;
     private String scriptPath;
+    private String showcaseImage;
     private Resource chart;
     private Boolean available;
     private String createId;

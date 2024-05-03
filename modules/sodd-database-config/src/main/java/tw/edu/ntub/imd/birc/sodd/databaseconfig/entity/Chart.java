@@ -42,6 +42,13 @@ public class Chart {
     @Column(name = "script_path", nullable = false)
     private String scriptPath;
     /**
+     * 展示圖
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "showcase_image", length = 254, nullable = false)
+    private String showcaseImage;
+    /**
      * 是否啟用(0: 不啟用 1:啟用)
      *
      * @since 1.0.0

@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class DashboardBean {
@@ -24,4 +25,5 @@ public class DashboardBean {
     private String modifyId;
     @Null(message = "修改日期 - 不得填寫")
     private LocalDateTime modifyDate;
+    private List<Integer> chartIds;
 }
