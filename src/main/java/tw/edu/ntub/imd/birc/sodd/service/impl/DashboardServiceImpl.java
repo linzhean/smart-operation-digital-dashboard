@@ -31,7 +31,7 @@ public class DashboardServiceImpl extends BaseServiceImpl<DashboardBean, Dashboa
 
     @Override
     public List<DashboardBean> searchByUser(String userId) {
-        return CollectionUtils.map(dashboardDAO.findByCreateIdAndAvailableIsTrue(), transformer::transferToBean);
+        return CollectionUtils.map(dashboardDAO.findByCreateIdAndAvailableIsTrue(userId), transformer::transferToBean);
     }
 
     @Override
