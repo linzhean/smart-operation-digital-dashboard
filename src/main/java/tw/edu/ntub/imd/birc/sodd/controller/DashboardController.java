@@ -6,9 +6,11 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
+import tw.edu.ntub.imd.birc.sodd.bean.ChartDashboardBean;
 import tw.edu.ntub.imd.birc.sodd.bean.DashboardBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
+import tw.edu.ntub.imd.birc.sodd.service.ChartDashboardService;
 import tw.edu.ntub.imd.birc.sodd.service.DashboardService;
 import tw.edu.ntub.imd.birc.sodd.util.http.BindingResultUtils;
 import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
@@ -20,13 +22,27 @@ import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 @RequestMapping("/dashboard")
 public class DashboardController {
     private final DashboardService dashboardService;
+    private final ChartDashboardService chartDashboardService;
 
     @PostMapping("")
-    public ResponseEntity<String> addDashboard(@RequestBody DashboardBean dashboardBean, BindingResult bindingResult) {
+    public ResponseEntity<String> addDashboard(@RequestBody DashboardBean dashboardBean,
+                                               BindingResult bindingResult) {
         BindingResultUtils.validate(bindingResult);
         dashboardService.save(dashboardBean);
         return ResponseEntityBuilder.success()
                 .message("新增成功")
+                .build();
+    }
+
+    @PostMapping("/chart")
+    public ResponseEntity<String> addChartToDashboard(@RequestParam("id") Integer dashboardId,
+                                                      @RequestParam("chartId") Integer chartId) {
+        ChartDashboardBean chartDashboardBean = new ChartDashboardBean();
+        chartDashboardBean.setDashboardId(dashboardId);
+        chartDashboardBean.setChartId(chartId);
+        chartDashboardService.save(chartDashboardBean);
+        return ResponseEntityBuilder.success()
+                .message("加入成功")
                 .build();
     }
 
