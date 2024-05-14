@@ -2,6 +2,7 @@ package tw.edu.ntub.imd.birc.sodd.service;
 
 import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ChartService extends BaseService<ChartBean, Integer> {

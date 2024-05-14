@@ -58,7 +58,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                         transformer.transferToBean(chartDAO.getById(chartDashboard.getChartId())))
                 .map(chartBean -> {
                     try {
-                        chartBean.setChart(genrateChart(chartBean.getScriptPath()));
+                        chartBean.setChart(generateChart(chartBean.getScriptPath()));
                     } catch (IOException e) {
                         throw new ProjectException("圖表生成錯誤") {
                             @Override
@@ -89,7 +89,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                 .collect(Collectors.toList());
     }
 
-    private Resource genrateChart(String filePath) throws IOException {
+    private Resource generateChart(String filePath) throws IOException {
         ProcessBuilder pb = new ProcessBuilder("python", filePath);
         Process process = pb.start();
         // 等待 Python 腳本執行完成
