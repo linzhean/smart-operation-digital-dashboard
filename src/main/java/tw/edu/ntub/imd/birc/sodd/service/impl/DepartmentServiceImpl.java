@@ -29,7 +29,7 @@ public class DepartmentServiceImpl extends BaseServiceImpl<DepartmentBean, Depar
 
     @Override
     public Map<String, String> getDepartmentMap() {
-        return departmentDAO.findAllByAvailableIsTrue()
+        return departmentDAO.findByAvailableIsTrue()
                 .stream()
                 .collect(Collectors.toMap(Department::getId, Department::getName));
     }
