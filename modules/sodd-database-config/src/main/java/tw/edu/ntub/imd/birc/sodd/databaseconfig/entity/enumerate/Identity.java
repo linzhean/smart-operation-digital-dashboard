@@ -29,4 +29,8 @@ public enum Identity {
     public static String getIdentityName(Identity identity) {
         return "[" + identity.getTypeName() + "]";
     }
+
+    public static boolean isAdmin(String identity) {
+        return identity.equals(Identity.getIdentityName(Identity.ADMIN));
+    }
 }

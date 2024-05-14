@@ -18,5 +18,6 @@ def generate_chart():
     return image_binary
 
 # 呼叫函數並將圖表數據輸出到標準輸出流
+
 chart_data = generate_chart()
 print(chart_data)
