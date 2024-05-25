@@ -19,4 +19,5 @@ def generate_chart():
 
 # 呼叫函數並將圖表數據輸出到標準輸出流
 chart_data = generate_chart()
-print(chart_data)
+# 將二進制數據以16進制格式輸出
+print(chart_data.hex())
