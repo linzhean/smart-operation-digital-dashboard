@@ -33,19 +33,7 @@ public class DashboardController {
                 .message("新增成功")
                 .build();
     }
-
-    @PostMapping("/chart")
-    public ResponseEntity<String> addChartToDashboard(@RequestParam("id") Integer dashboardId,
-                                                      @RequestParam("chartId") Integer chartId) {
-        ChartDashboardBean chartDashboardBean = new ChartDashboardBean();
-        chartDashboardBean.setDashboardId(dashboardId);
-        chartDashboardBean.setChartId(chartId);
-        chartDashboardService.save(chartDashboardBean);
-        return ResponseEntityBuilder.success()
-                .message("加入成功")
-                .build();
-    }
-
+    
     @GetMapping("")
     public ResponseEntity<String> searchByUser() {
         String userId = SecurityUtils.getLoginUserAccount();
