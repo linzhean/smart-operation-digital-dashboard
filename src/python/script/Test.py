@@ -3,14 +3,6 @@ import io
 
 def generate_chart(x_values, y_values, chart_type='line', title='Example Chart', xlabel='x', ylabel='y', color='blue', save_to_file=False, file_name='chart.png'):
 
-    # 資料驗證
-    if not isinstance(x_values, list) or not isinstance(y_values, list):
-        raise TypeError("x_values and y_values must be lists of numeric values.")
-    if len(x_values) != len(y_values):
-        raise ValueError("x_values and y_values must have the same length.")
-    if not all(isinstance(val, (int, float)) for val in x_values) or not all(isinstance(val, (int, float)) for val in y_values):
-        raise TypeError("x_values and y_values must contain only numeric values.")
-
     plt.figure()
 
     if chart_type == 'line':
