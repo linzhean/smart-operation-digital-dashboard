@@ -95,9 +95,7 @@ public class GroupController {
     @DeleteMapping("/user")
     public ResponseEntity<String> removeUserFromGroup(@RequestParam("userId") String userId,
                                                       @RequestParam("groupId") Integer groupId) {
-        UserGroupBean userGroupBean = new UserGroupBean();
-        userGroupBean.setAvailable(false);
-        userGroupService.removeUserFromGroup(userId, groupId, userGroupBean);
+        userGroupService.removeUserFromGroup(userId, groupId);
         return ResponseEntityBuilder.success()
                 .message("移除成功")
                 .build();

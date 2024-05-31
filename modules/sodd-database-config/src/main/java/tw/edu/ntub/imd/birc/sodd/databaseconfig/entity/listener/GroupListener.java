@@ -2,7 +2,7 @@ package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.listener;
 
 import tw.edu.ntub.birc.common.util.StringUtils;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Group;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Groups;
 
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -10,33 +10,33 @@ import java.time.LocalDateTime;
 
 public class GroupListener {
     @PrePersist
-    public void preSave(Group group) {
+    public void preSave(Groups groups) {
         String userId = SecurityUtils.getLoginUserAccount();
         LocalDateTime now = LocalDateTime.now();
-        if (group.getAvailable() == null) {
-            group.setAvailable(true);
+        if (groups.getAvailable() == null) {
+            groups.setAvailable(true);
         }
-        if (StringUtils.isBlank(group.getCreateId())) {
-            group.setCreateId(userId);
+        if (StringUtils.isBlank(groups.getCreateId())) {
+            groups.setCreateId(userId);
         }
-        if (group.getCreateDate() == null) {
-            group.setCreateDate(now);
+        if (groups.getCreateDate() == null) {
+            groups.setCreateDate(now);
         }
-        if (group.getModifyId() == null) {
-            group.setModifyId(userId);
+        if (groups.getModifyId() == null) {
+            groups.setModifyId(userId);
         }
-        if (group.getModifyDate() == null) {
-            group.setModifyDate(now);
+        if (groups.getModifyDate() == null) {
+            groups.setModifyDate(now);
         }
     }
 
     @PreUpdate
-    public void preUpdate(Group group) {
-        if (group.getModifyId() == null) {
-            group.setModifyId(SecurityUtils.getLoginUserAccount());
+    public void preUpdate(Groups groups) {
+        if (groups.getModifyId() == null) {
+            groups.setModifyId(SecurityUtils.getLoginUserAccount());
         }
-        if (group.getModifyDate() == null) {
-            group.setModifyDate(LocalDateTime.now());
+        if (groups.getModifyDate() == null) {
+            groups.setModifyDate(LocalDateTime.now());
         }
     }
 }
