@@ -2,77 +2,83 @@ package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity;
 
 import lombok.Data;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.Config;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.ApplyConverter;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.BooleanTo1And0Converter;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.IdentityConverter;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.listener.UserAccountListener;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Apply;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * 使用者帳號
+ * 暫時查看圖表申請
  *
  * @since 1.0.0
  */
 @Data
 @Entity
-@EntityListeners(UserAccountListener.class)
-@Table(name = "user_account", schema = Config.DATABASE_NAME)
-public class UserAccount {
+@Table(name = "application", schema = Config.DATABASE_NAME)
+public class Application {
     /**
-     * 使用者ID
+     * 暫時查看圖表申請流水號
      *
      * @since 1.0.0
      */
     @Id
-    @Column(name = "user_id", length = 254, nullable = false)
-    private String userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
     /**
-     * 使用者名稱
+     * 圖表ID
      *
      * @since 1.0.0
      */
-    @Column(name = "user_name", length = 45, nullable = false)
-    private String userName;
+    @Column(name = "chart_id", nullable = false)
+    private Integer chartId;
     /**
-     * 部門ID
+     * 申請人
      *
      * @since 1.0.0
      */
-    @Column(name = "department_id", length = 2, nullable = false)
-    private String departmentId;
+    @Column(name = "applicant", nullable = false)
+    private String applicant;
     /**
-     * googleID
+     * 保證人
      *
      * @since 1.0.0
      */
-    @Column(name = "google_id", length = 25)
-    private String googleId;
+    @Column(name = "guarantor", nullable = false)
+    private String guarantor;
     /**
-     * gmail
+     * 開始日期
      *
      * @since 1.0.0
      */
-    @Column(name = "gmail", length = 254, nullable = false)
-    private String gmail;
+    @Column(name = "start_date", nullable = false)
+    private LocalDateTime startDate;
     /**
-     * 權限(0: 無權限，1: 一般使用者，2: 管理員)
+     * 結束日期
      *
      * @since 1.0.0
      */
-    @Convert(converter = IdentityConverter.class)
-    @Column(name = "identity", length = 1, nullable = false)
-    private Identity identity;
+    @Column(name = "end_date", nullable = false)
+    private LocalDateTime endDate;
     /**
-     * 職務
+     * 申請原因
      *
      * @since 1.0.0
      */
-    @Column(name = "position", length = 45, nullable = false)
-    private String position;
+    @Column(name = "reason", nullable = false)
+    private String reason;
     /**
-     * 是否啟用(0: 不啟用 1:啟用)
+     * 申請狀態(0: 未通過, 1: 通過)
+     *
+     * @since 1.0.0
+     */
+    @Convert(converter = ApplyConverter.class)
+    @Column(name = "apply_status", length = 1, nullable = false)
+    private Apply applyStatus;
+    /**
+     * 是否啟用(0: 不啟用，1: 啟用)
      *
      * @since 1.0.0
      */
@@ -80,7 +86,7 @@ public class UserAccount {
     @Column(name = "available", nullable = false)
     private Boolean available;
     /**
-     * 創建者ID
+     * 創建人ID
      *
      * @since 1.0.0
      */
@@ -94,7 +100,7 @@ public class UserAccount {
     @Column(name = "create_date", nullable = false)
     private LocalDateTime createDate;
     /**
-     * 修改者ID
+     * 修改人ID
      *
      * @since 1.0.0
      */

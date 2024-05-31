@@ -45,7 +45,9 @@ public class UserGroupServiceImpl extends BaseServiceImpl<UserGroupBean, UserGro
     }
 
     @Override
-    public void removeUserFromGroup(String userId, Integer groupId, UserGroupBean userGroupBean) {
+    public void removeUserFromGroup(String userId, Integer groupId) {
+        UserGroupBean userGroupBean = new UserGroupBean();
+        userGroupBean.setAvailable(false);
         UserGroupId userGroupId = new UserGroupId();
         userGroupId.setUserId(userId);
         userGroupId.setGroupId(groupId);

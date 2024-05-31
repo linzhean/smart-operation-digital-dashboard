@@ -7,5 +7,5 @@ import java.util.List;
 
 @Repository
 public interface DepartmentDAO extends BaseDAO<Department, Integer> {
-    List<Department> findAllByAvailableIsTrue();
+    List<Department> findByAvailableIsTrue();
 }

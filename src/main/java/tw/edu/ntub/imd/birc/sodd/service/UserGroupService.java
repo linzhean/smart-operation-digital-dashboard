@@ -7,7 +7,7 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserGroupId;
 import java.util.List;
 
 public interface UserGroupService extends BaseService<UserGroupBean, UserGroupId> {
-    void removeUserFromGroup(String userId, Integer groupId, UserGroupBean userGroupBean);
+    void removeUserFromGroup(String userId, Integer groupId);
 
     List<UserAccountBean> searchAllUserByGroupId(Integer groupId,
                                                  String userName,
