@@ -26,7 +26,6 @@ public class UserAccount {
      * @since 1.0.0
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", length = 254, nullable = false)
     private String userId;
     /**

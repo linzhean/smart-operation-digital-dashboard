@@ -12,7 +12,10 @@ logging:
     resultsettable: DEBUG
 security:
   jwt:
-    secret: ur 83hjfnijanfwungn vs9dvng kmqn ifjsijvmfwafnvianvb
+    secret:
+google:
+  clientId:
+  clientSecret:
 sodd:
   database:
     url: jdbc:log4jdbc:mysql://{資料庫IP}:{port}/{資料庫名字}?serverTimezone=Asia/Taipei

@@ -3,6 +3,8 @@ package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.listener;
 import tw.edu.ntub.birc.common.util.StringUtils;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
+
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import java.time.LocalDateTime;
@@ -10,8 +12,11 @@ import java.time.LocalDateTime;
 public class UserAccountListener {
     @PrePersist
     public void preSave(UserAccount userAccount) {
-        String userId = SecurityUtils.getLoginUserAccount();
+        String userId = "admin";
         LocalDateTime now = LocalDateTime.now();
+        if (userAccount.getIdentity() == null) {
+            userAccount.setIdentity(Identity.NO_PERMISSION);
+        }
         if (userAccount.getAvailable() == null) {
             userAccount.setAvailable(true);
         }

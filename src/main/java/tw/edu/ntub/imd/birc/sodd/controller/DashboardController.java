@@ -2,14 +2,11 @@ package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartDashboardBean;
 import tw.edu.ntub.imd.birc.sodd.bean.DashboardBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
-import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.ChartDashboardService;
 import tw.edu.ntub.imd.birc.sodd.service.DashboardService;
 import tw.edu.ntub.imd.birc.sodd.util.http.BindingResultUtils;
