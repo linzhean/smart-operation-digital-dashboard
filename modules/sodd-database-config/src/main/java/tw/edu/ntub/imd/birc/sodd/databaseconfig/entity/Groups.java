@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Entity
 @EntityListeners(GroupListener.class)
 @Table(name = "group", schema = Config.DATABASE_NAME)
-public class Group {
+public class Groups {
     /**
      * 群組ID
      *

@@ -2,6 +2,7 @@ package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity;
 
 import lombok.Data;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.Config;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.BooleanTo1And0Converter;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.BooleanToYAndNConverter;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.listener.DashboardListener;
 
@@ -39,7 +40,7 @@ public class Dashboard {
      *
      * @since 1.0.0
      */
-    @Convert(converter = BooleanToYAndNConverter.class)
+    @Convert(converter = BooleanTo1And0Converter.class)
     @Column(name = "available", nullable = false)
     private Boolean available;
     /**

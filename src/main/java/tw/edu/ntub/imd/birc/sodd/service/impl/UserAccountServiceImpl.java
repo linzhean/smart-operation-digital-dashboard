@@ -32,7 +32,10 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
     @Value("${google.clientId}")
     private String clientId;
 
-    public UserAccountServiceImpl(UserAccountDAO userAccountDAO, UserGroupDAO userGroupDAO, GroupDAO groupDAO, UserAccountTransformer transformer) {
+    public UserAccountServiceImpl(UserAccountDAO userAccountDAO,
+                                  UserGroupDAO userGroupDAO,
+                                  GroupDAO groupDAO,
+                                  UserAccountTransformer transformer) {
         super(userAccountDAO, transformer);
         this.userAccountDAO = userAccountDAO;
         this.userGroupDAO = userGroupDAO;
@@ -53,16 +56,17 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
                 String googleId = payload.getSubject();
 
                 String email = (String) payload.get("email");
-                email = EmailTransformUtils.remove(email);
+                String userId = EmailTransformUtils.remove(email);
                 Optional<UserAccount> optional = userAccountDAO.findById(email);
 
                 UserAccount userAccount;
                 if (optional.isEmpty()) {
                     userAccount = new UserAccount();
-                    userAccount.setUserId(email);
+                    userAccount.setUserId(userId);
                     userAccount.setUserName((String) payload.get("name"));
+                    userAccount.setGmail(email);
                     userAccount.setGoogleId(googleId);
-                    userAccount.setAvailable(true);
+                    userAccount.setAvailable(false);
 
                     userAccountDAO.save(userAccount);
                 } else {
