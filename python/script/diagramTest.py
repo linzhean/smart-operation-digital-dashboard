@@ -3,6 +3,26 @@ import numpy as np
 import io
 
 def generate_chart(x_values, y_values=None, chart_type='line', title='Example Chart', xlabel='x', ylabel='y', color='blue', save_to_file=False, file_name='chart.png'):
+    # Validate chart_type
+    if chart_type not in ['line', 'bar', 'scatter', 'gauge']:
+        raise ValueError("Unsupported chart type: choose from 'line', 'bar', 'scatter', or 'gauge'")
+
+    # Validate x_values
+    if not isinstance(x_values, (list, np.ndarray)) and chart_type != 'gauge':
+        raise TypeError("x_values must be a list or numpy array")
+
+    # Validate y_values
+    if y_values is not None and not isinstance(y_values, (list, np.ndarray)):
+        raise TypeError("y_values must be a list or numpy array")
+
+    # Validate length of x_values and y_values
+    if y_values is not None and len(x_values) != len(y_values):
+        raise ValueError("x_values and y_values must have the same length")
+
+    # Validate save_to_file
+    if not isinstance(save_to_file, bool):
+        raise TypeError("save_to_file must be a boolean")
+
     plt.figure()
 
     if chart_type == 'line':
@@ -13,8 +33,6 @@ def generate_chart(x_values, y_values=None, chart_type='line', title='Example Ch
         plt.scatter(x_values, y_values, color=color)
     elif chart_type == 'gauge':
         return create_gauge_chart(x_values, title, save_to_file, file_name)
-    else:
-        raise ValueError("Unsupported chart type: choose from 'line', 'bar', 'scatter', or 'gauge'")
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -33,6 +51,10 @@ def generate_chart(x_values, y_values=None, chart_type='line', title='Example Ch
     return image_binary
 
 def create_gauge_chart(value, title='Gauge Chart', save_to_file=False, file_name='gauge_chart.png'):
+    # Validate value
+    if not isinstance(value, (int, float)) or not (0 <= value <= 100):
+        raise ValueError("value must be a number between 0 and 100")
+
     fig, ax = plt.subplots(figsize=(6, 3))
 
     # 建立儀表的角度陣列
