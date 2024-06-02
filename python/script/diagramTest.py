@@ -2,24 +2,25 @@ import matplotlib.pyplot as plt
 import numpy as np
 import io
 
-def generate_chart(x_values, y_values=None, chart_type='line', title='Example Chart', xlabel='x', ylabel='y', color='blue', save_to_file=False, file_name='chart.png'):
-    # Validate chart_type
+def generate_chart(x_values, y_values=None, chart_type='line', title='Chart', xlabel='x', ylabel='y', color='blue', save_to_file=False, file_name='chart.png'):
+    # 驗證圖表類型
     if chart_type not in ['line', 'bar', 'scatter', 'gauge']:
         raise ValueError("Unsupported chart type: choose from 'line', 'bar', 'scatter', or 'gauge'")
 
-    # Validate x_values
+    # 驗證 x_values
     if not isinstance(x_values, (list, np.ndarray)) and chart_type != 'gauge':
         raise TypeError("x_values must be a list or numpy array")
 
-    # Validate y_values
+    # 驗證 y_values
     if y_values is not None and not isinstance(y_values, (list, np.ndarray)):
         raise TypeError("y_values must be a list or numpy array")
 
-    # Validate length of x_values and y_values
+    # 驗證 x_values 和 y_values 的長度
     if y_values is not None and len(x_values) != len(y_values):
         raise ValueError("x_values and y_values must have the same length")
 
-    # Validate save_to_file
+    # 驗證 save_to_file
+
     if not isinstance(save_to_file, bool):
         raise TypeError("save_to_file must be a boolean")
 
@@ -51,7 +52,7 @@ def generate_chart(x_values, y_values=None, chart_type='line', title='Example Ch
     return image_binary
 
 def create_gauge_chart(value, title='Gauge Chart', save_to_file=False, file_name='gauge_chart.png'):
-    # Validate value
+    # 驗證 value
     if not isinstance(value, (int, float)) or not (0 <= value <= 100):
         raise ValueError("value must be a number between 0 and 100")
 
@@ -119,7 +120,7 @@ bar_chart_data = generate_chart(
     x_values=bar_x_values,
     y_values=bar_y_values,
     chart_type='bar',
-    title='Random Bar Chart',
+    title='Bar Chart',
     xlabel='Category',
     ylabel='Value',
     color='green',
@@ -134,7 +135,7 @@ print("Bar Chart Data:", bar_chart_data.hex())
 gauge_chart_data = generate_chart(
     x_values=60,  # 設置儀表值
     chart_type='gauge',
-    title='Example Gauge Chart',
+    title='Gauge Chart',
     save_to_file=True,
     file_name='gauge_chart.png'
 )
