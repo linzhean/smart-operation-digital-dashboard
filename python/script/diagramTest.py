@@ -102,13 +102,6 @@ def create_gauge_chart(value, title='Gauge Chart', save_to_file=False, file_name
 
     return image_binary
 
-    if save_to_file:
-        with open(file_name, 'wb') as f:
-            f.write(image_binary)
-
-    return image_binary
-
-
 # 使用NumPy生成數據
 x_values = np.linspace(0, 10, 100)  # 生成0到10之間的100個點
 y_values = np.sin(x_values)  # 計算這些點的正弦值
