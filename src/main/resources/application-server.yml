@@ -1,0 +1,18 @@
+server:
+  path: https://smart-operation-digital-dashboard.kuohao.wtf
+  image:
+    name: image
+    path: 'C:\sodd-backend\UploadFile\${server.image.name}\'
+  file:
+    name: file
+    path: 'C:\sodd-backend\UploadFile\${server.file.name}\'
+logging:
+  level:
+    sqltiming: DEBUG
+    resultsettable: DEBUG
+security:
+  jwt:
+    secret: fvnwakvo ndm vmoasdnwoemg vlsvbnwaioemf,.asxmcpwjkai
+google:
+  clientId: 985744970579-b9q0tji19d2r3h53n3e5fq18tavrtcti.apps.googleusercontent.com
+  clientSecret: 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

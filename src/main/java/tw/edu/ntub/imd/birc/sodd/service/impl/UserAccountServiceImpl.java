@@ -24,7 +24,8 @@ import tw.edu.ntub.imd.birc.sodd.util.EmailTransformUtils;
 import java.util.*;
 
 @Service
-public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, UserAccount, String> implements UserAccountService, UserDetailsService {
+public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, UserAccount, String>
+        implements UserAccountService, UserDetailsService {
     private final UserAccountDAO userAccountDAO;
     private final UserGroupDAO userGroupDAO;
     private final GroupDAO groupDAO;
@@ -57,7 +58,7 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
 
                 String email = (String) payload.get("email");
                 String userId = EmailTransformUtils.remove(email);
-                Optional<UserAccount> optional = userAccountDAO.findById(email);
+                Optional<UserAccount> optional = userAccountDAO.findById(userId);
 
                 UserAccount userAccount;
                 if (optional.isEmpty()) {
@@ -89,7 +90,6 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
                         return googleId;
                     }
 
-                    @Override
                     public String getUsername() {
                         return userAccount.getUserId();
                     }
@@ -111,7 +111,7 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
 
                     @Override
                     public boolean isEnabled() {
-                        return userAccount.getAvailable();
+                        return true;
                     }
                 };
             }
