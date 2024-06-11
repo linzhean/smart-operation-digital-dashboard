@@ -10,9 +10,3 @@ logging:
   level:
     sqltiming: DEBUG
     resultsettable: DEBUG
-security:
-  jwt:
-    secret: fvnwakvo ndm vmoasdnwoemg vlsvbnwaioemf,.asxmcpwjkai
-google:
-  clientId: 985744970579-b9q0tji19d2r3h53n3e5fq18tavrtcti.apps.googleusercontent.com
-  clientSecret: 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
