@@ -68,7 +68,7 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
 
                 String email = (String) payload.get("email");
                 String userId = EmailTransformUtils.remove(email);
-                Optional<UserAccount> optional = userAccountDAO.findById(email);
+                Optional<UserAccount> optional = userAccountDAO.findById(userId);
 
                 UserAccount userAccount;
                 if (optional.isEmpty()) {
@@ -97,7 +97,6 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
                         return googleId;
                     }
 
-                    @Override
                     public String getUsername() {
                         return userAccount.getUserId();
                     }
@@ -119,7 +118,7 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
 
                     @Override
                     public boolean isEnabled() {
-                        return userAccount.getAvailable();
+                        return true;
                     }
                 };
             }
