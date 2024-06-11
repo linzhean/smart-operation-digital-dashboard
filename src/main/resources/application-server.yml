@@ -10,6 +10,3 @@ logging:
   level:
     sqltiming: DEBUG
     resultsettable: DEBUG
-security:
-  jwt:
-    secret: fvnwakvo ndm vmoasdnwoemg vlsvbnwaioemf,.asxmcpwjkai
