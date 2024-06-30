@@ -55,7 +55,7 @@ public class MailController {
             objectData.add("status", ProcessStatus.getProcessStatusName(mailBean.getStatus()));
             objectData.add("content", mailBean.getContent());
             objectData.add("pubilsher", mailBean.getPublisher());
-            objectData.add("reciver", mailBean.getReceiver());
+            objectData.add("receiver", mailBean.getReceiver());
             objectData.add("emailSendTime", mailBean.getEmailSendTime());
         }
         return ResponseEntityBuilder.success()
