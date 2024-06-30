@@ -81,7 +81,7 @@ public class MailServiceImpl extends BaseServiceImpl<MailBean, Mail, Integer> im
             mimeMessageHelper.setCc(mail);
             mimeMessageHelper.setSubject(subject);
             String htmlContent = new String(Files.readAllBytes(Paths.get(PATH + "AssignTaskMail.html")), "UTF-8");
-            htmlContent = htmlContent.replace("{{reciver}}", mailBean.getReceiver());
+            htmlContent = htmlContent.replace("{{receiver}}", mailBean.getReceiver());
             htmlContent = htmlContent.replace("{{content}}", mailBean.getContent());
             Multipart multipart = new MimeMultipart();
             MimeBodyPart htmlPart = new MimeBodyPart();
