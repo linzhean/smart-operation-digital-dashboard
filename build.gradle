@@ -114,6 +114,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.14'
+    implementation 'org.apache.poi:poi-excelant:5.2.2'
+    implementation 'org.apache.poi:poi-scratchpad:5.2.2'
     implementation 'com.google.api-client:google-api-client:2.0.0'
     implementation 'io.springfox:springfox-swagger2:3.0.0'
     implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
