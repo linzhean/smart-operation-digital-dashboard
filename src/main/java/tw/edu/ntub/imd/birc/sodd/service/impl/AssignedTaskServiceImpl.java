@@ -21,6 +21,7 @@ public class AssignedTaskServiceImpl extends BaseServiceImpl<AssignedTaskBean, A
 
     @Override
     public AssignedTaskBean save(AssignedTaskBean assignedTaskBean) {
-        return null;
+        AssignedTasks assignedTasks = transformer.transferToEntity(assignedTaskBean);
+        return transformer.transferToBean(assignedTaskDAO.save(assignedTasks));
     }
 }

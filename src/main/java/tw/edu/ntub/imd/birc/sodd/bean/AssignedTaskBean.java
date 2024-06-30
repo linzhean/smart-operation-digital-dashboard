@@ -1,7 +1,9 @@
 package tw.edu.ntub.imd.birc.sodd.bean;
 
 import lombok.Data;
+import lombok.Value;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -28,6 +30,5 @@ public class AssignedTaskBean {
     private String modifyId;
     @Null(message = "修改日期 - 不得填寫")
     private LocalDateTime modifyDate;
-    private
 }
 

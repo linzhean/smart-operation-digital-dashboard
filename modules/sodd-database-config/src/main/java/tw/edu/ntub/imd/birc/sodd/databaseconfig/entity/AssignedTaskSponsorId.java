@@ -16,8 +16,8 @@ public class AssignedTaskSponsorId implements Serializable {
      * @since 1.0.0
      */
     @Id
-    @Column(name = "assigned_task_id", nullable = false)
-    private Integer assignedTaskId;
+    @Column(name = "chart_id", nullable = false)
+    private Integer chartId;
     /**
      * 發起人ID
      *
