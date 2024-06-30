@@ -32,7 +32,7 @@ public class ChartDashboardServiceImpl extends BaseServiceImpl<ChartDashboardBea
         ChartDashboardId chartDashboardId = new ChartDashboardId();
         chartDashboardId.setChartId(chartId);
         chartDashboardId.setDashboardId(dashboardId);
-        super.update(chartDashboardId, chartDashboardBean);
+        update(chartDashboardId, chartDashboardBean);
     }
 
     @Override

@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import tw.edu.ntub.imd.birc.sodd.bean.ChartDashboardBean;
 import tw.edu.ntub.imd.birc.sodd.bean.DashboardBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.service.ChartDashboardService;
