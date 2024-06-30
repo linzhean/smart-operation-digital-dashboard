@@ -2,6 +2,7 @@ package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.birc.common.util.StringUtils;
@@ -94,6 +95,19 @@ public class UserAccountController {
         userAccountService.update(userAccountBean.getUserId(), userAccountBean);
         return ResponseEntityBuilder.success()
                 .message("修改成功")
+                .build();
+    }
+
+    @PatchMapping("/admit")
+    public ResponseEntity<String> admitUser(@RequestParam("userId") String userId) {
+        if (!Identity.isAdmin(SecurityUtils.getLoginUserIdentity())) {
+            throw new AccessDeniedException("您並無此權限");
+        }
+        UserAccountBean userAccountBean = new UserAccountBean();
+        userAccountBean.setIdentity(Identity.USER);
+        userAccountService.update(userId, userAccountBean);
+        return ResponseEntityBuilder.success()
+                .message("核准成功")
                 .build();
     }
 }
