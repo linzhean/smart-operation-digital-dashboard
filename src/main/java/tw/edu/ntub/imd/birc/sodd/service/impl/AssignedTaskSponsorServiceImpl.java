@@ -35,7 +35,7 @@ public class AssignedTaskSponsorServiceImpl extends BaseServiceImpl<AssignedTask
     }
 
     @Override
-    public List<AssignedTaskSponsorBean> finByChartId(Integer chartId) {
+    public List<AssignedTaskSponsorBean> findByChartId(Integer chartId) {
         return CollectionUtils.map(
                 assignedTaskSponsorDAO.findByChartIdAndAvailableIsTrue(chartId), transformer::transferToBean);
     }
@@ -49,7 +49,7 @@ public class AssignedTaskSponsorServiceImpl extends BaseServiceImpl<AssignedTask
     }
 
     @Override
-    public void removeSponsorFromChart(String userId, Integer chartId) {
+    public void removeSponsorFromChart(Integer chartId, String userId) {
         AssignedTaskSponsorBean sponsorBean = new AssignedTaskSponsorBean();
         sponsorBean.setAvailable(false);
         AssignedTaskSponsorId sponsorId = new AssignedTaskSponsorId();
