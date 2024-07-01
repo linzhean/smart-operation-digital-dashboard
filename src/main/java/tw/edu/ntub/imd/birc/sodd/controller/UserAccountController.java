@@ -27,7 +27,7 @@ import javax.validation.Valid;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/user-account")
-public class UserAccountController {
+public class  UserAccountController {
     private final UserAccountService userAccountService;
     private final GroupService groupService;
     private final DepartmentService departmentService;
