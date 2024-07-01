@@ -37,17 +37,17 @@ public class AssignedTaskController {
     public ResponseEntity<String> setSponsorInChart(@RequestParam("chartId") Integer chartId,
                                                     @RequestBody List<String> userIds) {
         if (userIds.isEmpty()) {
-            List<String> originalIds = sponsorService.finByChartId(chartId)
+            List<String> originalIds = sponsorService.findByChartId(chartId)
                     .stream()
                     .map(sponsorBean -> sponsorBean.getSponsorUserId())
                     .collect(Collectors.toList());
             for (String userId : userIds) {
-                if (!originalIds.contains(chartId)) {
+                if (!originalIds.contains(userId)) {
                     sponsorService.save(chartId, userId);
                 }
-                originalIds.remove(chartId);
+                originalIds.remove(userId);
             }
-            originalIds.stream().forEach(userId -> sponsorService.removeSponsorFromChart(userId, chartId));
+            originalIds.stream().forEach(userId -> sponsorService.removeSponsorFromChart(chartId, userId));
         }
         return ResponseEntityBuilder.success()
                 .message("設定成功")
@@ -73,7 +73,7 @@ public class AssignedTaskController {
     @GetMapping("/sponsor")
     public ResponseEntity<String> searchSponsorByChartId(@RequestParam("chartId") Integer chartId) {
         ArrayData arrayData = new ArrayData();
-        for (AssignedTaskSponsorBean sponsorBean : sponsorService.finByChartId(chartId)) {
+        for (AssignedTaskSponsorBean sponsorBean : sponsorService.findByChartId(chartId)) {
             ObjectData objectData = arrayData.addObject();
             objectData.add("chartId", sponsorBean.getChartId());
             objectData.add("sponsorId", sponsorBean.getSponsorUserId());
