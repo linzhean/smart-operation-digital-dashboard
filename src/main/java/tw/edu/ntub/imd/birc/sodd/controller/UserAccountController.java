@@ -20,7 +20,7 @@ import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/user-account")
-public class UserAccountController {
+public class  UserAccountController {
     private final UserAccountService userAccountService;
     private final GroupService groupService;
 
