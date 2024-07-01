@@ -8,9 +8,9 @@ import java.util.List;
 public interface AssignedTaskSponsorService extends BaseService<AssignedTaskSponsorBean, AssignedTaskSponsorId> {
     List<AssignedTaskSponsorBean> findByUserId(String userId);
 
-    List<AssignedTaskSponsorBean> finByChartId(Integer chartId);
+    List<AssignedTaskSponsorBean> findByChartId(Integer chartId);
 
     AssignedTaskSponsorBean save(Integer chartId, String userId);
 
-    void removeSponsorFromChart(String userId, Integer chartId);
+    void removeSponsorFromChart(Integer chartId, String userId);
 }
