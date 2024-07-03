@@ -11,18 +11,21 @@ import tw.edu.ntub.imd.birc.sodd.bean.UserAccountBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
+import tw.edu.ntub.imd.birc.sodd.service.DepartmentService;
 import tw.edu.ntub.imd.birc.sodd.service.GroupService;
 import tw.edu.ntub.imd.birc.sodd.service.UserAccountService;
 import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
+import tw.edu.ntub.imd.birc.sodd.util.json.object.SingleValueObjectData;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/user-account")
-public class  UserAccountController {
+public class UserAccountController {
     private final UserAccountService userAccountService;
     private final GroupService groupService;
+    private final DepartmentService departmentService;
 
     @GetMapping(path = "")
     public ResponseEntity<String> getLoginUser() {
@@ -77,6 +80,45 @@ public class  UserAccountController {
                 .build();
     }
 
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
+    @GetMapping(path = "/page")
+    public ResponseEntity<String> countUserList(
+            @RequestParam(name = "departmentId", required = false) String departmentId,
+            @RequestParam(name = "identity", required = false) String identity,
+            @RequestParam(name = "name", required = false) String name
+    ) {
+        return ResponseEntityBuilder.success()
+                .message("查詢成功")
+                .data(SingleValueObjectData.create("totalPage", userAccountService.countUserList(departmentId, identity, name)))
+                .build();
+    }
+
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
+    @GetMapping(path = "/list", params = "nowPage")
+    public ResponseEntity<String> searchUserList(
+            @RequestParam(name = "departmentId", required = false) String departmentId,
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "identity", required = false) String identity,
+            @RequestParam(name = "nowPage") Integer nowPage
+    ) {
+        ArrayData arrayData = new ArrayData();
+        for (UserAccountBean bean : userAccountService.searchByUserValue(departmentId, name, identity, nowPage)) {
+            bean.setDepartmentName(departmentService.getDepartmentMap().getOrDefault(bean.getDepartmentId(), ""));
+            ObjectData data = arrayData.addObject();
+            data.add("userId", bean.getUserId());
+            data.add("email", bean.getGmail());
+            data.add("userName", bean.getUserName());
+            data.add("departmentName", bean.getDepartmentName());
+            data.add("identity", bean.getIdentity().getTypeName());
+            data.add("available", bean.getAvailable());
+        }
+        return ResponseEntityBuilder.success()
+                .message("查詢成功")
+                .data(arrayData)
+                .build();
+    }
+
+
     @PreAuthorize("isAuthenticated()")
     @PatchMapping(path = "")
     public ResponseEntity<String> updateUserValueByUserId(@RequestBody UserAccountBean userAccountBean) {
@@ -99,15 +141,26 @@ public class  UserAccountController {
     }
 
     @PatchMapping("/admit")
-    public ResponseEntity<String> admitUser(@RequestParam("userId") String userId) {
-        if (!Identity.isAdmin(SecurityUtils.getLoginUserIdentity())) {
-            throw new AccessDeniedException("您並無此權限");
+    public ResponseEntity<String> admitUser(@RequestParam("userId") String userId,
+                                            @RequestParam("identity") String identity) {
+        UserAccountBean userAccountBean = userAccountService.getById(userId)
+                .orElseThrow(() -> new NotFoundException("查無此使用者"));
+        if (checkUserValueIsNull(userAccountBean)) {
+            return ResponseEntityBuilder.success()
+                    .message("使用者資料尚未填寫完畢，無法核准")
+                    .build();
         }
-        UserAccountBean userAccountBean = new UserAccountBean();
-        userAccountBean.setIdentity(Identity.USER);
-        userAccountService.update(userId, userAccountBean);
+        UserAccountBean bean = new UserAccountBean();
+        bean.setIdentity(Identity.of(identity));
+        userAccountService.update(userId, bean);
         return ResponseEntityBuilder.success()
                 .message("核准成功")
                 .build();
+    }
+
+    private boolean checkUserValueIsNull(UserAccountBean userAccountBean) {
+        return StringUtils.isBlank(userAccountBean.getUserName()) &&
+                userAccountBean.getDepartmentId() == null &&
+                StringUtils.isBlank(userAccountBean.getPosition());
     }
 }
