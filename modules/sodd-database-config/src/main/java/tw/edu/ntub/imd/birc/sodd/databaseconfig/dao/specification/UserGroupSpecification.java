@@ -22,7 +22,7 @@ public class UserGroupSpecification {
     ) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            Join<UserAccount, UserGroup> userGroupJoin = root.join(UserGroup_.USER_ID);
+            Join<UserAccount, UserGroup> userGroupJoin = root.join(UserGroup_.USER_ACCOUNT);
             predicates.add(criteriaBuilder.equal(root.get(UserGroup_.GROUP_ID), groupId));
             predicates.add(criteriaBuilder.equal(root.get(UserGroup_.AVAILABLE), true));
             if (StringUtils.isNotBlank(departmentId)) {
