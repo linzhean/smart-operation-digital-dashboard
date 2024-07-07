@@ -2,8 +2,8 @@ package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.birc.common.util.StringUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.GroupBean;
@@ -14,6 +14,7 @@ import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.DepartmentService;
 import tw.edu.ntub.imd.birc.sodd.service.GroupService;
 import tw.edu.ntub.imd.birc.sodd.service.UserAccountService;
+import tw.edu.ntub.imd.birc.sodd.util.http.BindingResultUtils;
 import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
@@ -121,7 +122,8 @@ public class UserAccountController {
 
     @PreAuthorize("isAuthenticated()")
     @PatchMapping(path = "")
-    public ResponseEntity<String> updateUserValueByUserId(@RequestBody UserAccountBean userAccountBean) {
+    public ResponseEntity<String> updateUserValueByUserId(@RequestBody UserAccountBean userAccountBean,
+                                                          BindingResult bindingResult) {
         String identity = SecurityUtils.getLoginUserIdentity();
         boolean isManager = identity.equals(Identity.getIdentityName(Identity.ADMIN));
         if (!isManager && !SecurityUtils.getLoginUserAccount().equals(userAccountBean.getUserId())) {
@@ -130,7 +132,7 @@ public class UserAccountController {
                     .message("您並無此操作之權限，請嘗試重新登入")
                     .build();
         }
-
+        BindingResultUtils.validate(bindingResult);
         if (StringUtils.isNotBlank(userAccountBean.getIdentity().getTypeName())) {
             userAccountBean.setIdentity(userAccountBean.getIdentity());
         }
