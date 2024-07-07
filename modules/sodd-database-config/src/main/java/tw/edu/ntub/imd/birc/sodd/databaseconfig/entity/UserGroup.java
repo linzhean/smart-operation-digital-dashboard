@@ -71,4 +71,12 @@ public class UserGroup {
      */
     @Column(name = "modify_date", nullable = false)
     private LocalDateTime modifyDate;
+    /**
+     * 使用者帳號
+     *
+     * @since 1.0.0
+     */
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
+    private UserAccount userAccount;
 }
