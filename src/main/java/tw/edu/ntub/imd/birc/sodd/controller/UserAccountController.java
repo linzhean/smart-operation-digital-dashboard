@@ -165,4 +165,15 @@ public class UserAccountController {
                 userAccountBean.getDepartmentId() == null &&
                 StringUtils.isBlank(userAccountBean.getPosition());
     }
+
+    @PatchMapping("/able")
+    public ResponseEntity<String> setUserAvailable(@RequestParam("userId") String userId) {
+        UserAccountBean userAccountBean = userAccountService.getById(userId)
+                .orElseThrow(() -> new NotFoundException("查無此使用者"));
+        userAccountBean.setAvailable(!userAccountBean.getAvailable());
+        userAccountService.update(userId, userAccountBean);
+        return ResponseEntityBuilder.success()
+                .message(userAccountBean.getAvailable() ? "使用者已啟用" : "使用者已停用")
+                .build();
+    }
 }
