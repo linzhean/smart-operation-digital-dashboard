@@ -1,0 +1,12 @@
+server:
+  path: https://smart-operation-digital-dashboard.kuohao.wtf
+  image:
+    name: image
+    path: 'C:\sodd-backend\UploadFile\${server.image.name}\'
+  file:
+    name: file
+    path: 'C:\sodd-backend\UploadFile\${server.file.name}\'
+logging:
+  level:
+    sqltiming: DEBUG
+    resultsettable: DEBUG
