@@ -1,112 +1,81 @@
 package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity;
 
+import lombok.Data;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.Config;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.BooleanTo1And0Converter;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.listener.ExportListener;
+
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.util.Objects;
+import java.time.LocalDateTime;
 
+
+/**
+ * 匯出權限管理
+ *
+ * @since 1.0.0
+ */
+@Data
 @Entity
-@Table(name = "export", schema = "113-smart_opeartion_digital_dashboard", catalog = "")
-public class ExportEntity {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@EntityListeners(ExportListener.class)
+@Table(name = "export", schema = Config.DATABASE_NAME)
+public class Export {
+    /**
+     * 匯出ID
+     *
+     * @since 1.0.0
+     */
     @Id
-    @Column(name = "id")
-    private int id;
-    @Basic
-    @Column(name = "chart_id")
-    private int chartId;
-    @Basic
-    @Column(name = "exporter")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
+    /**
+     * 圖表ID
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "chart_id", nullable = false)
+    private Integer chartId;
+    /**
+     * 匯出權限擁有人
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "exporter", length = 254, nullable = false)
     private String exporter;
-    @Basic
-    @Column(name = "available")
-    private String available;
-    @Basic
-    @Column(name = "create_id")
+    /**
+     * 是否啟用(0: 不啟用 1:啟用)
+     *
+     * @since 1.0.0
+     */
+    @Convert(converter = BooleanTo1And0Converter.class)
+    @Column(name = "available", nullable = false)
+    private Boolean available;
+    /**
+     * 創建人ID
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "create_id", length = 254, nullable = false)
     private String createId;
-    @Basic
-    @Column(name = "create_date")
-    private Timestamp createDate;
-    @Basic
-    @Column(name = "modify_id")
+    /**
+     * 創建日期
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "create_date", nullable = false)
+    private LocalDateTime createDate;
+    /**
+     * 修改人ID
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "modify_id", length = 254, nullable = false)
     private String modifyId;
-    @Basic
-    @Column(name = "modify_date")
-    private Timestamp modifyDate;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getChartId() {
-        return chartId;
-    }
-
-    public void setChartId(int chartId) {
-        this.chartId = chartId;
-    }
-
-    public String getExporter() {
-        return exporter;
-    }
-
-    public void setExporter(String exporter) {
-        this.exporter = exporter;
-    }
-
-    public String getAvailable() {
-        return available;
-    }
-
-    public void setAvailable(String available) {
-        this.available = available;
-    }
-
-    public String getCreateId() {
-        return createId;
-    }
-
-    public void setCreateId(String createId) {
-        this.createId = createId;
-    }
-
-    public Timestamp getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Timestamp createDate) {
-        this.createDate = createDate;
-    }
-
-    public String getModifyId() {
-        return modifyId;
-    }
-
-    public void setModifyId(String modifyId) {
-        this.modifyId = modifyId;
-    }
-
-    public Timestamp getModifyDate() {
-        return modifyDate;
-    }
-
-    public void setModifyDate(Timestamp modifyDate) {
-        this.modifyDate = modifyDate;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ExportEntity that = (ExportEntity) o;
-        return id == that.id && chartId == that.chartId && Objects.equals(exporter, that.exporter) && Objects.equals(available, that.available) && Objects.equals(createId, that.createId) && Objects.equals(createDate, that.createDate) && Objects.equals(modifyId, that.modifyId) && Objects.equals(modifyDate, that.modifyDate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, chartId, exporter, available, createId, createDate, modifyId, modifyDate);
-    }
+    /**
+     * 修改日期
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "modify_date", nullable = false)
+    private LocalDateTime modifyDate;
 }
