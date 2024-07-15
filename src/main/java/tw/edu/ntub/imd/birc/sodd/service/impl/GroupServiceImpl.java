@@ -5,7 +5,7 @@ import tw.edu.ntub.birc.common.util.CollectionUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.GroupBean;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.GroupDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.UserGroupDAO;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Groups;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Group;
 import tw.edu.ntub.imd.birc.sodd.service.GroupService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.GroupTransformer;
 
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class GroupServiceImpl extends BaseServiceImpl<GroupBean, Groups, Integer> implements GroupService {
+public class GroupServiceImpl extends BaseServiceImpl<GroupBean, Group, Integer> implements GroupService {
     private final GroupDAO groupDAO;
     private final UserGroupDAO userGroupDAO;
     private final GroupTransformer transformer;
@@ -28,13 +28,13 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupBean, Groups, Integer
 
     @Override
     public GroupBean save(GroupBean groupBean) {
-        Groups groups = transformer.transferToEntity(groupBean);
-        return transformer.transferToBean(groupDAO.save(groups));
+        Group group = transformer.transferToEntity(groupBean);
+        return transformer.transferToBean(groupDAO.save(group));
     }
 
     @Override
     public List<GroupBean> searchByUserId(String userId) {
-        List<Groups> groups = userGroupDAO.findByUserIdAndAvailableIsTrue(userId)
+        List<Group> groups = userGroupDAO.findByUserIdAndAvailableIsTrue(userId)
                 .stream()
                 .map(userGroup -> groupDAO.getById(userGroup.getGroupId()))
                 .collect(Collectors.toList());
