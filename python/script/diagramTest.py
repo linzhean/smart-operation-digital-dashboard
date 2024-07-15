@@ -1,155 +1,248 @@
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 import numpy as np
-import io
 
-def generate_chart(x_values, y_values=None, chart_type='line', title='Chart', xlabel='x', ylabel='y', color='white', save_to_file=False, file_name='chart.png'):
-    # 驗證圖表類型
+# 圖表生成函數
+def generate_chart(x_values, y_values=None, chart_type='line', title='Chart', xlabel='x', ylabel='y', color='white', save_to_file=False, file_name='chart.html', title_font_size=20):
+    # 驗證圖表類型是否有效
     if chart_type not in ['line', 'bar', 'scatter', 'gauge']:
         raise ValueError("Unsupported chart type: choose from 'line', 'bar', 'scatter', or 'gauge'")
 
-    # 驗證 x_values
+    # 驗證 x_values 是否為列表或 numpy 陣列（儀表圖除外）
     if not isinstance(x_values, (list, np.ndarray)) and chart_type != 'gauge':
         raise TypeError("x_values must be a list or numpy array")
 
-    # 驗證 y_values
+    # 驗證 y_values 是否為列表或 numpy 陣列
     if y_values is not None and not isinstance(y_values, (list, np.ndarray)):
         raise TypeError("y_values must be a list or numpy array")
 
-    # 驗證 x_values 和 y_values 的長度
+    # 驗證 x_values 和 y_values 的長度是否一致
     if y_values is not None and len(x_values) != len(y_values):
         raise ValueError("x_values and y_values must have the same length")
 
-    # 驗證 save_to_file
-    if not isinstance(save_to_file, bool):
-        raise TypeError("save_to_file must be a boolean")
+    # 驗證 save_to_file 是否為布林值
+    # if not isinstance(save_to_file, bool):
+    #     raise TypeError("save_to_file must be a boolean")
 
-    plt.figure(facecolor='black')
+    # 創建一個空的 Figure 對象
+    fig = go.Figure()
 
+    # 根據圖表類型添加對應的圖表
     if chart_type == 'line':
-        plt.plot(x_values, y_values, color=color)
+        fig.add_trace(go.Scatter(x=x_values, y=y_values, mode='lines', line=dict(color=color)))
     elif chart_type == 'bar':
-        plt.bar(x_values, y_values, color=color)
+        # 根據規則設置顏色
+        bar_colors = []
+        for val in y_values:
+            bar_color = ('#02F78E'
+                         ''
+                         ''
+                         ''
+                         ''
+                         '')
+            if title == '每日廢品率 - 長條圖' and val > 5:
+                bar_color = '#e71e24'
+            elif (title == '每日產能利用率 - 長條圖' or title == '每日生產進度達成率 - 長條圖') and val < 85:
+                bar_color = '#e71e24'
+            bar_colors.append(bar_color)
+
+        fig.add_trace(go.Bar(x=x_values, y=y_values, marker=dict(color=bar_colors)))
     elif chart_type == 'scatter':
-        plt.scatter(x_values, y_values, color=color)
+        fig.add_trace(go.Scatter(x=x_values, y=y_values, mode='markers', marker=dict(color=color)))
     elif chart_type == 'gauge':
-        return create_gauge_chart(x_values, title, save_to_file, file_name)
+        # 如果是儀表盤類型，則調用 create_gauge_chart 函數生成圖表
+        return create_gauge_chart(x_values, title, save_to_file, file_name, title_font_size)
 
-    plt.xlabel(xlabel, color='white')
-    plt.ylabel(ylabel, color='white')
-    plt.title(title, color='white')
-    plt.gca().set_facecolor('black')
-    plt.gca().tick_params(colors='white')
-    plt.gca().spines['bottom'].set_color('white')
-    plt.gca().spines['left'].set_color('white')
+    # 更新圖表佈局
+    fig.update_layout(
+        title=title,
+        xaxis_title=xlabel,
+        yaxis_title=ylabel,
+        plot_bgcolor='black',
+        paper_bgcolor='black',
+        font=dict(color='white'),
+        xaxis=dict(showgrid=True, gridcolor='gray', gridwidth=0.5),  # 更淺的格線
+        yaxis=dict(showgrid=True, gridcolor='gray', gridwidth=0.5)   # 更淺的格線
+    )
 
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format='png', facecolor='black')
-    buffer.seek(0)
-    image_binary = buffer.getvalue()
-    buffer.close()
+    # 如果需要保存為文件，則將圖表寫入 HTML 文件
+    # if save_to_file:
+    #     fig.write_html(file_name)
 
-    if save_to_file:
-        with open(file_name, 'wb') as f:
-            f.write(image_binary)
+    # 在 Jupyter Notebook 中顯示圖表
+    return fig.show()
 
-    return image_binary
-
-def create_gauge_chart(value, title='Gauge Chart', save_to_file=False, file_name='gauge_chart.png'):
-    # 驗證 value
+# 儀表圖生成函數
+def create_gauge_chart(value, title='Gauge Chart', save_to_file=False, file_name='gauge_chart.html', title_font_size=20):
+    # 驗證 value 是否在 0 到 100 之間
     if not isinstance(value, (int, float)) or not (0 <= value <= 100):
         raise ValueError("value must be a number between 0 and 100")
 
-    fig, ax = plt.subplots(figsize=(6, 3), subplot_kw={'projection': 'polar'})
-    fig.patch.set_facecolor('black')
-    ax.set_facecolor('black')
+    # 根據標題和數值設置顏色
+    color = '#02F78E'
+    if title == '廢品率' and value > 5:
+        color = '#e71e24'
+    elif (title == '產能利用率'or title == '生產進度達成率') and value < 85:
+        color = '#e71e24'
 
-    # 設置角度和數據
-    theta = np.linspace(0, np.pi, 100)
-    radii = np.ones(100)
-    ax.fill_between(theta, 0, radii, color='black')
+    # 創建一個儀表盤圖表
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=value,
+        title={'text': title, 'font': {'color': 'white', 'size': title_font_size}},
+        number={'font': {'size': 100, 'color': color}},
+        gauge={
+            'axis': {'range': [0, 100], 'tickvals': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], 'ticktext': ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100'], 'tickcolor': 'white'},
+            'bar': {'color': color},
+            'bgcolor': 'black',
+            'borderwidth': 2,
+            'bordercolor': 'white',
+            'steps': [
+                {'range': [0, value], 'color': color}],
+        }
+    ))
 
-    # 繪製儀表值
-    value_theta = np.pi * (1 - value / 100)
-    ax.fill_between(theta, 0, radii, where=theta >= value_theta, color='white')
+    # 更新儀表盤圖表的佈局
+    fig.update_layout(
+        paper_bgcolor='black',
+        font={'color': 'white'}
+    )
 
-    # 添加中心文本
-    ax.text(0, 0, f'{value}%', ha='center', va='center', fontsize=20, color='grey', weight='bold')
+    # 如果需要保存為文件，則將圖表寫入 HTML 文件
+    # if save_to_file:
+    #     fig.write_html(file_name)
 
-    # 設置標題
-    plt.title(title, fontsize=15, color='white')
+    # 在 Jupyter Notebook 中顯示儀表圖
+    return fig.show()
 
-    # 移除極座標網格和標記
-    ax.set_yticklabels([])
-    ax.set_xticklabels([])
-    ax.spines['polar'].set_visible(False)
-    ax.grid(False)
+# 計算廢品率
+def calculate_defective_rate(defective_quantity, total_quantity):
+    return (defective_quantity / total_quantity) * 100
 
-    # 設置角度範圍
-    ax.set_ylim(0, 1)
+# 計算產能利用率
+def calculate_capacity_utilization_rate(actual_output, theoretical_output):
+    return (actual_output / theoretical_output) * 100
 
-    if save_to_file:
-        plt.savefig(file_name, bbox_inches='tight', facecolor=fig.get_facecolor())
+# 計算生產進度達成率
+def calculate_production_progress_achievement_rate(actual_progress, planned_progress):
+    return (actual_progress / planned_progress) * 100
 
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format='png', bbox_inches='tight', facecolor=fig.get_facecolor())
-    buffer.seek(0)
-    image_binary = buffer.getvalue()
-    buffer.close()
+# 假設的數據
+defective_quantity = 150
+total_quantity = 1000
 
-    if save_to_file:
-        with open(file_name, 'wb') as f:
-            f.write(image_binary)
+actual_output = 800
+theoretical_output = 1000
 
-    return image_binary
+actual_progress = 95
+planned_progress = 100
 
-# 使用NumPy生成數據
-x_values = np.linspace(0, 10, 100)  # 生成0到10之間的100個點
-y_values = np.sin(x_values)  # 計算這些點的正弦值
+# 計算指標
+defective_rate = calculate_defective_rate(defective_quantity, total_quantity)
+capacity_utilization_rate = calculate_capacity_utilization_rate(actual_output, theoretical_output)
+production_progress_achievement_rate = calculate_production_progress_achievement_rate(actual_progress, planned_progress)
 
-# 呼叫函數並生成折線圖
-line_chart_data = generate_chart(
-    x_values=x_values,
-    y_values=y_values,
-    chart_type='line',
-    title='Sine Wave',
-    xlabel='x',
-    ylabel='sin(x)',
-    color='white',
-    save_to_file=True,
-    file_name='sine_wave.png'
-)
-
-# 打印折線圖二進制數據以16進制格式輸出
-print("Line Chart Data:", line_chart_data.hex())
-
-# 使用NumPy生成長條圖數據
-bar_x_values = np.arange(1, 6)
-bar_y_values = np.random.randint(1, 10, size=5)  # 生成5個隨機整數作為Y值
-
-# 呼叫函數並生成長條圖
-bar_chart_data = generate_chart(
-    x_values=bar_x_values,
-    y_values=bar_y_values,
-    chart_type='bar',
-    title='Bar Chart',
-    xlabel='Category',
-    ylabel='Value',
-    color='white',
-    save_to_file=True,
-    file_name='bar_chart.png'
-)
-
-# 打印長條圖二進制數據以16進制格式輸出
-print("Bar Chart Data:", bar_chart_data.hex())
-
-# 呼叫函數並生成儀表圖
-gauge_chart_data = generate_chart(
-    x_values=60,  # 設置儀表值
+# 生成三個指標的儀表圖並顯示
+# 廢品率
+gauge_chart_defective_rate = generate_chart(
+    x_values=defective_rate,
     chart_type='gauge',
-    title='Gauge Chart',
+    title='廢品率',
     save_to_file=True,
-    file_name='gauge_chart.png'
+    file_name='defective_rate.html',
+    title_font_size=30
 )
 
-# 打印儀表圖二進制數據以16進制格式輸出
-print("Gauge Chart Data:", gauge_chart_data.hex())
+# 產能利用率
+gauge_chart_capacity_utilization_rate = generate_chart(
+    x_values=capacity_utilization_rate,
+    chart_type='gauge',
+    title='產能利用率',
+    save_to_file=True,
+    file_name='capacity_utilization_rate.html',
+    title_font_size=30
+)
+
+# 生產進度達成率
+gauge_chart_production_progress_achievement_rate = generate_chart(
+    x_values=production_progress_achievement_rate,
+    chart_type='gauge',
+    title='生產進度達成率',
+    save_to_file=True,
+    file_name='production_progress_achievement_rate.html',
+    title_font_size=30
+)
+
+# 每日數據
+days = np.arange(1, 11)
+daily_defective_rates = np.random.uniform(0, 10, len(days))  # 假設的每日廢品率
+daily_capacity_utilization_rates = np.random.uniform(70, 100, len(days))  # 假設的每日產能利用率
+daily_production_progress_achievement_rates = np.random.uniform(80, 100, len(days))  # 假設的每日生產進度達成率
+
+# 生成每日廢品率的長條圖和折線圖
+generate_chart(
+    x_values=days,
+    y_values=daily_defective_rates,
+    chart_type='bar',
+    title='每日廢品率 - 長條圖',
+    xlabel='天數',
+    ylabel='廢品率 (%)',
+    save_to_file=True,
+    file_name='daily_defective_rates_bar.html'
+)
+
+generate_chart(
+    x_values=days,
+    y_values=daily_defective_rates,
+    chart_type='line',
+    title='每日廢品率 - 折線圖',
+    xlabel='天數',
+    ylabel='廢品率 (%)',
+    save_to_file=True,
+    file_name='daily_defective_rates_line.html'
+)
+
+# 生成每日產能利用率的長條圖和折線圖
+generate_chart(
+    x_values=days,
+    y_values=daily_capacity_utilization_rates,
+    chart_type='bar',
+    title='每日產能利用率 - 長條圖',
+    xlabel='天數',
+    ylabel='產能利用率 (%)',
+    save_to_file=True,
+    file_name='daily_capacity_utilization_rates_bar.html'
+)
+
+generate_chart(
+    x_values=days,
+    y_values=daily_capacity_utilization_rates,
+    chart_type='line',
+    title='每日產能利用率 - 折線圖',
+    xlabel='天數',
+    ylabel='產能利用率 (%)',
+    save_to_file=True,
+    file_name='daily_capacity_utilization_rates_line.html'
+)
+
+# 生成每日生產進度達成率的長條圖和折線圖
+generate_chart(
+    x_values=days,
+    y_values=daily_production_progress_achievement_rates,
+    chart_type='bar',
+    title='每日生產進度達成率 - 長條圖',
+    xlabel='天數',
+    ylabel='生產進度達成率 (%)',
+    save_to_file=True,
+    file_name='daily_production_progress_achievement_rates_bar.html'
+)
+
+generate_chart(
+    x_values=days,
+    y_values=daily_production_progress_achievement_rates,
+    chart_type='line',
+    title='每日生產進度達成率 - 折線圖',
+    xlabel='天數',
+    ylabel='生產進度達成率 (%)',
+    save_to_file=True,
+    file_name='daily_production_progress_achievement_rates_line.html'
+)
