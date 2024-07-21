@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class UserAccountBean {
     @Null(message = "email - 不得填寫")
     private String userId;
-    @Null(message = "姓名 - 不得填寫")
+    @NotBlank(message = "姓名 - 未填寫")
     private String userName;
     @NotBlank(message = "部門代號 - 未填寫")
     private String departmentId;

@@ -38,7 +38,19 @@ public class UserAccountController {
                             objectData.add("id", userAccountBean.getUserId());
                             objectData.add("name", userAccountBean.getUserName());
 
-                            ArrayData arrayData = objectData.addArray("authentications");
+                            String identity = SecurityUtils.getLoginUserIdentity();
+
+                            if (Identity.isNoPermission(identity)) {
+                                objectData.add("isNoPermission", true);
+                            } else if (Identity.isEmployee(identity)) {
+                                objectData.add("isEmployee", true);
+                            } else if (Identity.isManager(identity)) {
+                                objectData.add("isManager", true);
+                            } else if (Identity.isAdmin(identity)) {
+                                objectData.add("isAdmin", true);
+                            }
+
+                            ArrayData arrayData = objectData.addArray("charAuths");
                             for (GroupBean groupBean : groupService.searchByUserId(userAccountBean.getUserId())) {
                                 ObjectData groupData = arrayData.addObject();
                                 groupData.add("groupId", groupBean.getId());
@@ -126,7 +138,8 @@ public class UserAccountController {
                                                           BindingResult bindingResult) {
         String identity = SecurityUtils.getLoginUserIdentity();
         boolean isManager = identity.equals(Identity.getIdentityName(Identity.ADMIN));
-        if (!isManager && !SecurityUtils.getLoginUserAccount().equals(userAccountBean.getUserId())) {
+        String userId = SecurityUtils.getLoginUserAccount();
+        if (isManager || SecurityUtils.getLoginUserAccount().equals(userAccountBean.getUserId())) {
             return ResponseEntityBuilder.error()
                     .errorCode("User - AccessDenied")
                     .message("您並無此操作之權限，請嘗試重新登入")
