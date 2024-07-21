@@ -16,8 +16,15 @@ security:
 google:
   clientId:
   clientSecret:
+llama3:
+  path: "llama server路徑 Ex:http://localhost:1234/v1"
+  model: "使用的模型 Ex: QuantFactory/Meta-Llama-3-8B-Instruct-GGUF"
 sodd:
   database:
     url: jdbc:log4jdbc:mysql://{資料庫IP}:{port}/{資料庫名字}?serverTimezone=Asia/Taipei
     account: 帳號
     password: 密碼
+  mail:
+    subject: "益張實業股份有限公司-數位儀表板交辦事項"
+    account: "寄信帳號"
+    password: "帳號應用程式密碼"
