@@ -39,4 +39,11 @@ public enum Identity {
         return identity.equals(Identity.getIdentityName(Identity.NO_PERMISSION));
     }
 
+    public static boolean isManager(String identity) {
+        return identity.equals(Identity.getIdentityName(Identity.MANAGER));
+    }
+
+    public static boolean isEmployee(String identity) {
+        return identity.equals(Identity.getIdentityName(Identity.EMPLOYEE));
+    }
 }
