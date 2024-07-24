@@ -20,6 +20,8 @@ import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.SingleValueObjectData;
 
+import javax.validation.Valid;
+
 @AllArgsConstructor
 @RestController
 @RequestMapping("/user-account")
@@ -132,23 +134,42 @@ public class UserAccountController {
     }
 
 
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
+    @GetMapping(path = "/all")
+    public ResponseEntity<String> searchAllUser(
+            @RequestParam(name = "departmentId", required = false) String departmentId,
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "identity", required = false) String identity
+    ) {
+        ArrayData arrayData = new ArrayData();
+        for (UserAccountBean bean : userAccountService.searchByUserValue(departmentId, name, identity)) {
+            bean.setDepartmentName(departmentService.getDepartmentMap().getOrDefault(bean.getDepartmentId(), ""));
+            ObjectData data = arrayData.addObject();
+            data.add("userId", bean.getUserId());
+            data.add("email", bean.getGmail());
+            data.add("userName", bean.getUserName());
+            data.add("departmentName", bean.getDepartmentName());
+        }
+        return ResponseEntityBuilder.success()
+                .message("查詢成功")
+                .data(arrayData)
+                .build();
+    }
+
+
     @PreAuthorize("isAuthenticated()")
     @PatchMapping(path = "")
-    public ResponseEntity<String> updateUserValueByUserId(@RequestBody UserAccountBean userAccountBean,
+    public ResponseEntity<String> updateUserValueByUserId(@RequestBody @Valid UserAccountBean userAccountBean,
                                                           BindingResult bindingResult) {
         String identity = SecurityUtils.getLoginUserIdentity();
         boolean isManager = identity.equals(Identity.getIdentityName(Identity.ADMIN));
-        String userId = SecurityUtils.getLoginUserAccount();
-        if (isManager || SecurityUtils.getLoginUserAccount().equals(userAccountBean.getUserId())) {
+        if (!isManager && !SecurityUtils.getLoginUserAccount().equals(userAccountBean.getUserId())) {
             return ResponseEntityBuilder.error()
                     .errorCode("User - AccessDenied")
                     .message("您並無此操作之權限，請嘗試重新登入")
                     .build();
         }
         BindingResultUtils.validate(bindingResult);
-        if (StringUtils.isNotBlank(userAccountBean.getIdentity().getTypeName())) {
-            userAccountBean.setIdentity(userAccountBean.getIdentity());
-        }
         userAccountService.update(userAccountBean.getUserId(), userAccountBean);
         return ResponseEntityBuilder.success()
                 .message("修改成功")

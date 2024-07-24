@@ -7,5 +7,7 @@ import java.util.List;
 public interface UserAccountService extends BaseService<UserAccountBean, String> {
     List<UserAccountBean> searchByUserValue(String departmentId, String name, String identity, Integer nowPage);
 
+    List<UserAccountBean> searchByUserValue(String departmentId, String name, String identity);
+
     Integer countUserList(String departmentId, String identity, String name);
 }

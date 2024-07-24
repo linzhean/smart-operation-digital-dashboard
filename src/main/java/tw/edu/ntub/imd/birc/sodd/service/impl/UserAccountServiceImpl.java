@@ -87,10 +87,7 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
                     @Override
                     public Collection<? extends GrantedAuthority> getAuthorities() {
                         List<GrantedAuthority> authorities = new ArrayList<>();
-                        userGroupDAO.findByUserIdAndAvailableIsTrue(username)
-                                .stream()
-                                .map(userGroup -> groupDAO.getById(userGroup.getGroupId()).getName())
-                                .forEach(groupName -> authorities.add(new SimpleGrantedAuthority(groupName)));
+                        authorities.add(new SimpleGrantedAuthority(userAccount.getIdentity().getTypeName()));
                         return authorities;
                     }
 
@@ -145,12 +142,19 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
 
     @Override
     public List<UserAccountBean> searchByUserValue(String departmentId, String name, String identity, Integer nowPage) {
-        Page<UserAccount> page = userAccountDAO.findAll(
+        Page<UserAccount> userAccountPage = userAccountDAO.findAll(
                 specification.checkBlank(departmentId, name, identity),
                 PageRequest.of(nowPage, SIZE, Sort.by(
                         Sort.Order.asc(UserAccount_.IDENTITY),
                         Sort.Order.asc(UserAccount_.DEPARTMENT_ID)
                 )));
-        return CollectionUtils.map(page.getContent(), transformer::transferToBean);
+        return CollectionUtils.map(userAccountPage.getContent(), transformer::transferToBean);
+    }
+
+    @Override
+    public List<UserAccountBean> searchByUserValue(String departmentId, String name, String identity) {
+        List<UserAccount> userAccountList = userAccountDAO.findAll(
+                specification.checkBlank(departmentId, name, identity));
+        return CollectionUtils.map(userAccountList, transformer::transferToBean);
     }
 }

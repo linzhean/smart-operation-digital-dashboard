@@ -29,7 +29,7 @@ public enum ProcessStatus {
     }
 
     public static String getProcessStatusName(ProcessStatus processStatus) {
-        return "[" + processStatus.getProcessStatus() + "]";
+        return processStatus.getProcessStatus();
     }
 
     public static Boolean isAssign(ProcessStatus processStatus) {

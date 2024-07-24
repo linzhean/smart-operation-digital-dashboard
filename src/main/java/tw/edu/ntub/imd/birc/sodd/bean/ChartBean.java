@@ -12,6 +12,7 @@ public class ChartBean {
     private String scriptPath;
     private String showcaseImage;
     private Resource chart;
+    private Boolean observable;
     private Boolean available;
     private String createId;
     private LocalDateTime createDate;
