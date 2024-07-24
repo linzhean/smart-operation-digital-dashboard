@@ -6,17 +6,23 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import tw.edu.ntub.birc.common.util.CollectionUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.UserAccountBean;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.GroupDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.UserAccountDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.UserGroupDAO;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.specification.UserAccountSpecification;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount_;
 import tw.edu.ntub.imd.birc.sodd.service.UserAccountService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.UserAccountTransformer;
 import tw.edu.ntub.imd.birc.sodd.util.EmailTransformUtils;
@@ -24,23 +30,28 @@ import tw.edu.ntub.imd.birc.sodd.util.EmailTransformUtils;
 import java.util.*;
 
 @Service
-public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, UserAccount, String> implements UserAccountService, UserDetailsService {
+public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, UserAccount, String>
+        implements UserAccountService, UserDetailsService {
+    private static final int SIZE = 10;
     private final UserAccountDAO userAccountDAO;
     private final UserGroupDAO userGroupDAO;
     private final GroupDAO groupDAO;
     private final UserAccountTransformer transformer;
+    private final UserAccountSpecification specification;
     @Value("${google.clientId}")
     private String clientId;
 
     public UserAccountServiceImpl(UserAccountDAO userAccountDAO,
                                   UserGroupDAO userGroupDAO,
                                   GroupDAO groupDAO,
-                                  UserAccountTransformer transformer) {
+                                  UserAccountTransformer transformer,
+                                  UserAccountSpecification specification) {
         super(userAccountDAO, transformer);
         this.userAccountDAO = userAccountDAO;
         this.userGroupDAO = userGroupDAO;
         this.groupDAO = groupDAO;
         this.transformer = transformer;
+        this.specification = specification;
     }
 
     @Override
@@ -57,7 +68,7 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
 
                 String email = (String) payload.get("email");
                 String userId = EmailTransformUtils.remove(email);
-                Optional<UserAccount> optional = userAccountDAO.findById(email);
+                Optional<UserAccount> optional = userAccountDAO.findById(userId);
 
                 UserAccount userAccount;
                 if (optional.isEmpty()) {
@@ -66,7 +77,6 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
                     userAccount.setUserName((String) payload.get("name"));
                     userAccount.setGmail(email);
                     userAccount.setGoogleId(googleId);
-                    userAccount.setAvailable(false);
 
                     userAccountDAO.save(userAccount);
                 } else {
@@ -89,7 +99,6 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
                         return googleId;
                     }
 
-                    @Override
                     public String getUsername() {
                         return userAccount.getUserId();
                     }
@@ -111,7 +120,7 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
 
                     @Override
                     public boolean isEnabled() {
-                        return userAccount.getAvailable();
+                        return true;
                     }
                 };
             }
@@ -124,5 +133,24 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
     @Override
     public UserAccountBean save(UserAccountBean userAccountBean) {
         return null;
+    }
+
+    @Override
+    public Integer countUserList(String departmentId, String identity, String name) {
+        return userAccountDAO.findAll(
+                        specification.checkBlank(departmentId, identity, name),
+                        PageRequest.of(0, SIZE))
+                .getTotalPages();
+    }
+
+    @Override
+    public List<UserAccountBean> searchByUserValue(String departmentId, String name, String identity, Integer nowPage) {
+        Page<UserAccount> page = userAccountDAO.findAll(
+                specification.checkBlank(departmentId, name, identity),
+                PageRequest.of(nowPage, SIZE, Sort.by(
+                        Sort.Order.asc(UserAccount_.IDENTITY),
+                        Sort.Order.asc(UserAccount_.DEPARTMENT_ID)
+                )));
+        return CollectionUtils.map(page.getContent(), transformer::transferToBean);
     }
 }
