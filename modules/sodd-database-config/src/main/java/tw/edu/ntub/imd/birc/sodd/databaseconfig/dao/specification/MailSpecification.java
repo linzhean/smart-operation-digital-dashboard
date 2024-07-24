@@ -7,6 +7,7 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Application_;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Mail;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Mail_;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ProcessStatus;
 
 import javax.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
@@ -25,7 +26,7 @@ public class MailSpecification {
                 predicates.add(criteriaBuilder.equal(root.get(Mail_.RECEIVER), userId));
             }
             if (StringUtils.isNotBlank(status)) {
-                predicates.add(criteriaBuilder.equal(root.get(Mail_.STATUS), status));
+                predicates.add(criteriaBuilder.equal(root.get(Mail_.STATUS), ProcessStatus.of(status).getValue()));
             }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };

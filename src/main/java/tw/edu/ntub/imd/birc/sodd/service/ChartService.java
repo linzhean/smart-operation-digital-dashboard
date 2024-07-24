@@ -11,4 +11,6 @@ public interface ChartService extends BaseService<ChartBean, Integer> {
     List<Integer> searchChartIdsByDashboardId(Integer dashboardId);
 
     List<ChartBean> searchByUser(String userId);
+
+    String getChartSuggestion(Integer id) throws IOException;
 }

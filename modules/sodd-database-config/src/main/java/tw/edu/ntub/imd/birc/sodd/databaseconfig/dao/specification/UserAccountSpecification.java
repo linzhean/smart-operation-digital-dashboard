@@ -28,14 +28,15 @@ public class UserAccountSpecification {
                 predicates.add(criteriaBuilder.like(root.get(UserAccount_.USER_NAME), "%" + name + "%"));
             }
             if (StringUtils.isNotBlank(identity)) {
-                if (Identity.isNoPermission(identity)) {
+                if (Identity.isNoPermission(Identity.of(identity).getTypeName())) {
                     predicates.add(criteriaBuilder.equal(root.get(UserAccount_.IDENTITY), Identity.NO_PERMISSION));
                 } else {
                     predicates.add(criteriaBuilder.in(
                             root.get(UserAccount_.IDENTITY)).value(Arrays.asList(Identity.MANAGER, Identity.EMPLOYEE)));
                 }
+            } else {
+                predicates.add(criteriaBuilder.notEqual(root.get(UserAccount_.IDENTITY), Identity.NO_PERMISSION));
             }
-            predicates.add(criteriaBuilder.notEqual(root.get(UserAccount_.IDENTITY), Identity.NO_PERMISSION.getValue()));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }

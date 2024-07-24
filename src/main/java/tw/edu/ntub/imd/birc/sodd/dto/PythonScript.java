@@ -6,7 +6,8 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
 
 public enum PythonScript {
     NO_SUCH_SCRIPT("", ""),
-    TEXT_SCRIPT("test.py", "C:\\Users\\Jerrylin\\IdeaProjects\\sodd-backend\\src\\python\\script\\Test.py");
+    TEXT_SCRIPT("test.py", "C:\\Users\\Jerrylin\\IdeaProjects\\sodd-backend\\src\\python\\script\\Test.py"),
+    AI_ASSISTANT("ai_assistant.py", "C:\\Users\\Jerrylin\\IdeaProjects\\sodd-backend\\python\\llama3_ai\\ai_assistant.py");
 
     @Getter
     private final String fileName;

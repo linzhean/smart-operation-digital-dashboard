@@ -18,7 +18,6 @@ import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 @RequestMapping("/dashboard")
 public class DashboardController {
     private final DashboardService dashboardService;
-    private final ChartDashboardService chartDashboardService;
 
     @PostMapping("")
     public ResponseEntity<String> addDashboard(@RequestBody DashboardBean dashboardBean,

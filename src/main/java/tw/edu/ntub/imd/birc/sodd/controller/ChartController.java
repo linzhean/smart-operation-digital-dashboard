@@ -97,15 +97,25 @@ public class ChartController {
         ArrayData arrayData = new ArrayData();
         String userId = SecurityUtils.getLoginUserAccount();
         for (ChartBean chartBean : chartService.searchByUser(userId)) {
-            String htmlContent = resourceToString(chartBean.getChart());
             ObjectData objectData = arrayData.addObject();
             objectData.add("id", chartBean.getId());
             objectData.add("name", chartBean.getName());
-            objectData.add("chart", htmlContent);
+            objectData.add("showcaseImage", chartBean.getShowcaseImage());
+            objectData.add("observable", chartBean.getObservable());
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
                 .data(arrayData)
+                .build();
+    }
+
+    @GetMapping("/ai")
+    public ResponseEntity<String> getChartSuggestion(@RequestParam("id") Integer id) throws IOException {
+        ObjectData objectData = new ObjectData();
+        objectData.add("suggestion", chartService.getChartSuggestion(id));
+        return ResponseEntityBuilder.success()
+                .message("查詢成功")
+                .data(objectData)
                 .build();
     }
 }

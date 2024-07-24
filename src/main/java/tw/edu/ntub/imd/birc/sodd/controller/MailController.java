@@ -54,7 +54,7 @@ public class MailController {
             objectData.add("name", mailBean.getName());
             objectData.add("status", ProcessStatus.getProcessStatusName(mailBean.getStatus()));
             objectData.add("content", mailBean.getContent());
-            objectData.add("pubilsher", mailBean.getPublisher());
+            objectData.add("publisher", mailBean.getPublisher());
             objectData.add("receiver", mailBean.getReceiver());
             objectData.add("emailSendTime", mailBean.getEmailSendTime());
         }

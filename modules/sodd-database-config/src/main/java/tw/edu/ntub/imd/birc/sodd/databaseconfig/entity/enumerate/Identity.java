@@ -36,14 +36,14 @@ public enum Identity {
     }
 
     public static boolean isNoPermission(String identity) {
-        return identity.equals(Identity.getIdentityName(Identity.NO_PERMISSION));
+        return identity.equals(Identity.NO_PERMISSION.getTypeName());
     }
 
     public static boolean isManager(String identity) {
-        return identity.equals(Identity.getIdentityName(Identity.MANAGER));
+        return identity.equals(Identity.MANAGER.getTypeName());
     }
 
     public static boolean isEmployee(String identity) {
-        return identity.equals(Identity.getIdentityName(Identity.EMPLOYEE));
+        return identity.equals(Identity.EMPLOYEE.getTypeName());
     }
 }

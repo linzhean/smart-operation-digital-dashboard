@@ -28,7 +28,7 @@ public enum Apply {
     }
 
     public static String getApplyName(Apply apply) {
-        return "[" + apply.getApplyStatus() + "]";
+        return apply.getApplyStatus();
     }
 
     public static Boolean isNotPassed(Apply apply) {
