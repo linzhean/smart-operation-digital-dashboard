@@ -30,6 +30,7 @@ public class UserAccountController {
     private final GroupService groupService;
     private final DepartmentService departmentService;
 
+
     @GetMapping(path = "")
     public ResponseEntity<String> getLoginUser() {
         ObjectData objectData = new ObjectData();
@@ -66,6 +67,7 @@ public class UserAccountController {
                 .build();
     }
 
+
     @PreAuthorize("isAuthenticated()")
     @GetMapping(path = "/{userId}")
     public ResponseEntity<String> getByUserId(
@@ -85,7 +87,9 @@ public class UserAccountController {
         if (isAdmin) {
             data.add("identity", Identity.getIdentityName(bean.getIdentity()));
         }
-        data.add("department", bean.getDepartmentId());
+        data.add("department", departmentService.getDepartmentMap().getOrDefault(bean.getDepartmentId(), "查無此部門"));
+        data.add("gmail", bean.getGmail());
+        data.add("position", bean.getPosition());
 
         boolean isSelf = SecurityUtils.getLoginUserAccount().equals(userId) && bean.getCreateDate().equals(bean.getModifyDate());
         data.add("isWriter", isAdmin || isSelf);
@@ -94,6 +98,7 @@ public class UserAccountController {
                 .data(data)
                 .build();
     }
+
 
     @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @GetMapping(path = "/page")
@@ -107,6 +112,7 @@ public class UserAccountController {
                 .data(SingleValueObjectData.create("totalPage", userAccountService.countUserList(departmentId, identity, name)))
                 .build();
     }
+
 
     @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @GetMapping(path = "/list", params = "nowPage")
@@ -176,6 +182,7 @@ public class UserAccountController {
                 .build();
     }
 
+
     @PatchMapping("/admit")
     public ResponseEntity<String> admitUser(@RequestParam("userId") String userId,
                                             @RequestParam("identity") String identity) {
@@ -187,6 +194,12 @@ public class UserAccountController {
                     .build();
         }
         UserAccountBean bean = new UserAccountBean();
+        if (Identity.isNoPermission(Identity.of(identity).getTypeName()) ||
+                Identity.isAdminTypeName(Identity.of(identity).getTypeName())) {
+            return ResponseEntityBuilder.error()
+                    .message("無法開通成此權限")
+                    .build();
+        }
         bean.setIdentity(Identity.of(identity));
         userAccountService.update(userId, bean);
         return ResponseEntityBuilder.success()
@@ -195,10 +208,11 @@ public class UserAccountController {
     }
 
     private boolean checkUserValueIsNull(UserAccountBean userAccountBean) {
-        return StringUtils.isBlank(userAccountBean.getUserName()) &&
-                userAccountBean.getDepartmentId() == null &&
+        return StringUtils.isBlank(userAccountBean.getUserName()) ||
+                userAccountBean.getDepartmentId() == null ||
                 StringUtils.isBlank(userAccountBean.getPosition());
     }
+
 
     @PatchMapping("/able")
     public ResponseEntity<String> setUserAvailable(@RequestParam("userId") String userId) {
@@ -208,6 +222,15 @@ public class UserAccountController {
         userAccountService.update(userId, userAccountBean);
         return ResponseEntityBuilder.success()
                 .message(userAccountBean.getAvailable() ? "使用者已啟用" : "使用者已停用")
+                .build();
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delUserAccount(@PathVariable("id") String userId) {
+        userAccountService.delete(userId);
+        return ResponseEntityBuilder.success()
+                .message("刪除成功")
                 .build();
     }
 }

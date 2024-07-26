@@ -77,6 +77,7 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
                     userAccount.setUserName((String) payload.get("name"));
                     userAccount.setGmail(email);
                     userAccount.setGoogleId(googleId);
+                    userAccount.setAvailable(true);
 
                     userAccountDAO.save(userAccount);
                 } else {
@@ -117,7 +118,7 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
 
                     @Override
                     public boolean isEnabled() {
-                        return true;
+                        return userAccount.getAvailable();
                     }
                 };
             }
