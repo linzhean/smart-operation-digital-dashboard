@@ -12,6 +12,7 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ProcessStatus;
 import javax.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 @Component
@@ -25,8 +26,8 @@ public class MailSpecification {
             if (StringUtils.isNotBlank(userId)) {
                 predicates.add(criteriaBuilder.equal(root.get(Mail_.RECEIVER), userId));
             }
-            if (StringUtils.isNotBlank(status)) {
-                predicates.add(criteriaBuilder.equal(root.get(Mail_.STATUS), ProcessStatus.of(status).getValue()));
+            if (StringUtils.isNotBlank(status) && EnumSet.allOf(ProcessStatus.class).contains(ProcessStatus.of(status))) {
+                predicates.add(criteriaBuilder.equal(root.get(Mail_.STATUS), ProcessStatus.of(status)));
             }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };

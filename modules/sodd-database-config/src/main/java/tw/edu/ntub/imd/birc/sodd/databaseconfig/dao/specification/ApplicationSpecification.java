@@ -5,11 +5,13 @@ import org.springframework.stereotype.Component;
 import tw.edu.ntub.birc.common.util.StringUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Application_;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Application;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Apply;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
 
 import javax.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 @Component
@@ -23,11 +25,11 @@ public class ApplicationSpecification {
     ) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if (!Identity.isAdmin(identity)) {
+            if (!Identity.isAdminTypeName(Identity.of(identity).getTypeName())) {
                 predicates.add(criteriaBuilder.equal(root.get(Application_.CREATE_ID), userId));
             }
-            if (StringUtils.isNotBlank(status)) {
-                predicates.add(criteriaBuilder.equal(root.get(Application_.APPLY_STATUS), status));
+            if (StringUtils.isNotBlank(status) && EnumSet.allOf(Apply.class).contains(Apply.of(status))) {
+                predicates.add(criteriaBuilder.equal(root.get(Application_.APPLY_STATUS), Apply.of(status)));
             }
             if (startDate != null && endDate != null) {
                 LocalDateTime startDateTime = LocalDateTime.parse(startDate);

@@ -35,6 +35,10 @@ public enum Identity {
         return identity.equals(Identity.getIdentityName(Identity.ADMIN));
     }
 
+    public static boolean isAdminTypeName(String identity) {
+        return identity.equals(Identity.ADMIN.getTypeName());
+    }
+
     public static boolean isNoPermission(String identity) {
         return identity.equals(Identity.NO_PERMISSION.getTypeName());
     }
