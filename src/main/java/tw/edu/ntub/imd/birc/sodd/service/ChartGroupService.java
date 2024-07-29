@@ -4,4 +4,5 @@ import tw.edu.ntub.imd.birc.sodd.bean.ChartGroupBean;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.ChartGroupId;
 
 public interface ChartGroupService extends BaseService<ChartGroupBean, ChartGroupId> {
+    void removeChartFromGroup(Integer chartId, Integer groupId);
 }
