@@ -16,6 +16,7 @@ public class DashboardBean {
     @Size(max = 254, message = "儀表板名稱 - 不得超過{max}個字")
     @NotBlank(message = "儀表板名稱 - 未填寫")
     private String name;
+    private String description;
     @Null(message = "是否可用 - 不得填寫")
     private Boolean available;
     @Null(message = "創建人ID - 不得填寫")

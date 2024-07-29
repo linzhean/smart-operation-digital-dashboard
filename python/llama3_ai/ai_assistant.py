@@ -6,19 +6,19 @@ client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
 
 # 接收來自 Java 的輸入
 
-chart_data = """
-日期       | 生產線 | 產品編號 | 計劃產量 | 實際產量
-2024-07-01 | A      | P001     | 1000     | 950
-2024-07-01 | B      | P002     | 1500     | 1600
-2024-07-02 | A      | P003     | 2000     | 2100
-2024-07-02 | B      | P001     | 1200     | 1100
-2024-07-03 | A      | P002     | 1800     | 1750
-"""
+chart_data = sys.argv[1]
+description = sys.argv[2]
 
 prompt = f"以下是生產數據表格，請分析這些數據並找出其中的規律或重要訊息：\n{chart_data}"
 
 history = [
-    {"role": "system", "content": "You are an intelligent assistant. You always provide well-reasoned answers that are both correct and helpful."},
+    {"role": "system", "content": "You are an intelligent assistant. "
+                                  "You always provide well-reasoned answers that are both correct and helpful."
+                                  "You are a senior executive in a company. Here is your department "
+                                  f"description: {description}"
+                                  "Please tell me the direction or strategies that my department can develop based "
+                                  "on the situation of my department. Don’t tell me what the trends on the picture are like. "
+                                  "I have eyes and can see for myself."},
     {"role": "user", "content": prompt},
 ]
 
