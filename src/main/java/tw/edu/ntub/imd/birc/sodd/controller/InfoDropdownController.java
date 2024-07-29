@@ -15,6 +15,7 @@ import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.CollectionObjectData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.EnumSet;
 
 @AllArgsConstructor
@@ -25,7 +26,8 @@ public class InfoDropdownController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping(path = "")
-    public ResponseEntity<String> searchDropdown(@RequestParam(name = "type", required = false) String type) {
+    public ResponseEntity<String> searchDropdown(@RequestParam(name = "type", required = false) String type,
+                                                 HttpServletRequest request) {
         type = StringUtils.isNotBlank(type) ? type : "-1";
         ObjectData objectData = new ObjectData();
         switch (type) {

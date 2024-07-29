@@ -13,7 +13,7 @@ public class RequestBean {
     private String userAgent;
     private String url;
     private String filePath;
-    private String status;
+    private String message;
     private String requestIpFrom;
     private Identity identity;
     private String requestUserId;

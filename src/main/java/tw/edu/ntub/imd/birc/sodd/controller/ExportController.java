@@ -9,6 +9,7 @@ import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,8 @@ public class ExportController {
 
     @PostMapping("")
     public ResponseEntity<String> setExporterInChart(@RequestParam("chartId") Integer chartId,
-                                                     @RequestBody List<String> userIds) {
+                                                     @RequestBody List<String> userIds,
+                                                     HttpServletRequest request) {
         if (userIds.isEmpty()) {
             Map<String, Integer> originals = exportService.findByChartId(chartId)
                     .stream()
@@ -44,12 +46,14 @@ public class ExportController {
 
     @PostMapping("/export")
     public void exportExcel(@RequestParam("chartId") Integer chartId,
-                                              HttpServletResponse response) {
+                            HttpServletResponse response,
+                            HttpServletRequest request) {
         exportService.export(chartId, response);
     }
 
     @GetMapping("")
-    public ResponseEntity<String> searchByChartId(@RequestParam("chartId") Integer chartId) {
+    public ResponseEntity<String> searchByChartId(@RequestParam("chartId") Integer chartId,
+                                                  HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
         for (ExportBean exportBean : exportService.findByChartId(chartId)) {
             ObjectData objectData = arrayData.addObject();

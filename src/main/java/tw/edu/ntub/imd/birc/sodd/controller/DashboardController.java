@@ -13,6 +13,8 @@ import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 
+import javax.servlet.http.HttpServletRequest;
+
 @AllArgsConstructor
 @RestController
 @RequestMapping("/dashboard")
@@ -21,16 +23,17 @@ public class DashboardController {
 
     @PostMapping("")
     public ResponseEntity<String> addDashboard(@RequestBody DashboardBean dashboardBean,
-                                               BindingResult bindingResult) {
+                                               BindingResult bindingResult,
+                                               HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
         dashboardService.save(dashboardBean);
         return ResponseEntityBuilder.success()
                 .message("新增成功")
                 .build();
     }
-    
+
     @GetMapping("")
-    public ResponseEntity<String> searchByUser() {
+    public ResponseEntity<String> searchByUser(HttpServletRequest request) {
         String userId = SecurityUtils.getLoginUserAccount();
         ArrayData arrayData = new ArrayData();
         for (DashboardBean dashboardBean : dashboardService.searchByUser(userId)) {
@@ -47,7 +50,8 @@ public class DashboardController {
     @PatchMapping("/{id}")
     public ResponseEntity<String> patchDashboard(@PathVariable("id") Integer id,
                                                  @RequestBody DashboardBean dashboardBean,
-                                                 BindingResult bindingResult) {
+                                                 BindingResult bindingResult,
+                                                 HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
         dashboardService.update(id, dashboardBean);
         return ResponseEntityBuilder.success()
@@ -56,7 +60,7 @@ public class DashboardController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delDashboard(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> delDashboard(@PathVariable("id") Integer id, HttpServletRequest request) {
         DashboardBean dashboardBean = new DashboardBean();
         dashboardBean.setAvailable(false);
         dashboardService.update(id, dashboardBean);

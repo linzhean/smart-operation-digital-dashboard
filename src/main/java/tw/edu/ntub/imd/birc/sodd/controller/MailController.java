@@ -16,6 +16,8 @@ import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 
+import javax.servlet.http.HttpServletRequest;
+
 @AllArgsConstructor
 @RestController
 @RequestMapping("/mail")
@@ -24,7 +26,9 @@ public class MailController {
     private final MailMessageService messageService;
 
     @PostMapping("")
-    public ResponseEntity<String> sendAssignMail(@RequestBody MailBean mailBean, BindingResult bindingResult) {
+    public ResponseEntity<String> sendAssignMail(@RequestBody MailBean mailBean,
+                                                 BindingResult bindingResult,
+                                                 HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
         mailService.save(mailBean);
         return ResponseEntityBuilder.success()
@@ -34,7 +38,8 @@ public class MailController {
 
     @PostMapping("/message")
     public ResponseEntity<String> addMessage(@RequestBody MailMessageBean mailMessageBean,
-                                             BindingResult bindingResult) {
+                                             BindingResult bindingResult,
+                                             HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
         messageService.save(mailMessageBean);
         return ResponseEntityBuilder.success()
@@ -43,7 +48,8 @@ public class MailController {
     }
 
     @GetMapping("")
-    public ResponseEntity<String> searchByStatus(@RequestParam("status") String status) {
+    public ResponseEntity<String> searchByStatus(@RequestParam("status") String status,
+                                                 HttpServletRequest request) {
         String userId = SecurityUtils.getLoginUserAccount();
         ArrayData arrayData = new ArrayData();
         for (MailBean mailBean : mailService.searchByStatus(userId, status)) {
@@ -65,7 +71,8 @@ public class MailController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<String> getById(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> getById(@PathVariable("id") Integer id,
+                                          HttpServletRequest request) {
         ObjectData objectData = new ObjectData();
         MailBean mailBean = mailService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此郵件"));
@@ -94,7 +101,8 @@ public class MailController {
 
     @PatchMapping("/message")
     public ResponseEntity<String> patchMessage(@PathVariable("id") Integer messageId,
-                                               @RequestBody MailMessageBean messageBean) {
+                                               @RequestBody MailMessageBean messageBean,
+                                               HttpServletRequest request) {
         messageService.update(messageId, messageBean);
         return ResponseEntityBuilder.success()
                 .message("更新成功")
@@ -102,7 +110,8 @@ public class MailController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delMail(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> delMail(@PathVariable("id") Integer id,
+                                          HttpServletRequest request) {
         MailBean mailBean = mailService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此郵件"));
         if (!ProcessStatus.isSucceeded(mailBean.getStatus())) {
