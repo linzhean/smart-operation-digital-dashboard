@@ -51,17 +51,17 @@ public class RequestServiceImpl extends BaseServiceImpl<RequestBean, Request, In
             requestBean.setRequestUserId(userId);
             Optional<UserAccount> userAccountOptional = userAccountDAO.findById(userId);
             if (userAccountOptional.isPresent()) {
-                requestBean.setIdentity(Identity.of(userId));
+                requestBean.setIdentity(userAccountOptional.get().getIdentity());
             } else {
                 requestBean.setIdentity(Identity.NO_PERMISSION);
             }
         } else {
             requestBean.setIdentity(Identity.NO_PERMISSION);
         }
-        requestBean.setMapping(RequestType.valueOf(request.getMethod()));
+        requestBean.setMapping(RequestType.getByTypeName(request.getMethod()));
         requestBean.setUserAgent(request.getHeader("user-agent"));
         requestBean.setUrl(request.getRequestURI());
-        requestBean.setStatus(request.getMethod());
+        requestBean.setMessage(message);
         requestBean.setRequestIpFrom(request.getRemoteAddr());
         return requestBean;
     }

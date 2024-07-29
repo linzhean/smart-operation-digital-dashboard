@@ -13,6 +13,7 @@ import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +26,8 @@ public class AssignedTaskController {
 
     @PostMapping("")
     public ResponseEntity<String> addAssignedTask(@RequestBody AssignedTaskBean assignedTaskBean,
-                                                  BindingResult bindingResult) {
+                                                  BindingResult bindingResult,
+                                                  HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
         taskService.save(assignedTaskBean);
         return ResponseEntityBuilder.success()
@@ -35,7 +37,8 @@ public class AssignedTaskController {
 
     @PostMapping("/sponsor")
     public ResponseEntity<String> setSponsorInChart(@RequestParam("chartId") Integer chartId,
-                                                    @RequestBody List<String> userIds) {
+                                                    @RequestBody List<String> userIds,
+                                                    HttpServletRequest request) {
         if (userIds.isEmpty()) {
             List<String> originalIds = sponsorService.findByChartId(chartId)
                     .stream()
@@ -47,7 +50,7 @@ public class AssignedTaskController {
                 }
                 originalIds.remove(userId);
             }
-            originalIds.stream().forEach(userId -> sponsorService.removeSponsorFromChart(chartId, userId));
+            originalIds.forEach(userId -> sponsorService.removeSponsorFromChart(chartId, userId));
         }
         return ResponseEntityBuilder.success()
                 .message("設定成功")
@@ -55,7 +58,7 @@ public class AssignedTaskController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<String> searchAll() {
+    public ResponseEntity<String> searchAll(HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
         for (AssignedTaskBean assignedTaskBean : taskService.searchAll()) {
             ObjectData objectData = arrayData.addObject();
@@ -71,7 +74,8 @@ public class AssignedTaskController {
     }
 
     @GetMapping("/sponsor")
-    public ResponseEntity<String> searchSponsorByChartId(@RequestParam("chartId") Integer chartId) {
+    public ResponseEntity<String> searchSponsorByChartId(@RequestParam("chartId") Integer chartId,
+                                                         HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
         for (AssignedTaskSponsorBean sponsorBean : sponsorService.findByChartId(chartId)) {
             ObjectData objectData = arrayData.addObject();
@@ -87,7 +91,8 @@ public class AssignedTaskController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<String> patchAssignTask(@PathVariable("id") Integer id,
-                                                  @RequestBody AssignedTaskBean assignedTaskBean) {
+                                                  @RequestBody AssignedTaskBean assignedTaskBean,
+                                                  HttpServletRequest request) {
         taskService.update(id, assignedTaskBean);
         return ResponseEntityBuilder.success()
                 .message("更新成功")
@@ -95,7 +100,8 @@ public class AssignedTaskController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delAssignTask(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> delAssignTask(@PathVariable("id") Integer id,
+                                                HttpServletRequest request) {
         AssignedTaskBean assignedTaskBean = new AssignedTaskBean();
         assignedTaskBean.setAvailable(false);
         taskService.update(id, assignedTaskBean);

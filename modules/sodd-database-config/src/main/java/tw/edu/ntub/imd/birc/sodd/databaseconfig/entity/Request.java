@@ -61,12 +61,12 @@ public class Request {
     @Column(name = "file_path", length = 150)
     private String filePath;
     /**
-     * 執行結果狀態
+     * 執行結果訊息
      *
      * @since 1.0.0
      */
-    @Column(name = "status", length = 50, nullable = false)
-    private String status;
+    @Column(name = "message", nullable = false)
+    private String message;
     /**
      * 請求來源ip
      *
@@ -87,7 +87,7 @@ public class Request {
      *
      * @since 1.0.0
      */
-    @Column(name = "request_userId", length = 50)
+    @Column(name = "request_user_id", length = 50)
     private String requestUserId;
     /**
      * 請求時間

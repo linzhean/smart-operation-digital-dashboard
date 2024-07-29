@@ -20,6 +20,7 @@ import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.SingleValueObjectData;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @AllArgsConstructor
@@ -32,33 +33,19 @@ public class UserAccountController {
 
 
     @GetMapping(path = "")
-    public ResponseEntity<String> getLoginUser() {
+    public ResponseEntity<String> getLoginUser(HttpServletRequest request) {
         ObjectData objectData = new ObjectData();
         userAccountService
                 .getById(SecurityUtils.getLoginUserAccount())
                 .ifPresentOrElse(
                         userAccountBean -> {
-                            objectData.add("id", userAccountBean.getUserId());
-                            objectData.add("name", userAccountBean.getUserName());
 
                             String identity = SecurityUtils.getLoginUserIdentity();
+                            identity = identity.substring(1, identity.length() - 1);
 
-                            if (Identity.isNoPermission(identity)) {
-                                objectData.add("isNoPermission", true);
-                            } else if (Identity.isEmployee(identity)) {
-                                objectData.add("isEmployee", true);
-                            } else if (Identity.isManager(identity)) {
-                                objectData.add("isManager", true);
-                            } else if (Identity.isAdmin(identity)) {
-                                objectData.add("isAdmin", true);
-                            }
-
-                            ArrayData arrayData = objectData.addArray("charAuths");
-                            for (GroupBean groupBean : groupService.searchByUserId(userAccountBean.getUserId())) {
-                                ObjectData groupData = arrayData.addObject();
-                                groupData.add("groupId", groupBean.getId());
-                                groupData.add("groupName", groupBean.getName());
-                            }
+                            objectData.add("id", userAccountBean.getUserId());
+                            objectData.add("name", userAccountBean.getUserName());
+                            objectData.add("identity", identity);
                         },
                         () -> objectData.add("name", ""));
         return ResponseEntityBuilder.success()
@@ -71,7 +58,7 @@ public class UserAccountController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping(path = "/{userId}")
     public ResponseEntity<String> getByUserId(
-            @PathVariable(name = "userId") String userId) {
+            @PathVariable(name = "userId") String userId, HttpServletRequest request) {
         String identity = SecurityUtils.getLoginUserIdentity();
         boolean isAdmin = identity.equals(Identity.getIdentityName(Identity.ADMIN));
         if (!isAdmin && !SecurityUtils.getLoginUserAccount().equals(userId)) {
@@ -85,11 +72,17 @@ public class UserAccountController {
         ObjectData data = new ObjectData();
         data.add("userName", bean.getUserName());
         if (isAdmin) {
-            data.add("identity", Identity.getIdentityName(bean.getIdentity()));
+            data.add("identity", identity.substring(1, identity.length() - 1));
         }
         data.add("department", departmentService.getDepartmentMap().getOrDefault(bean.getDepartmentId(), "查無此部門"));
         data.add("gmail", bean.getGmail());
         data.add("position", bean.getPosition());
+        ArrayData arrayData = data.addArray("charAuths");
+        for (GroupBean groupBean : groupService.searchByUserId(userId)) {
+            ObjectData groupData = arrayData.addObject();
+            groupData.add("groupId", groupBean.getId());
+            groupData.add("groupName", groupBean.getName());
+        }
 
         boolean isSelf = SecurityUtils.getLoginUserAccount().equals(userId) && bean.getCreateDate().equals(bean.getModifyDate());
         data.add("isWriter", isAdmin || isSelf);
@@ -105,7 +98,8 @@ public class UserAccountController {
     public ResponseEntity<String> countUserList(
             @RequestParam(name = "departmentId", required = false) String departmentId,
             @RequestParam(name = "identity", required = false) String identity,
-            @RequestParam(name = "name", required = false) String name
+            @RequestParam(name = "name", required = false) String name,
+            HttpServletRequest request
     ) {
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
@@ -120,7 +114,8 @@ public class UserAccountController {
             @RequestParam(name = "departmentId", required = false) String departmentId,
             @RequestParam(name = "name", required = false) String name,
             @RequestParam(name = "identity", required = false) String identity,
-            @RequestParam(name = "nowPage") Integer nowPage
+            @RequestParam(name = "nowPage") Integer nowPage,
+            HttpServletRequest request
     ) {
         ArrayData arrayData = new ArrayData();
         for (UserAccountBean bean : userAccountService.searchByUserValue(departmentId, name, identity, nowPage)) {
@@ -145,7 +140,8 @@ public class UserAccountController {
     public ResponseEntity<String> searchAllUser(
             @RequestParam(name = "departmentId", required = false) String departmentId,
             @RequestParam(name = "name", required = false) String name,
-            @RequestParam(name = "identity", required = false) String identity
+            @RequestParam(name = "identity", required = false) String identity,
+            HttpServletRequest request
     ) {
         ArrayData arrayData = new ArrayData();
         for (UserAccountBean bean : userAccountService.searchByUserValue(departmentId, name, identity)) {
@@ -166,7 +162,8 @@ public class UserAccountController {
     @PreAuthorize("isAuthenticated()")
     @PatchMapping(path = "")
     public ResponseEntity<String> updateUserValueByUserId(@RequestBody @Valid UserAccountBean userAccountBean,
-                                                          BindingResult bindingResult) {
+                                                          BindingResult bindingResult,
+                                                          HttpServletRequest request) {
         String identity = SecurityUtils.getLoginUserIdentity();
         boolean isManager = identity.equals(Identity.getIdentityName(Identity.ADMIN));
         if (!isManager && !SecurityUtils.getLoginUserAccount().equals(userAccountBean.getUserId())) {
@@ -185,7 +182,8 @@ public class UserAccountController {
 
     @PatchMapping("/admit")
     public ResponseEntity<String> admitUser(@RequestParam("userId") String userId,
-                                            @RequestParam("identity") String identity) {
+                                            @RequestParam("identity") String identity,
+                                            HttpServletRequest request) {
         UserAccountBean userAccountBean = userAccountService.getById(userId)
                 .orElseThrow(() -> new NotFoundException("查無此使用者"));
         if (checkUserValueIsNull(userAccountBean)) {
@@ -215,7 +213,8 @@ public class UserAccountController {
 
 
     @PatchMapping("/able")
-    public ResponseEntity<String> setUserAvailable(@RequestParam("userId") String userId) {
+    public ResponseEntity<String> setUserAvailable(@RequestParam("userId") String userId,
+                                                   HttpServletRequest request) {
         UserAccountBean userAccountBean = userAccountService.getById(userId)
                 .orElseThrow(() -> new NotFoundException("查無此使用者"));
         userAccountBean.setAvailable(!userAccountBean.getAvailable());
@@ -227,7 +226,8 @@ public class UserAccountController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delUserAccount(@PathVariable("id") String userId) {
+    public ResponseEntity<String> delUserAccount(@PathVariable("id") String userId,
+                                                 HttpServletRequest request) {
         userAccountService.delete(userId);
         return ResponseEntityBuilder.success()
                 .message("刪除成功")

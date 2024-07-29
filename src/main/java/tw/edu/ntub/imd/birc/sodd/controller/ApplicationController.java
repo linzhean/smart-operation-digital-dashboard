@@ -16,6 +16,8 @@ import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.SingleValueObjectData;
 
+import javax.servlet.http.HttpServletRequest;
+
 @AllArgsConstructor
 @RestController
 @RequestMapping("/application")
@@ -24,7 +26,8 @@ public class ApplicationController {
 
     @PostMapping("")
     public ResponseEntity<String> addApplication(@RequestBody ApplicationBean applicationBean,
-                                                 BindingResult bindingResult) {
+                                                 BindingResult bindingResult,
+                                                 HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
         applicationService.save(applicationBean);
         return ResponseEntityBuilder.success()
@@ -36,7 +39,8 @@ public class ApplicationController {
     public ResponseEntity<String> searchApplication(@RequestParam("status") String status,
                                                     @RequestParam(value = "startDate", required = false) String startDate,
                                                     @RequestParam(value = "endDate", required = false) String endDate,
-                                                    @RequestParam("nowPage") Integer nowPage) {
+                                                    @RequestParam("nowPage") Integer nowPage,
+                                                    HttpServletRequest request) {
         String userId = SecurityUtils.getLoginUserAccount();
         String identity = SecurityUtils.getLoginUserIdentity();
         String errorMessage = checkDateForm(startDate, endDate);
@@ -72,7 +76,8 @@ public class ApplicationController {
     @GetMapping("/page")
     public ResponseEntity<String> countApplication(@RequestParam("status") String status,
                                                    @RequestParam(value = "startDate", required = false) String startDate,
-                                                   @RequestParam(value = "endDate", required = false) String endDate) {
+                                                   @RequestParam(value = "endDate", required = false) String endDate,
+                                                   HttpServletRequest request) {
         String userId = SecurityUtils.getLoginUserAccount();
         String identity = SecurityUtils.getLoginUserIdentity();
         String errorMessage = checkDateForm(startDate, endDate);
@@ -90,7 +95,8 @@ public class ApplicationController {
 
     @PatchMapping("/permit/{id}")
     public ResponseEntity<String> permitApplication(@PathVariable("id") Integer id,
-                                                    @RequestParam(value = "groupId") Integer groupId) {
+                                                    @RequestParam(value = "groupId") Integer groupId,
+                                                    HttpServletRequest request) {
         String userId = SecurityUtils.getLoginUserAccount();
         ApplicationBean applicationBean = applicationService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此申請"));
@@ -106,7 +112,8 @@ public class ApplicationController {
     }
 
     @PatchMapping("/close/{id}")
-    public ResponseEntity<String> closeApplication(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> closeApplication(@PathVariable("id") Integer id,
+                                                   HttpServletRequest request) {
         ApplicationBean applicationBean = applicationService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此申請"));
         if (Apply.isClosed(applicationBean.getApplyStatus())) {
@@ -121,7 +128,8 @@ public class ApplicationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delApplication(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> delApplication(@PathVariable("id") Integer id,
+                                                 HttpServletRequest request) {
         ApplicationBean applicationBean = applicationService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此申請"));
         if (!Apply.isClosed(applicationBean.getApplyStatus())) {
