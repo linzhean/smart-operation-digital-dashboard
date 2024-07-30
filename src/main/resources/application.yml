@@ -14,17 +14,6 @@ spring:
     multipart:
       max-file-size: 200MB
       max-request-size: 250MB
-  mail:
-    host: smtp.gmail.com
-    port: 465
-    username: ${ils-cms.mail.account}
-    password: ${ils-cms.mail.password}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
   datasource:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
     url: ${sodd.database.url}
