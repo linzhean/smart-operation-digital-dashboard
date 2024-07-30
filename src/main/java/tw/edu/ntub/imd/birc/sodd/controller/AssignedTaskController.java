@@ -6,6 +6,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.imd.birc.sodd.bean.AssignedTaskBean;
 import tw.edu.ntub.imd.birc.sodd.bean.AssignedTaskSponsorBean;
+import tw.edu.ntub.imd.birc.sodd.dto.ListDTO;
 import tw.edu.ntub.imd.birc.sodd.service.AssignedTaskService;
 import tw.edu.ntub.imd.birc.sodd.service.AssignedTaskSponsorService;
 import tw.edu.ntub.imd.birc.sodd.util.http.BindingResultUtils;
@@ -37,12 +38,13 @@ public class AssignedTaskController {
 
     @PostMapping("/sponsor")
     public ResponseEntity<String> setSponsorInChart(@RequestParam("chartId") Integer chartId,
-                                                    @RequestBody List<String> userIds,
+                                                    @RequestBody ListDTO listDTO,
                                                     HttpServletRequest request) {
-        if (userIds.isEmpty()) {
+        List<String> userIds = listDTO.getSponsorList();
+        if (!userIds.isEmpty()) {
             List<String> originalIds = sponsorService.findByChartId(chartId)
                     .stream()
-                    .map(sponsorBean -> sponsorBean.getSponsorUserId())
+                    .map(AssignedTaskSponsorBean::getSponsorUserId)
                     .collect(Collectors.toList());
             for (String userId : userIds) {
                 if (!originalIds.contains(userId)) {

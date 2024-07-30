@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.birc.common.exception.ProjectException;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
+import tw.edu.ntub.imd.birc.sodd.dto.ListDTO;
 import tw.edu.ntub.imd.birc.sodd.service.ChartDashboardService;
 import tw.edu.ntub.imd.birc.sodd.service.ChartService;
 import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
@@ -29,9 +30,10 @@ public class ChartController {
 
     @PostMapping("/dashboard")
     public ResponseEntity<String> setChartInDashboard(@RequestParam("dashboardId") Integer dashboardId,
-                                                      @RequestBody List<Integer> chartIds,
+                                                      @RequestBody ListDTO listDTO,
                                                       HttpServletRequest request) {
-        if (chartIds.isEmpty()) {
+        List<Integer> chartIds = listDTO.getDashboardCharts();
+        if (!chartIds.isEmpty()) {
             List<Integer> originalIds = chartService.searchChartIdsByDashboardId(dashboardId);
             for (Integer chartId : chartIds) {
                 if (!originalIds.contains(chartId)) {

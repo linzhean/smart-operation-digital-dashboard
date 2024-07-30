@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.imd.birc.sodd.bean.ExportBean;
+import tw.edu.ntub.imd.birc.sodd.dto.ListDTO;
 import tw.edu.ntub.imd.birc.sodd.service.ExportService;
 import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
@@ -23,9 +24,10 @@ public class ExportController {
 
     @PostMapping("")
     public ResponseEntity<String> setExporterInChart(@RequestParam("chartId") Integer chartId,
-                                                     @RequestBody List<String> userIds,
+                                                     @RequestBody ListDTO listDTO,
                                                      HttpServletRequest request) {
-        if (userIds.isEmpty()) {
+        List<String> userIds = listDTO.getExporterList();
+        if (!userIds.isEmpty()) {
             Map<String, Integer> originals = exportService.findByChartId(chartId)
                     .stream()
                     .collect(Collectors.toMap(ExportBean::getExporter, ExportBean::getId));
