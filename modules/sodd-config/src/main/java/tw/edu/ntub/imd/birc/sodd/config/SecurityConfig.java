@@ -134,6 +134,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "https://smart-operation-digital-dashboard.kuohao.wtf",
                 "http://140.131.114.166:8080",
                 "http://localhost:3000"
+                "*"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Collections.singletonList("*"));
