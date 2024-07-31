@@ -40,6 +40,17 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  mail:
+    host: smtp.office365.com
+    port: 587
+    username: ${ils-cms.mail.account}
+    password: ${ils-cms.mail.password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 server:
   port: 8080
   servlet:
