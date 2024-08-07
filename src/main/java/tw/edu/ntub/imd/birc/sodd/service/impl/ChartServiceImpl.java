@@ -64,7 +64,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                 .stream()
                 .map(chartDashboard ->
                         transformer.transferToBean(chartDAO.getById(chartDashboard.getChartId())))
-                .map(chartBean -> {
+                .peek(chartBean -> {
                     try {
                         chartBean.setChart(generateChart(chartBean.getScriptPath()));
                     } catch (IOException e) {
@@ -75,7 +75,6 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                             }
                         };
                     }
-                    return chartBean;
                 })
                 .collect(Collectors.toList());
     }
