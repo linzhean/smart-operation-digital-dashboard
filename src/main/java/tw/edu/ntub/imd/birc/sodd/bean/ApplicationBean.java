@@ -14,7 +14,7 @@ public class ApplicationBean {
     private Integer id;
     @NotNull(message = "圖表ID - 未填寫")
     private Integer chartId;
-    @NotBlank(message = "申請人ID - 未填寫")
+    @Null(message = "申請人ID - 不得填寫")
     private String applicant;
     @NotBlank(message = "保證人ID - 未填寫")
     private String guarantor;

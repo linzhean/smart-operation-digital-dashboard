@@ -31,7 +31,7 @@ public class ApplicationSpecification {
             if (StringUtils.isNotBlank(status) && EnumSet.allOf(Apply.class).contains(Apply.of(status))) {
                 predicates.add(criteriaBuilder.equal(root.get(Application_.APPLY_STATUS), Apply.of(status)));
             }
-            if (startDate != null && endDate != null) {
+            if (StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {
                 LocalDateTime startDateTime = LocalDateTime.parse(startDate);
                 LocalDateTime endDateTime = LocalDateTime.parse(endDate);
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(Application_.CREATE_DATE), startDateTime));
