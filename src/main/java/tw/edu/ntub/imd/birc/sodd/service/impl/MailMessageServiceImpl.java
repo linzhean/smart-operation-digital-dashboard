@@ -30,9 +30,7 @@ public class MailMessageServiceImpl extends BaseServiceImpl<MailMessageBean, Mai
     public MailMessageBean save(MailMessageBean mailMessageBean) {
         MailMessage mailMessage = transformer.transferToEntity(mailMessageBean);
         mailMessageDAO.findByMailId(mailMessageBean.getMailId())
-                .stream()
-                .sorted(Comparator.comparing(MailMessage::getMessageId).reversed())
-                .findFirst()
+                .stream().max(Comparator.comparing(MailMessage::getMessageId))
                 .ifPresent(message -> mailMessage.setMessageId(message.getMessageId()));
         return transformer.transferToBean(mailMessageDAO.save(mailMessage));
     }
