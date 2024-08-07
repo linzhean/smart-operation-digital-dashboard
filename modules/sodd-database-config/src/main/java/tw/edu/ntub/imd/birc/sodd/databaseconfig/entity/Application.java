@@ -5,6 +5,7 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.Config;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.ApplyConverter;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.converter.BooleanTo1And0Converter;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Apply;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.listener.ApplicationListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Entity
+@EntityListeners(ApplicationListener.class)
 @Table(name = "application", schema = Config.DATABASE_NAME)
 public class Application {
     /**

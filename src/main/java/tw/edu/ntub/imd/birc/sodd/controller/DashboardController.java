@@ -37,7 +37,7 @@ public class DashboardController {
         String userId = SecurityUtils.getLoginUserAccount();
         ArrayData arrayData = new ArrayData();
         for (DashboardBean dashboardBean : dashboardService.searchByUser(userId)) {
-            ObjectData objectData = new ObjectData();
+            ObjectData objectData = arrayData.addObject();
             objectData.add("id", dashboardBean.getId());
             objectData.add("name", dashboardBean.getName());
         }

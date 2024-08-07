@@ -48,14 +48,12 @@ public class UserGroupServiceImpl extends BaseServiceImpl<UserGroupBean, UserGro
     public void removeUserFromGroup(String userId, Integer groupId) {
         UserGroupBean userGroupBean = new UserGroupBean();
         userGroupBean.setAvailable(false);
-        UserGroupId userGroupId = new UserGroupId();
-        userGroupId.setUserId(userId);
-        userGroupId.setGroupId(groupId);
+        UserGroupId userGroupId = new UserGroupId(userId, groupId);
         super.update(userGroupId, userGroupBean);
     }
 
     @Override
-    public List<UserAccountBean> searchAllUserByGroupId(Integer groupId, String userName, String department, String position) {
+    public List<UserAccountBean> searchUserByGroupId(Integer groupId, String userName, String department, String position) {
         List<UserAccount> userAccounts = userGroupDAO.findAll(
                         userGroupSpecification.checkBlank(groupId, department, position))
                 .stream()

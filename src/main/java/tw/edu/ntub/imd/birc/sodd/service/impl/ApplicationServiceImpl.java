@@ -1,6 +1,5 @@
 package tw.edu.ntub.imd.birc.sodd.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Service;
 import tw.edu.ntub.birc.common.util.CollectionUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.ApplicationBean;
 import tw.edu.ntub.imd.birc.sodd.bean.UserGroupBean;
+import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.ApplicationDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.specification.ApplicationSpecification;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Application;
@@ -19,6 +19,8 @@ import tw.edu.ntub.imd.birc.sodd.service.UserGroupService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.ApplicationTransformer;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 
@@ -50,6 +52,10 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
     @Override
     public ApplicationBean save(ApplicationBean applicationBean) {
         Application application = transformer.transferToEntity(applicationBean);
+        application.setApplicant(SecurityUtils.getLoginUserAccount());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        application.setStartDate(LocalDateTime.parse(applicationBean.getStartDateStr(), formatter));
+        application.setEndDate(LocalDateTime.parse(applicationBean.getEndDateStr(), formatter));
         return transformer.transferToBean(applicationDAO.save(application));
     }
 

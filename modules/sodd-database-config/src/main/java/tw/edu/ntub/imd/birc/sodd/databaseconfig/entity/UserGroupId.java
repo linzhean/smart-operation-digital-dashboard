@@ -1,12 +1,16 @@
 package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
 import java.io.Serializable;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserGroupId implements Serializable {
     /**
      * 使用者ID

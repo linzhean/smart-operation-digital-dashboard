@@ -68,7 +68,7 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
 
                 String email = (String) payload.get("email");
                 String userId = EmailTransformUtils.remove(email);
-                Optional<UserAccount> optional = userAccountDAO.findById(email);
+                Optional<UserAccount> optional = userAccountDAO.findById(userId);
 
                 UserAccount userAccount;
                 if (optional.isEmpty()) {

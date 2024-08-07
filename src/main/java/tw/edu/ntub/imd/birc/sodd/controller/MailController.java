@@ -9,6 +9,7 @@ import tw.edu.ntub.imd.birc.sodd.bean.MailMessageBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ProcessStatus;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
+import tw.edu.ntub.imd.birc.sodd.service.AssignedTaskSponsorService;
 import tw.edu.ntub.imd.birc.sodd.service.MailMessageService;
 import tw.edu.ntub.imd.birc.sodd.service.MailService;
 import tw.edu.ntub.imd.birc.sodd.util.http.BindingResultUtils;
@@ -17,6 +18,7 @@ import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @AllArgsConstructor
 @RestController
@@ -26,7 +28,7 @@ public class MailController {
     private final MailMessageService messageService;
 
     @PostMapping("")
-    public ResponseEntity<String> sendAssignMail(@RequestBody MailBean mailBean,
+    public ResponseEntity<String> sendAssignMail(@Valid @RequestBody MailBean mailBean,
                                                  BindingResult bindingResult,
                                                  HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
@@ -59,7 +61,6 @@ public class MailController {
             objectData.add("chartId", mailBean.getChartId());
             objectData.add("name", mailBean.getName());
             objectData.add("status", ProcessStatus.getProcessStatusName(mailBean.getStatus()));
-            objectData.add("content", mailBean.getContent());
             objectData.add("publisher", mailBean.getPublisher());
             objectData.add("receiver", mailBean.getReceiver());
             objectData.add("emailSendTime", mailBean.getEmailSendTime());
@@ -81,7 +82,6 @@ public class MailController {
         objectData.add("chartId", mailBean.getChartId());
         objectData.add("name", mailBean.getName());
         objectData.add("status", ProcessStatus.getProcessStatusName(mailBean.getStatus()));
-        objectData.add("content", mailBean.getContent());
         objectData.add("publisher", mailBean.getPublisher());
         objectData.add("receiver", mailBean.getReceiver());
         objectData.add("emailSendTime", mailBean.getEmailSendTime());
@@ -99,7 +99,7 @@ public class MailController {
                 .build();
     }
 
-    @PatchMapping("/message")
+    @PatchMapping("/message/{id}")
     public ResponseEntity<String> patchMessage(@PathVariable("id") Integer messageId,
                                                @RequestBody MailMessageBean messageBean,
                                                HttpServletRequest request) {

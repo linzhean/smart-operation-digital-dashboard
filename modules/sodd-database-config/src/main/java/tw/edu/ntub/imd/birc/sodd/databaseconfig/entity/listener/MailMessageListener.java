@@ -17,7 +17,7 @@ public class MailMessageListener {
         if (mailMessage.getAvailable() == null) {
             mailMessage.setAvailable(true);
         }
-        if (StringUtils.isBlank(userId)) {
+        if (StringUtils.isBlank(mailMessage.getCreateId())) {
             mailMessage.setCreateId(userId);
         }
         if (mailMessage.getCreateDate() == null) {

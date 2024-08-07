@@ -43,12 +43,6 @@ public class ApplicationController {
                                                     HttpServletRequest request) {
         String userId = SecurityUtils.getLoginUserAccount();
         String identity = SecurityUtils.getLoginUserIdentity();
-        String errorMessage = checkDateForm(startDate, endDate);
-        if (StringUtils.isNotBlank(errorMessage)) {
-            return ResponseEntityBuilder.error()
-                    .message("請填寫" + errorMessage)
-                    .build();
-        }
         ArrayData arrayData = new ArrayData();
         for (ApplicationBean applicationBean :
                 applicationService.searchApplication(userId, identity, status, startDate, endDate, nowPage)) {
@@ -66,13 +60,6 @@ public class ApplicationController {
                 .build();
     }
 
-    private String checkDateForm(String startDate, String endDate) {
-        if (StringUtils.isNotBlank(startDate) != StringUtils.isNotBlank(endDate)) {
-            return StringUtils.isNotBlank(startDate) ? endDate : startDate;
-        }
-        return "";
-    }
-
     @GetMapping("/page")
     public ResponseEntity<String> countApplication(@RequestParam("status") String status,
                                                    @RequestParam(value = "startDate", required = false) String startDate,
@@ -80,12 +67,6 @@ public class ApplicationController {
                                                    HttpServletRequest request) {
         String userId = SecurityUtils.getLoginUserAccount();
         String identity = SecurityUtils.getLoginUserIdentity();
-        String errorMessage = checkDateForm(startDate, endDate);
-        if (StringUtils.isNotBlank(errorMessage)) {
-            return ResponseEntityBuilder.error()
-                    .message("請填寫" + errorMessage)
-                    .build();
-        }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
                 .data(SingleValueObjectData.create("totalPage",

@@ -27,28 +27,28 @@ public class Mail {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Integer id;
     /**
      * 交辦事項ID
      *
      * @since 1.0.0
      */
-    @Column(name = "assigned_task_id")
+    @Column(name = "assigned_task_id", nullable = false)
     private Integer assignedTaskId;
     /**
      * 圖表ID
      *
      * @since 1.0.0
      */
-    @Column(name = "chart_id")
+    @Column(name = "chart_id", nullable = false)
     private Integer chartId;
     /**
      * 郵件名稱
      *
      * @since 1.0.0
      */
-    @Column(name = "name")
+    @Column(name = "name", length = 254, nullable = false)
     private String name;
     /**
      * 郵件狀態
@@ -56,35 +56,28 @@ public class Mail {
      * @since 1.0.0
      */
     @Convert(converter = ProcessStatusConverter.class)
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private ProcessStatus status;
-    /**
-     * 郵件內容
-     *
-     * @since 1.0.0
-     */
-    @Column(name = "content")
-    private String content;
     /**
      * 郵件發起人
      *
      * @since 1.0.0
      */
-    @Column(name = "publisher")
+    @Column(name = "publisher", length = 254, nullable = false)
     private String publisher;
     /**
      * 郵件接收人
      *
      * @since 1.0.0
      */
-    @Column(name = "receiver")
+    @Column(name = "receiver", length = 254, nullable = false)
     private String receiver;
     /**
      * 郵件發送時間
      *
      * @since 1.0.0
      */
-    @Column(name = "email_send_time")
+    @Column(name = "email_send_time", nullable = false)
     private LocalDateTime emailSendTime;
     /**
      * 是否啟用(0: 不啟用 1:啟用)
@@ -92,34 +85,34 @@ public class Mail {
      * @since 1.0.0
      */
     @Convert(converter = BooleanTo1And0Converter.class)
-    @Column(name = "available")
+    @Column(name = "available", nullable = false)
     private Boolean available;
     /**
      * 創建人ID
      *
      * @since 1.0.0
      */
-    @Column(name = "create_id")
+    @Column(name = "create_id", length = 254, nullable = false)
     private String createId;
     /**
      * 創建日期
      *
      * @since 1.0.0
      */
-    @Column(name = "create_date")
+    @Column(name = "create_date", nullable = false)
     private LocalDateTime createDate;
     /**
      * 修改人ID
      *
      * @since 1.0.0
      */
-    @Column(name = "modify_id")
+    @Column(name = "modify_id", length = 254, nullable = false)
     private String modifyId;
     /**
      * 修改日期
      *
      * @since 1.0.0
      */
-    @Column(name = "modify_date")
+    @Column(name = "modify_date", nullable = false)
     private LocalDateTime modifyDate;
 }

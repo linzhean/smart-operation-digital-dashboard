@@ -41,10 +41,10 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   mail:
-    host: smtp.office365.com
+    host: smtp.gmail.com
     port: 587
-    username: ${ils-cms.mail.account}
-    password: ${ils-cms.mail.password}
+    username: ${sodd.mail.account}
+    password: ${sodd.mail.password}
     properties:
       mail:
         smtp:

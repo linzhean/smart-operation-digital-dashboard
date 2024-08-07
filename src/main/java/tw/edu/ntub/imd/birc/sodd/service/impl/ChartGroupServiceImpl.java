@@ -31,9 +31,7 @@ public class ChartGroupServiceImpl extends BaseServiceImpl<ChartGroupBean, Chart
     public void removeChartFromGroup(Integer chartId, Integer groupId) {
         ChartGroupBean chartGroupBean = new ChartGroupBean();
         chartGroupBean.setAvailable(false);
-        ChartGroupId chartGroupId = new ChartGroupId();
-        chartGroupId.setChartId(chartId);
-        chartGroupId.setGroupId(groupId);
+        ChartGroupId chartGroupId = new ChartGroupId(chartId, groupId);
         super.update(chartGroupId, chartGroupBean);
     }
 }
