@@ -9,9 +9,11 @@ import java.time.LocalDateTime;
 
 @Data
 public class MailMessageBean {
-    @Null(message = "流水號 - 不得填寫")
+    @Null(message = "訊息流水號 - 不得填寫")
     private Integer id;
+    @Null(message = "郵件ID - 不得填寫")
     private Integer mailId;
+    @NotBlank(message = "訊息ID - 不得填寫")
     private Integer messageId;
     @NotBlank(message = "郵件內容 - 未填寫")
     private String content;
