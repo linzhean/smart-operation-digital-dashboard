@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class ExportBean {
-    @Null(message = "流水號 - 不得填寫")
+    @Null(message = "匯出流水號 - 不得填寫")
     private Integer id;
     @NotNull(message = "圖表ID - 未填寫")
     private Integer chartId;

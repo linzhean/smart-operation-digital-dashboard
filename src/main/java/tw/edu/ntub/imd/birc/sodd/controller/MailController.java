@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import tw.edu.ntub.birc.common.util.StringUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.AssignedTaskBean;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
 import tw.edu.ntub.imd.birc.sodd.bean.MailBean;
@@ -30,10 +31,15 @@ public class MailController {
     private final AssignedTaskService assignedTaskService;
 
     @PostMapping("")
-    public ResponseEntity<String> sendAssignMail(@Valid @RequestBody MailBean mailBean,
+    public ResponseEntity<String> sendAssignMail(@RequestBody MailBean mailBean,
                                                  BindingResult bindingResult,
                                                  HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
+        if (StringUtils.isBlank(mailBean.getFirstMessage().getContent())) {
+            return ResponseEntityBuilder.error()
+                    .message("郵件訊息 - 未填寫")
+                    .build();
+        }
         mailService.save(mailBean);
         return ResponseEntityBuilder.success()
                 .message("交辦發送成功")
@@ -59,7 +65,7 @@ public class MailController {
         String userId = SecurityUtils.getLoginUserAccount();
         ArrayData arrayData = new ArrayData();
         for (MailBean mailBean : mailService.searchByStatus(userId, status)) {
-            String chartName = chartService.getById(mailBean.getId())
+            String chartName = chartService.getById(mailBean.getChartId())
                     .map(ChartBean::getName)
                     .orElseThrow(() -> new NotFoundException("查無此圖表"));
             ObjectData objectData = arrayData.addObject();
@@ -70,8 +76,8 @@ public class MailController {
             objectData.add("publisher", mailBean.getPublisher());
             objectData.add("receiver", mailBean.getReceiver());
             objectData.add("emailSendTime", mailBean.getEmailSendTime());
-            if (mailBean.getAssignedTaskId() == null) {
-                String assignedTaskName = assignedTaskService.getById(mailBean.getId())
+            if (mailBean.getAssignedTaskId() != null) {
+                String assignedTaskName = assignedTaskService.getById(mailBean.getAssignedTaskId())
                         .map(AssignedTaskBean::getName)
                         .orElseThrow(() -> new NotFoundException("查無此交辦"));
                 objectData.add("assignedTaskName", assignedTaskName);
@@ -89,7 +95,7 @@ public class MailController {
         ObjectData objectData = new ObjectData();
         MailBean mailBean = mailService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此郵件"));
-        String chartName = chartService.getById(mailBean.getId())
+        String chartName = chartService.getById(mailBean.getChartId())
                 .map(ChartBean::getName)
                 .orElseThrow(() -> new NotFoundException("查無此圖表"));
         objectData.add("id", mailBean.getId());
@@ -99,8 +105,8 @@ public class MailController {
         objectData.add("publisher", mailBean.getPublisher());
         objectData.add("receiver", mailBean.getReceiver());
         objectData.add("emailSendTime", mailBean.getEmailSendTime());
-        if (mailBean.getAssignedTaskId() == null) {
-            String assignedTaskName = assignedTaskService.getById(mailBean.getId())
+        if (mailBean.getAssignedTaskId() != null) {
+            String assignedTaskName = assignedTaskService.getById(mailBean.getAssignedTaskId())
                     .map(AssignedTaskBean::getName)
                     .orElseThrow(() -> new NotFoundException("查無此交辦"));
             objectData.add("assignedTaskName", assignedTaskName);
