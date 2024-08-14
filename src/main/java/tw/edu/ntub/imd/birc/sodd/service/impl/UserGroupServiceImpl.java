@@ -9,7 +9,6 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.UserGroupDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.specification.UserGroupSpecification;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserGroup;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserGroupId;
 import tw.edu.ntub.imd.birc.sodd.service.UserGroupService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.UserAccountTransformer;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.UserGroupTransformer;
@@ -18,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UserGroupServiceImpl extends BaseServiceImpl<UserGroupBean, UserGroup, UserGroupId> implements UserGroupService {
+public class UserGroupServiceImpl extends BaseServiceImpl<UserGroupBean, UserGroup, Integer> implements UserGroupService {
     private final UserGroupDAO userGroupDAO;
     private final UserAccountDAO userAccountDAO;
     private final UserGroupTransformer transformer;
@@ -45,20 +44,16 @@ public class UserGroupServiceImpl extends BaseServiceImpl<UserGroupBean, UserGro
     }
 
     @Override
-    public void removeUserFromGroup(String userId, Integer groupId) {
-        UserGroupBean userGroupBean = new UserGroupBean();
-        userGroupBean.setAvailable(false);
-        UserGroupId userGroupId = new UserGroupId(userId, groupId);
-        super.update(userGroupId, userGroupBean);
-    }
-
-    @Override
     public List<UserAccountBean> searchUserByGroupId(Integer groupId, String userName, String department, String position) {
-        List<UserAccount> userAccounts = userGroupDAO.findAll(
+        return userGroupDAO.findAll(
                         userGroupSpecification.checkBlank(groupId, department, position))
                 .stream()
-                .map(userGroup -> userAccountDAO.getById(userGroup.getUserId()))
+                .map(userGroup -> {
+                    UserAccountBean userAccountBean = userAccountTransformer.transferToBean(
+                            userAccountDAO.getById(userGroup.getUserId()));
+                    userAccountBean.setUserGroupId(userGroup.getId());
+                    return userAccountBean;
+                })
                 .collect(Collectors.toList());
-        return CollectionUtils.map(userAccounts, userAccountTransformer::transferToBean);
     }
 }

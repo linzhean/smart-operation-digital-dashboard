@@ -91,19 +91,24 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
         Application application = transformer.transferToEntity(applicationBean);
         application.setApplyStatus(Apply.PASSED);
         applicationDAO.update(application);
-        UserGroupBean userGroupBean = new UserGroupBean();
-        userGroupBean.setUserId(userId);
-        userGroupBean.setGroupId(groupId);
-        startTask = taskScheduler.schedule(() -> startViewingChart(application, userGroupBean),
-                Instant.from(application.getStartDate()));
-        endTask = taskScheduler.schedule(() -> userGroupService.removeUserFromGroup(userId, groupId),
-                Instant.from(application.getEndDate()));
-    }
-
-    private void startViewingChart(Application application, UserGroupBean userGroupBean) {
-        application.setApplyStatus(Apply.ACTIVATING);
-        applicationDAO.update(application);
-        userGroupService.save(userGroupBean);
+        // 申請啟用任務裡啟動結束任務
+        startTask = taskScheduler.schedule(() -> {
+            application.setApplyStatus(Apply.ACTIVATING);
+            applicationDAO.update(application);
+            UserGroupBean userGroupBean = new UserGroupBean();
+            userGroupBean.setUserId(userId);
+            userGroupBean.setGroupId(groupId);
+            userGroupBean = userGroupService.save(userGroupBean);
+            int userGroupId = userGroupBean.getId();
+            endTask = taskScheduler.schedule(() -> {
+                        ApplicationBean closeApplication = new ApplicationBean();
+                        closeApplication.setApplyStatus(Apply.CLOSED);
+                        update(applicationBean.getId(), closeApplication);
+                        UserGroupBean bean = new UserGroupBean();
+                        bean.setAvailable(false);
+                        userGroupService.update(userGroupId, bean);
+                    }, Instant.from(application.getEndDate()));
+        }, Instant.from(application.getStartDate()));
     }
 
     @Override

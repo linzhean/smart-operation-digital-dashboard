@@ -5,10 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.imd.birc.sodd.bean.*;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.ChartGroupId;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserGroup;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserGroupId;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.*;
 import tw.edu.ntub.imd.birc.sodd.util.http.BindingResultUtils;
@@ -49,13 +45,6 @@ public class GroupController {
                 .orElseThrow(() -> new NotFoundException("查無此使用者: " + userId));
         groupService.getById(groupId)
                 .orElseThrow(() -> new NotFoundException("查無此群組: " + groupId));
-        UserGroupId userGroupId = new UserGroupId(userId, groupId);
-        Optional<UserGroupBean> userGroupOptional = userGroupService.getById(userGroupId);
-        if (userGroupOptional.isPresent()) {
-            return ResponseEntityBuilder.success()
-                    .message("您已經新增" + userId + "至群組了")
-                    .build();
-        }
         UserGroupBean userGroupBean = new UserGroupBean();
         userGroupBean.setUserId(userId);
         userGroupBean.setGroupId(groupId);
@@ -69,17 +58,10 @@ public class GroupController {
     public ResponseEntity<String> addChartToGroup(@RequestParam("groupId") Integer groupId,
                                                   @RequestParam("chartId") Integer chartId,
                                                   HttpServletRequest request) {
-        ChartBean chartBean = chartService.getById(chartId)
+        chartService.getById(chartId)
                 .orElseThrow(() -> new NotFoundException("查無此圖表: " + chartId));
         groupService.getById(groupId)
                 .orElseThrow(() -> new NotFoundException("查無此群組: " + groupId));
-        ChartGroupId chartGroupId = new ChartGroupId(chartId, groupId);
-        Optional<ChartGroupBean> chartGroupOptional = chartGroupService.getById(chartGroupId);
-        if (chartGroupOptional.isPresent()) {
-            return ResponseEntityBuilder.success()
-                    .message("您已經新增" + chartBean.getName() + "至群組了")
-                    .build();
-        }
         ChartGroupBean chartGroupBean = new ChartGroupBean();
         chartGroupBean.setGroupId(groupId);
         chartGroupBean.setChartId(chartId);
@@ -103,7 +85,7 @@ public class GroupController {
                 .build();
     }
 
-    @GetMapping("/{groupId}")
+    @GetMapping("/user/{groupId}")
     public ResponseEntity<String> searchUsersByGroupId(@PathVariable("groupId") Integer groupId,
                                                        @RequestParam(value = "userName", required = false) String userName,
                                                        @RequestParam(value = "department", required = false) String department,
@@ -113,6 +95,7 @@ public class GroupController {
         for (UserAccountBean userAccountBean : userGroupService
                 .searchUserByGroupId(groupId, userName, department, position)) {
             ObjectData objectData = arrayData.addObject();
+            objectData.add("userGroupId", userAccountBean.getUserGroupId());
             objectData.add("userId", userAccountBean.getUserId());
             objectData.add("userName", userAccountBean.getUserName());
             objectData.add("department", departmentService.getDepartmentMap()
@@ -120,6 +103,24 @@ public class GroupController {
             objectData.add("gmail", userAccountBean.getGmail());
             objectData.add("identity", userAccountBean.getIdentity().getTypeName());
             objectData.add("position", userAccountBean.getPosition());
+        }
+        return ResponseEntityBuilder.success()
+                .message("查詢成功")
+                .data(arrayData)
+                .build();
+    }
+
+    @GetMapping("/chart/{groupId}")
+    public ResponseEntity<String> searchChartsByGroupId(@PathVariable("groupId") Integer groupId,
+                                                       HttpServletRequest request) {
+        ArrayData arrayData = new ArrayData();
+        for (ChartBean chartBean : chartGroupService
+                .searchChartByGroupId(groupId)) {
+            ObjectData objectData = arrayData.addObject();
+            objectData.add("chartId", chartBean.getId());
+            objectData.add("chartName", chartBean.getName());
+            objectData.add("showcaseImage", chartBean.getShowcaseImage());
+            objectData.add("chartGroupId", chartBean.getChartGroupId());
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
@@ -140,20 +141,22 @@ public class GroupController {
     }
 
     @DeleteMapping("/user")
-    public ResponseEntity<String> removeUserFromGroup(@RequestParam("userId") String userId,
-                                                      @RequestParam("groupId") Integer groupId,
+    public ResponseEntity<String> removeUserFromGroup(@RequestParam("userGroupId") Integer userGroupId,
                                                       HttpServletRequest request) {
-        userGroupService.removeUserFromGroup(userId, groupId);
+        UserGroupBean userGroupBean = new UserGroupBean();
+        userGroupBean.setAvailable(false);
+        userGroupService.update(userGroupId, userGroupBean);
         return ResponseEntityBuilder.success()
                 .message("移除成功")
                 .build();
     }
 
     @DeleteMapping("/chart")
-    public ResponseEntity<String> removeChartFromGroup(@RequestParam("chartId") Integer chartId,
-                                                       @RequestParam("groupId") Integer groupId,
+    public ResponseEntity<String> removeChartFromGroup(@RequestParam("userGroupId") Integer chartGroupId,
                                                        HttpServletRequest request) {
-        chartGroupService.removeChartFromGroup(chartId, groupId);
+        ChartGroupBean chartGroupBean = new ChartGroupBean();
+        chartGroupBean.setAvailable(false);
+        chartGroupService.update(chartGroupId, chartGroupBean);
         return ResponseEntityBuilder.success()
                 .message("移除成功")
                 .build();
