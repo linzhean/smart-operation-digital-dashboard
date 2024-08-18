@@ -8,4 +8,6 @@ import java.util.List;
 @Repository
 public interface MailMessageDAO extends BaseDAO<MailMessage, Integer> {
     List<MailMessage> findByMailId(Integer mailId);
+
+    List<MailMessage> findByMessageIdAndAvailableIsTrue(Integer messageId);
 }
