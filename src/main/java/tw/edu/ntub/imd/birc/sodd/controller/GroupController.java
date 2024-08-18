@@ -71,13 +71,14 @@ public class GroupController {
                 .build();
     }
 
-    @GetMapping("")
+    @GetMapping("/user")
     public ResponseEntity<String> searchAll(HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
         for (GroupBean groupBean : groupService.searchAll()) {
             ObjectData objectData = arrayData.addObject();
             objectData.add("id", groupBean.getId());
             objectData.add("name", groupBean.getName());
+            objectData.add("userCounts", userGroupService.searchUserByGroupId(groupBean.getId()).size());
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
@@ -112,7 +113,7 @@ public class GroupController {
 
     @GetMapping("/chart/{groupId}")
     public ResponseEntity<String> searchChartsByGroupId(@PathVariable("groupId") Integer groupId,
-                                                       HttpServletRequest request) {
+                                                        HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
         for (ChartBean chartBean : chartGroupService
                 .searchChartByGroupId(groupId)) {

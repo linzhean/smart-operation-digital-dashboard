@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface UserGroupDAO extends BaseDAO<UserGroup, Integer>, JpaSpecificationExecutor<UserGroup> {
     List<UserGroup> findByUserIdAndAvailableIsTrue(String userId);
+
+    List<UserGroup> findByGroupIdAndAvailableIsTrue(Integer groupId);
 }

@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface UserGroupService extends BaseService<UserGroupBean, Integer> {
     List<UserAccountBean> searchUserByGroupId(Integer groupId, String userName, String department, String position);
+
+    List<UserAccountBean> searchUserByGroupId(Integer groupId);
 }
