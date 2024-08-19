@@ -11,6 +11,4 @@ public class PermissionDeniedException extends ProjectException {
     public String getErrorCode() {
         return "PermissionDenied";
     }
-
-
 }

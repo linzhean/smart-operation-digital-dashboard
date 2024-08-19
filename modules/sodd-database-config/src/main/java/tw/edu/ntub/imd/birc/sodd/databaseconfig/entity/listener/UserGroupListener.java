@@ -11,7 +11,12 @@ import java.time.LocalDateTime;
 public class UserGroupListener {
     @PrePersist
     public void preSave(UserGroup userGroup) {
-        String userId = SecurityUtils.getLoginUserAccount();
+        String userId = "";
+        try {
+            userId = SecurityUtils.getLoginUserAccount();
+        } catch (NullPointerException e) {
+            userId = "system";
+        }
         LocalDateTime now = LocalDateTime.now();
         if (userGroup.getAvailable() == null) {
             userGroup.setAvailable(true);

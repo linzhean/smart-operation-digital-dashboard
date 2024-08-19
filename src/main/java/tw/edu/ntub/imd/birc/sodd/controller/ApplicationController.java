@@ -76,17 +76,16 @@ public class ApplicationController {
 
     @PatchMapping("/permit/{id}")
     public ResponseEntity<String> permitApplication(@PathVariable("id") Integer id,
-                                                    @RequestParam(value = "groupId") Integer groupId,
                                                     HttpServletRequest request) {
         String userId = SecurityUtils.getLoginUserAccount();
         ApplicationBean applicationBean = applicationService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此申請"));
-        if (!Apply.isNotPassed(applicationBean.getApplyStatus())) {
+        if (!Apply.isNotPassed(applicationBean.getApplyStatus().getApplyStatus())) {
             return ResponseEntityBuilder.error()
                     .message("申請的狀態不為可被允許通過的狀態")
                     .build();
         }
-        applicationService.permitApplication(applicationBean, userId, groupId);
+        applicationService.permitApplication(applicationBean, userId);
         return ResponseEntityBuilder.success()
                 .message("申請允許通過成功")
                 .build();
@@ -97,7 +96,7 @@ public class ApplicationController {
                                                    HttpServletRequest request) {
         ApplicationBean applicationBean = applicationService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此申請"));
-        if (Apply.isClosed(applicationBean.getApplyStatus())) {
+        if (Apply.isClosed(applicationBean.getApplyStatus().getApplyStatus())) {
             return ResponseEntityBuilder.success()
                     .message("此申請已關閉")
                     .build();
@@ -113,7 +112,7 @@ public class ApplicationController {
                                                  HttpServletRequest request) {
         ApplicationBean applicationBean = applicationService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此申請"));
-        if (!Apply.isClosed(applicationBean.getApplyStatus())) {
+        if (!Apply.isClosed(applicationBean.getApplyStatus().getApplyStatus())) {
             return ResponseEntityBuilder.success()
                     .message("申請必須為已關閉才可被刪除")
                     .build();

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class ChartGroupBean {
+    private Integer id;
     private Integer chartId;
     private Integer groupId;
     private Boolean available;

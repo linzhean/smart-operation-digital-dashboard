@@ -130,6 +130,7 @@ dependencies {
     implementation 'org.freemarker:freemarker:2.3.31'
     implementation 'commons-codec:commons-codec:1.15'
     implementation 'net.sf.json-lib:json-lib:2.4:jdk15'
+    implementation 'org.jsoup:jsoup:1.14.3'
 }
 
 test {

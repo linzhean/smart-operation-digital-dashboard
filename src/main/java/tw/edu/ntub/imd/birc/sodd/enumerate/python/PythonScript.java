@@ -1,8 +1,6 @@
-package tw.edu.ntub.imd.birc.sodd.dto;
+package tw.edu.ntub.imd.birc.sodd.enumerate.python;
 
 import lombok.Getter;
-import org.springframework.security.core.parameters.P;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
 
 public enum PythonScript {
     NO_SUCH_SCRIPT("", ""),

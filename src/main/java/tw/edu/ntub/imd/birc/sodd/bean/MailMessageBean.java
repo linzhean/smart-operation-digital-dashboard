@@ -13,7 +13,7 @@ public class MailMessageBean {
     private Integer id;
     @Null(message = "郵件ID - 不得填寫")
     private Integer mailId;
-    @NotBlank(message = "訊息ID - 不得填寫")
+    @NotNull(message = "訊息ID - 未填寫")
     private Integer messageId;
     @NotBlank(message = "郵件內容 - 未填寫")
     private String content;

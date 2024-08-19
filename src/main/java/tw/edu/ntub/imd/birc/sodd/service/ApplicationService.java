@@ -14,7 +14,7 @@ public interface ApplicationService extends BaseService<ApplicationBean, Integer
 
     Integer countApplication(String userId, String identity, String status, String startDate, String endDate);
 
-    void permitApplication(ApplicationBean applicationBean, String userId, Integer groupId);
+    void permitApplication(ApplicationBean applicationBean, String userId);
 
     void close(Integer id, ApplicationBean applicationBean);
 }

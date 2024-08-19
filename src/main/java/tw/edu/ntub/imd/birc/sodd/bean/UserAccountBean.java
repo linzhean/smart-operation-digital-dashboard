@@ -33,4 +33,5 @@ public class UserAccountBean {
     private String modifyId;
     @Null(message = "修改日期 - 不得填寫")
     private LocalDateTime modifyDate;
+    private Integer userGroupId;
 }

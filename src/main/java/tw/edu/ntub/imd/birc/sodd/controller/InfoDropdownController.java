@@ -31,7 +31,7 @@ public class InfoDropdownController {
         type = StringUtils.isNotBlank(type) ? type : "-1";
         ObjectData objectData = new ObjectData();
         switch (type) {
-            case "Identity":
+            case "identity":
                 getIdentity(objectData);
                 break;
             case "department":
@@ -39,6 +39,7 @@ public class InfoDropdownController {
                 break;
         }
         return ResponseEntityBuilder.success()
+                .message("查詢成功")
                 .data(objectData)
                 .build();
     }

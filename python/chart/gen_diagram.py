@@ -116,7 +116,7 @@ line_chart_data = generate_chart(
     ylabel='sin(x)',
     color='white',
     save_to_file=True,
-    file_name='sine_wave.png'
+    file_name='../../file/photo/sine_wave.png'
 )
 
 # 打印折線圖二進制數據以16進制格式輸出
@@ -136,7 +136,7 @@ bar_chart_data = generate_chart(
     ylabel='Value',
     color='white',
     save_to_file=True,
-    file_name='bar_chart.png'
+    file_name='../../file/photo/bar_chart.png'
 )
 
 # 打印長條圖二進制數據以16進制格式輸出
@@ -148,7 +148,7 @@ gauge_chart_data = generate_chart(
     chart_type='gauge',
     title='Gauge Chart',
     save_to_file=True,
-    file_name='gauge_chart.png'
+    file_name='../../file/photo/gauge_chart.png'
 )
 
 # 打印儀表圖二進制數據以16進制格式輸出

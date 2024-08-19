@@ -3,11 +3,9 @@ package tw.edu.ntub.imd.birc.sodd.service.impl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import tw.edu.ntub.birc.common.exception.UnknownException;
 import tw.edu.ntub.birc.common.util.CollectionUtils;
-import tw.edu.ntub.imd.birc.sodd.bean.AssignedTaskBean;
 import tw.edu.ntub.imd.birc.sodd.bean.MailBean;
 import tw.edu.ntub.imd.birc.sodd.bean.MailMessageBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
@@ -16,6 +14,7 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.UserAccountDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.specification.MailSpecification;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Mail;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount;
+import tw.edu.ntub.imd.birc.sodd.exception.NoPermissionException;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.AssignedTaskService;
 import tw.edu.ntub.imd.birc.sodd.service.AssignedTaskSponsorService;
@@ -84,7 +83,7 @@ public class MailServiceImpl extends BaseServiceImpl<MailBean, Mail, Integer> im
             messageService.save(firstMes);
             return transformer.transferToBean(mail);
         }
-        throw new AccessDeniedException("您並無針對此圖表發送交辦事項的權限");
+        throw new NoPermissionException();
     }
 
     private void sendMail(String receiver, String content) {
