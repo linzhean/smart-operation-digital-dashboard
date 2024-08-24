@@ -23,6 +23,8 @@ public class ChartBean {
     private String showcaseImage;
     private String chartImage;
     private Resource chartHTML;
+    @Null(message = "是否可發送交辦 - 不得填寫")
+    private Boolean canAssign;
     @Null(message = "是否可視 - 不得填寫")
     private Boolean observable;
     @Null(message = "是否啟用 - 不得填寫")

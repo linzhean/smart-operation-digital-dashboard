@@ -3,14 +3,11 @@ package tw.edu.ntub.imd.birc.sodd.service.impl;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import tw.edu.ntub.birc.common.exception.ProjectException;
 import tw.edu.ntub.birc.common.util.CollectionUtils;
 import tw.edu.ntub.birc.common.util.StringUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.ChartDAO;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.ChartDashboardDAO;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.ChartGroupDAO;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.DashboardDAO;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.*;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.AssignedTaskSponsor;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Chart;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Dashboard;
 import tw.edu.ntub.imd.birc.sodd.dto.FileMultipartFile;
@@ -34,6 +31,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
     private final ChartGroupDAO chartGroupDAO;
     private final ChartDashboardDAO chartDashboardDAO;
     private final DashboardDAO dashboardDAO;
+    private final AssignedTaskSponsorDAO sponsorDAO;
     private final GroupService groupService;
     private final ChartTransformer transformer;
     private final MultipartFileUploader multipartFileUploader;
@@ -43,6 +41,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                             ChartGroupDAO chartGroupDAO,
                             DashboardDAO dashboardDAO,
                             ChartDashboardDAO chartDashboardDAO,
+                            AssignedTaskSponsorDAO sponsorDAO,
                             GroupService groupService,
                             ChartTransformer transformer,
                             MultipartFileUploader multipartFileUploader) {
@@ -50,6 +49,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
         this.chartDAO = chartDAO;
         this.chartGroupDAO = chartGroupDAO;
         this.dashboardDAO = dashboardDAO;
+        this.sponsorDAO = sponsorDAO;
         this.groupService = groupService;
         this.chartDashboardDAO = chartDashboardDAO;
         this.transformer = transformer;
@@ -131,9 +131,13 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                 .flatMap(groupBean -> chartGroupDAO.findByGroupIdAndAvailableIsTrue(groupBean.getId()).stream())
                 .map(chartGroup -> chartDAO.getById(chartGroup.getChartId()))
                 .collect(Collectors.toList());
+        List<AssignedTaskSponsor> canAssignCharts = sponsorDAO.findBySponsorUserIdAndAvailableIsTrue(userId);
         for (ChartBean chartBean : allCharts) {
             for (Chart chart : observableCharts) {
                 chartBean.setObservable(Objects.equals(chartBean.getId(), chart.getId()));
+            }
+            for (AssignedTaskSponsor sponsor : canAssignCharts) {
+                chartBean.setCanAssign(Objects.equals(chartBean.getId(), sponsor.getChartId()));
             }
         }
         return allCharts;

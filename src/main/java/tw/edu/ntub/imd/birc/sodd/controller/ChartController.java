@@ -145,6 +145,7 @@ public class ChartController {
             objectData.add("name", chartBean.getName());
             objectData.add("showcaseImage", chartBean.getShowcaseImage());
             objectData.add("observable", chartBean.getObservable());
+            objectData.add("canAssign", chartBean.getCanAssign());
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
