@@ -10,6 +10,7 @@ import tw.edu.ntub.imd.birc.sodd.bean.GroupBean;
 import tw.edu.ntub.imd.birc.sodd.bean.UserAccountBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
+import tw.edu.ntub.imd.birc.sodd.exception.DataAlreadyExistException;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.DepartmentService;
 import tw.edu.ntub.imd.birc.sodd.service.GroupService;
@@ -135,7 +136,6 @@ public class UserAccountController {
     }
 
 
-    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @GetMapping(path = "/all")
     public ResponseEntity<String> searchAllUser(
             @RequestParam(name = "departmentId", required = false) String departmentId,
@@ -173,6 +173,11 @@ public class UserAccountController {
                     .build();
         }
         BindingResultUtils.validate(bindingResult);
+        userAccountService.getById(userAccountBean.getJobNumber())
+                .ifPresent(accountBean -> {
+                    throw new DataAlreadyExistException("此員工編號已經存在");
+                });
+        userAccountBean.setUserId(userAccountBean.getJobNumber());
         userAccountService.update(userAccountBean.getUserId(), userAccountBean);
         return ResponseEntityBuilder.success()
                 .message("修改成功")
