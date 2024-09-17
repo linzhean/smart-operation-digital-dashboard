@@ -1,6 +1,7 @@
 package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -15,6 +16,7 @@ import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.DepartmentService;
 import tw.edu.ntub.imd.birc.sodd.service.GroupService;
 import tw.edu.ntub.imd.birc.sodd.service.UserAccountService;
+import tw.edu.ntub.imd.birc.sodd.util.email.EmailUtils;
 import tw.edu.ntub.imd.birc.sodd.util.http.BindingResultUtils;
 import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
@@ -23,6 +25,7 @@ import tw.edu.ntub.imd.birc.sodd.util.json.object.SingleValueObjectData;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
@@ -31,7 +34,7 @@ public class UserAccountController {
     private final UserAccountService userAccountService;
     private final GroupService groupService;
     private final DepartmentService departmentService;
-
+    private final EmailUtils emailUtils;
 
     @GetMapping(path = "")
     public ResponseEntity<String> getLoginUser(HttpServletRequest request) {
@@ -173,11 +176,14 @@ public class UserAccountController {
                     .build();
         }
         BindingResultUtils.validate(bindingResult);
-        userAccountService.getById(userAccountBean.getJobNumber())
-                .ifPresent(accountBean -> {
-                    throw new DataAlreadyExistException("此員工編號已經存在");
-                });
-        userAccountBean.setUserId(userAccountBean.getJobNumber());
+        try {
+            Optional<UserAccountBean> accountBean = userAccountService.getById(userAccountBean.getJobNumber());
+            if (accountBean.isPresent()) {
+                throw new DataAlreadyExistException("此員工編號已經存在");
+            }
+        } catch (NotFoundException e) {
+            userAccountBean.setUserId(userAccountBean.getJobNumber());
+        }
         userAccountService.update(userAccountBean.getUserId(), userAccountBean);
         return ResponseEntityBuilder.success()
                 .message("修改成功")
@@ -187,7 +193,6 @@ public class UserAccountController {
 
     @PatchMapping("/admit")
     public ResponseEntity<String> admitUser(@RequestParam("userId") String userId,
-                                            @RequestParam("identity") String identity,
                                             HttpServletRequest request) {
         UserAccountBean userAccountBean = userAccountService.getById(userId)
                 .orElseThrow(() -> new NotFoundException("查無此使用者"));
@@ -197,14 +202,16 @@ public class UserAccountController {
                     .build();
         }
         UserAccountBean bean = new UserAccountBean();
-        if (Identity.isNoPermission(Identity.of(identity).getTypeName()) ||
-                Identity.isAdminTypeName(Identity.of(identity).getTypeName())) {
+        String identity = userAccountBean.getIdentity().getTypeName();
+        if (!Identity.isNoPermission(identity)) {
             return ResponseEntityBuilder.error()
-                    .message("無法開通成此權限")
+                    .message("僅有無權限才可被開通")
                     .build();
         }
-        bean.setIdentity(Identity.of(identity));
+        bean.setIdentity(Identity.MANAGER);
         userAccountService.update(userId, bean);
+        emailUtils.sendMail(userId, userAccountBean.getGmail(), "審核通過通知",
+                "src/main/resources/mail/adminPermitted.html", null);
         return ResponseEntityBuilder.success()
                 .message("核准成功")
                 .build();

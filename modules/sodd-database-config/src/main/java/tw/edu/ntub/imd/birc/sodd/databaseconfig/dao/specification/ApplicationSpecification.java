@@ -37,6 +37,7 @@ public class ApplicationSpecification {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(Application_.CREATE_DATE), startDateTime));
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get(Application_.END_DATE), endDateTime));
             }
+            predicates.add(criteriaBuilder.equal(root.get(Application_.AVAILABLE), true));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }

@@ -1,4 +1,4 @@
-package tw.edu.ntub.imd.birc.sodd.util;
+package tw.edu.ntub.imd.birc.sodd.util.email;
 
 import tw.edu.ntub.imd.birc.sodd.exception.NullParameterException;
 
