@@ -155,21 +155,15 @@ public class MailController {
 
     @PatchMapping("/message/status/{id}")
     public ResponseEntity<String> changeStatus(@PathVariable("id") Integer mailId,
-                                               @RequestParam("status") String status,
                                                HttpServletRequest request) {
-        if (!EnumSet.allOf(ProcessStatus.class).contains(ProcessStatus.of(status))) {
-            return ResponseEntityBuilder.error()
-                    .message("無此郵件處理狀態: " + status)
-                    .build();
-        }
         MailBean mailBean = mailService.getById(mailId)
                 .orElseThrow(() -> new NotFoundException("查無此郵件"));
-        if (mailBean.getStatus().equals(ProcessStatus.of(status))) {
+        if (mailBean.getStatus().equals(ProcessStatus.PENDING)) {
             return ResponseEntityBuilder.error()
-                    .message("不可更改為相同的處理狀態")
+                    .message("此郵件已為已完成狀態")
                     .build();
         }
-        mailBean.setStatus(ProcessStatus.of(status));
+        mailBean.setStatus(ProcessStatus.SUCCEEDED);
         mailService.update(mailId, mailBean);
         return ResponseEntityBuilder.success()
                 .message("更新成功")

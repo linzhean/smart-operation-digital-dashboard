@@ -21,6 +21,7 @@ import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -37,8 +38,9 @@ public class ChartController {
     private final DashboardService dashboardService;
 
     @PostMapping("")
-    public ResponseEntity<String> addChart(@RequestBody ChartBean chartBean,
-                                           BindingResult bindingResult) {
+    public ResponseEntity<String> addChart(@Valid ChartBean chartBean,
+                                           BindingResult bindingResult,
+                                           HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
         chartService.save(chartBean);
         return ResponseEntityBuilder.success()
@@ -75,6 +77,22 @@ public class ChartController {
     }
 
     @GetMapping("")
+    public ResponseEntity<String> searchByAvailable(@RequestParam("available") Boolean available,
+                                                    HttpServletRequest request) {
+        ArrayData arrayData = new ArrayData();
+        for (ChartBean chartBean : chartService.searchByAvailable(available)) {
+            ObjectData objectData = arrayData.addObject();
+            objectData.add("id", chartBean.getId());
+            objectData.add("name", chartBean.getName());
+            objectData.add("available", chartBean.getAvailable());
+        }
+        return ResponseEntityBuilder.success()
+                .message("查詢成功")
+                .data(arrayData)
+                .build();
+    }
+
+    @GetMapping("/dashboard")
     public ResponseEntity<String> searchByDashboardId(@RequestParam("dashboardId") Integer dashboardId,
                                                       HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
@@ -83,6 +101,7 @@ public class ChartController {
             objectData.add("id", chartBean.getId());
             objectData.add("name", chartBean.getName());
             objectData.add("chartImage", chartBean.getChartImage());
+            objectData.add("canAssign", chartBean.getCanAssign());
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
@@ -90,35 +109,21 @@ public class ChartController {
                 .build();
     }
 
+
     @GetMapping("/{id}")
-    public ResponseEntity<String> getById(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> getById(@PathVariable("id") Integer id,
+                                          HttpServletRequest request) {
         ObjectData objectData = new ObjectData();
         ChartBean chartBean = chartService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此圖表"));
         objectData.add("name", chartBean.getName());
-        objectData.add("chartHTML", resourceToString(chartBean.getChartHTML()));
+        objectData.add("chartHTML", chartService.genChartHTML(chartBean));
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
                 .data(objectData)
                 .build();
     }
 
-    private String resourceToString(Resource resource) {
-        InputStream inputStream = null;
-        byte[] bytes;
-        try {
-            inputStream = resource.getInputStream();
-            bytes = FileCopyUtils.copyToByteArray(inputStream);
-        } catch (IOException e) {
-            throw new ProjectException("Resource輸出成ByteArray錯誤") {
-                @Override
-                public String getErrorCode() {
-                    return "Resource - Output Fail";
-                }
-            };
-        }
-        return new String(bytes, StandardCharsets.UTF_8);
-    }
 
     @GetMapping("/all")
     public ResponseEntity<String> searchAll(HttpServletRequest request) {
@@ -145,7 +150,6 @@ public class ChartController {
             objectData.add("name", chartBean.getName());
             objectData.add("showcaseImage", chartBean.getShowcaseImage());
             objectData.add("observable", chartBean.getObservable());
-            objectData.add("canAssign", chartBean.getCanAssign());
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
@@ -153,15 +157,16 @@ public class ChartController {
                 .build();
     }
 
-    @GetMapping("/ai")
-    public ResponseEntity<String> getChartSuggestion(@RequestParam("id") Integer id,
-                                                     @RequestParam("dashboardId") Integer dashboardId,
-                                                     HttpServletRequest request) throws IOException {
-        ObjectData objectData = new ObjectData();
-        objectData.add("suggestion", chartService.getChartSuggestion(id, dashboardId));
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> patchChartAvailable(@PathVariable("id") Integer id,
+                                                      HttpServletRequest request) {
+        ChartBean chartBean = chartService.getById(id)
+                .orElseThrow(() -> new NotFoundException("查無此圖表"));
+        chartBean.setAvailable(!chartBean.getAvailable());
+        chartService.update(id, chartBean);
         return ResponseEntityBuilder.success()
-                .message("查詢成功")
-                .data(objectData)
+                .message("更新成功")
                 .build();
     }
 }
