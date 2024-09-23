@@ -15,16 +15,39 @@ spring:
       max-file-size: 200MB
       max-request-size: 250MB
   datasource:
-    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    url: ${sodd.database.url}
-    username: ${sodd.database.account}
-    password: ${sodd.database.password}
+    mysql:
+      jpa:
+        database-platform: org.hibernate.dialect.MySQL8Dialect
+        properties:
+          hibernate:
+            dialect: ${mysql.jpa.database-platform}
+            hbm2ddl:
+              auto: ${mysql.jpa.hibernate.ddl-auto}
+            show_sql: ${mysql.jpa.show-sql}
+            format_sql: ${mysql.jpa.show-sql}
+      datasource:
+        driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+        url: ${sodd.database.mysql.url}
+        username: ${sodd.database.mysql.account}
+        password: ${sodd.database.mysql.password}
+    mssql:
+      jpa:
+        database-platform: org.hibernate.dialect.SQLServerDialect
+        properties:
+          hibernate:
+            dialect: ${mssql.jpa.database-platform}
+            hbm2ddl:
+              auto: ${mssql.jpa.hibernate.ddl-auto}
+            show_sql: ${mssql.jpa.show-sql}
+            format_sql: ${mssql.jpa.show-sql}
+      datasource:
+        driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+        url: ${sodd.database.mssql.url}
+        username: ${sodd.database.mssql.account}
+        password: ${sodd.database.mssql.password}
   jpa:
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
     open-in-view: true
     show-sql: false
-    generate-ddl: false
     hibernate:
       ddl-auto: none
       naming:
@@ -32,11 +55,8 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
-        dialect: ${spring.jpa.database-platform}
-        hbm2ddl:
-          auto: ${spring.jpa.hibernate.ddl-auto}
-        show_sql: ${spring.jpa.show-sql}
         format_sql: ${spring.jpa.show-sql}
+  primary-datasource: mysql
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
