@@ -5,6 +5,7 @@ import net.sf.json.JSONObject;
 import org.springframework.stereotype.Service;
 import tw.edu.ntub.birc.common.util.CollectionUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.AiChatBean;
+import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.AiChatDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.ChartDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.DashboardDAO;
@@ -14,7 +15,7 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Dashboard;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.AiChatService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.AiChatTransformer;
-import tw.edu.ntub.imd.birc.sodd.util.python.PythonUtils;
+import tw.edu.ntub.imd.birc.sodd.util.sodd.PythonUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -67,8 +68,9 @@ public class AiChatServiceImpl extends BaseServiceImpl<AiChatBean, AiChat, Integ
 
     @Override
     public List<AiChatBean> searchByChartId(Integer chartId) {
+        String userId = SecurityUtils.getLoginUserAccount();
         List<AiChat> resultList = new ArrayList<>();
-        List<AiChat> messageList = aiChatDAO.findByChartIdAndAvailableIsTrue(chartId);
+        List<AiChat> messageList = aiChatDAO.findByChartIdAndCreateIdAndAvailableIsTrue(chartId, userId);
         if (messageList.isEmpty()) {
             return CollectionUtils.map(messageList, transformer::transferToBean);
         }
