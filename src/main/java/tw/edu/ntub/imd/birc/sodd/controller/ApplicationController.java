@@ -16,6 +16,8 @@ import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.SingleValueObjectData;
 
+import javax.servlet.http.HttpServletRequest;
+
 @AllArgsConstructor
 @RestController
 @RequestMapping("/application")
@@ -24,7 +26,8 @@ public class ApplicationController {
 
     @PostMapping("")
     public ResponseEntity<String> addApplication(@RequestBody ApplicationBean applicationBean,
-                                                 BindingResult bindingResult) {
+                                                 BindingResult bindingResult,
+                                                 HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
         applicationService.save(applicationBean);
         return ResponseEntityBuilder.success()
@@ -36,15 +39,10 @@ public class ApplicationController {
     public ResponseEntity<String> searchApplication(@RequestParam("status") String status,
                                                     @RequestParam(value = "startDate", required = false) String startDate,
                                                     @RequestParam(value = "endDate", required = false) String endDate,
-                                                    @RequestParam("nowPage") Integer nowPage) {
+                                                    @RequestParam("nowPage") Integer nowPage,
+                                                    HttpServletRequest request) {
         String userId = SecurityUtils.getLoginUserAccount();
         String identity = SecurityUtils.getLoginUserIdentity();
-        String errorMessage = checkDateForm(startDate, endDate);
-        if (StringUtils.isNotBlank(errorMessage)) {
-            return ResponseEntityBuilder.error()
-                    .message("請填寫" + errorMessage)
-                    .build();
-        }
         ArrayData arrayData = new ArrayData();
         for (ApplicationBean applicationBean :
                 applicationService.searchApplication(userId, identity, status, startDate, endDate, nowPage)) {
@@ -62,25 +60,13 @@ public class ApplicationController {
                 .build();
     }
 
-    private String checkDateForm(String startDate, String endDate) {
-        if (StringUtils.isNotBlank(startDate) != StringUtils.isNotBlank(endDate)) {
-            return StringUtils.isNotBlank(startDate) ? endDate : startDate;
-        }
-        return "";
-    }
-
     @GetMapping("/page")
     public ResponseEntity<String> countApplication(@RequestParam("status") String status,
                                                    @RequestParam(value = "startDate", required = false) String startDate,
-                                                   @RequestParam(value = "endDate", required = false) String endDate) {
+                                                   @RequestParam(value = "endDate", required = false) String endDate,
+                                                   HttpServletRequest request) {
         String userId = SecurityUtils.getLoginUserAccount();
         String identity = SecurityUtils.getLoginUserIdentity();
-        String errorMessage = checkDateForm(startDate, endDate);
-        if (StringUtils.isNotBlank(errorMessage)) {
-            return ResponseEntityBuilder.error()
-                    .message("請填寫" + errorMessage)
-                    .build();
-        }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
                 .data(SingleValueObjectData.create("totalPage",
@@ -90,26 +76,27 @@ public class ApplicationController {
 
     @PatchMapping("/permit/{id}")
     public ResponseEntity<String> permitApplication(@PathVariable("id") Integer id,
-                                                    @RequestParam(value = "groupId") Integer groupId) {
+                                                    HttpServletRequest request) {
         String userId = SecurityUtils.getLoginUserAccount();
         ApplicationBean applicationBean = applicationService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此申請"));
-        if (!Apply.isNotPassed(applicationBean.getApplyStatus())) {
+        if (!Apply.isNotPassed(applicationBean.getApplyStatus().getApplyStatus())) {
             return ResponseEntityBuilder.error()
                     .message("申請的狀態不為可被允許通過的狀態")
                     .build();
         }
-        applicationService.permitApplication(applicationBean, userId, groupId);
+        applicationService.permitApplication(applicationBean, userId);
         return ResponseEntityBuilder.success()
                 .message("申請允許通過成功")
                 .build();
     }
 
     @PatchMapping("/close/{id}")
-    public ResponseEntity<String> closeApplication(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> closeApplication(@PathVariable("id") Integer id,
+                                                   HttpServletRequest request) {
         ApplicationBean applicationBean = applicationService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此申請"));
-        if (Apply.isClosed(applicationBean.getApplyStatus())) {
+        if (Apply.isClosed(applicationBean.getApplyStatus().getApplyStatus())) {
             return ResponseEntityBuilder.success()
                     .message("此申請已關閉")
                     .build();
@@ -121,10 +108,11 @@ public class ApplicationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delApplication(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> delApplication(@PathVariable("id") Integer id,
+                                                 HttpServletRequest request) {
         ApplicationBean applicationBean = applicationService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此申請"));
-        if (!Apply.isClosed(applicationBean.getApplyStatus())) {
+        if (!Apply.isClosed(applicationBean.getApplyStatus().getApplyStatus())) {
             return ResponseEntityBuilder.success()
                     .message("申請必須為已關閉才可被刪除")
                     .build();

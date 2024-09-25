@@ -4,20 +4,33 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.birc.common.exception.ProjectException;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
+import tw.edu.ntub.imd.birc.sodd.bean.ChartDashboardBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
+import tw.edu.ntub.imd.birc.sodd.dto.ListDTO;
+import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.ChartDashboardService;
 import tw.edu.ntub.imd.birc.sodd.service.ChartService;
+import tw.edu.ntub.imd.birc.sodd.service.DashboardService;
+import tw.edu.ntub.imd.birc.sodd.util.http.BindingResultUtils;
 import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
@@ -25,34 +38,58 @@ import java.util.List;
 public class ChartController {
     private final ChartService chartService;
     private final ChartDashboardService chartDashboardService;
+    private final DashboardService dashboardService;
+
+    @PostMapping("")
+    public ResponseEntity<String> addChart(@Valid ChartBean chartBean,
+                                           BindingResult bindingResult,
+                                           HttpServletRequest request) {
+        BindingResultUtils.validate(bindingResult);
+        chartService.save(chartBean);
+        return ResponseEntityBuilder.success()
+                .message("新增成功")
+                .build();
+    }
+
 
     @PostMapping("/dashboard")
     public ResponseEntity<String> setChartInDashboard(@RequestParam("dashboardId") Integer dashboardId,
-                                                      @RequestBody List<Integer> chartIds) {
-        if (chartIds.isEmpty()) {
-            List<Integer> originalIds = chartService.searchChartIdsByDashboardId(dashboardId);
+                                                      @RequestBody ListDTO listDTO,
+                                                      HttpServletRequest request) {
+        dashboardService.getById(dashboardId)
+                .orElseThrow(() -> new NotFoundException("查無此儀表板"));
+        List<Integer> chartIds = listDTO.getDashboardCharts();
+        if (!chartIds.isEmpty()) {
+            Map<Integer, Integer> originals = chartDashboardService.findByDashboardId(dashboardId)
+                    .stream()
+                    .collect(Collectors.toMap(ChartDashboardBean::getChartId, ChartDashboardBean::getId));
             for (Integer chartId : chartIds) {
-                if (!originalIds.contains(chartId)) {
+                chartService.getById(chartId)
+                        .orElseThrow(() -> new NotFoundException("查無此圖表"));
+                if (!originals.containsKey(chartId)) {
                     chartDashboardService.save(chartId, dashboardId);
                 }
-                originalIds.remove(chartId);
+                originals.remove(chartId);
             }
-            originalIds.stream().forEach(id -> chartDashboardService.removeChartFromDashboard(id, dashboardId));
+            ChartDashboardBean chartDashboardBean = new ChartDashboardBean();
+            chartDashboardBean.setAvailable(false);
+            originals.forEach((chartId, id) -> chartDashboardService.update(id, chartDashboardBean));
         }
         return ResponseEntityBuilder.success()
                 .message("設定成功")
                 .build();
     }
 
+
     @GetMapping("")
-    public ResponseEntity<String> searchByDashboardId(@RequestParam("dashboardId") Integer dashboardId) {
+    public ResponseEntity<String> searchByAvailable(@RequestParam("available") Boolean available,
+                                                    HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
-        for (ChartBean chartBean : chartService.searchByDashboardId(dashboardId)) {
-            String htmlContent = resourceToString(chartBean.getChart());
+        for (ChartBean chartBean : chartService.searchByAvailable(available)) {
             ObjectData objectData = arrayData.addObject();
             objectData.add("id", chartBean.getId());
             objectData.add("name", chartBean.getName());
-            objectData.add("chart", htmlContent);
+            objectData.add("available", chartBean.getAvailable());
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
@@ -60,25 +97,42 @@ public class ChartController {
                 .build();
     }
 
-    private String resourceToString(Resource resource) {
-        InputStream inputStream = null;
-        byte[] bytes;
-        try {
-            inputStream = resource.getInputStream();
-            bytes = FileCopyUtils.copyToByteArray(inputStream);
-        } catch (IOException e) {
-            throw new ProjectException("Resource輸出成ByteArray錯誤") {
-                @Override
-                public String getErrorCode() {
-                    return "Resource - Output Fail";
-                }
-            };
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<String> searchByDashboardId(@RequestParam("dashboardId") Integer dashboardId,
+                                                      HttpServletRequest request) {
+        ArrayData arrayData = new ArrayData();
+        for (ChartBean chartBean : chartService.searchByDashboardId(dashboardId)) {
+            ObjectData objectData = arrayData.addObject();
+            objectData.add("id", chartBean.getId());
+            objectData.add("name", chartBean.getName());
+            objectData.add("chartImage", chartBean.getChartImage());
+            objectData.add("canAssign", chartBean.getCanAssign());
         }
-        return new String(bytes, StandardCharsets.UTF_8);
+        return ResponseEntityBuilder.success()
+                .message("查詢成功")
+                .data(arrayData)
+                .build();
     }
 
+
+    @GetMapping("/{id}")
+    public ResponseEntity<String> getById(@PathVariable("id") Integer id,
+                                          HttpServletRequest request) {
+        ObjectData objectData = new ObjectData();
+        ChartBean chartBean = chartService.getById(id)
+                .orElseThrow(() -> new NotFoundException("查無此圖表"));
+        objectData.add("name", chartBean.getName());
+        objectData.add("chartHTML", chartService.genChartHTML(chartBean));
+        return ResponseEntityBuilder.success()
+                .message("查詢成功")
+                .data(objectData)
+                .build();
+    }
+
+
     @GetMapping("/all")
-    public ResponseEntity<String> searchAll() {
+    public ResponseEntity<String> searchAll(HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
         for (ChartBean chartBean : chartService.searchAll()) {
             ObjectData objectData = arrayData.addObject();
@@ -93,19 +147,32 @@ public class ChartController {
     }
 
     @GetMapping("/available")
-    public ResponseEntity<String> searchByUser() {
+    public ResponseEntity<String> searchByUser(HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
         String userId = SecurityUtils.getLoginUserAccount();
         for (ChartBean chartBean : chartService.searchByUser(userId)) {
-            String htmlContent = resourceToString(chartBean.getChart());
             ObjectData objectData = arrayData.addObject();
             objectData.add("id", chartBean.getId());
             objectData.add("name", chartBean.getName());
-            objectData.add("chart", htmlContent);
+            objectData.add("showcaseImage", chartBean.getShowcaseImage());
+            objectData.add("observable", chartBean.getObservable());
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
                 .data(arrayData)
+                .build();
+    }
+
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> patchChartAvailable(@PathVariable("id") Integer id,
+                                                      HttpServletRequest request) {
+        ChartBean chartBean = chartService.getById(id)
+                .orElseThrow(() -> new NotFoundException("查無此圖表"));
+        chartBean.setAvailable(!chartBean.getAvailable());
+        chartService.update(id, chartBean);
+        return ResponseEntityBuilder.success()
+                .message("更新成功")
                 .build();
     }
 }

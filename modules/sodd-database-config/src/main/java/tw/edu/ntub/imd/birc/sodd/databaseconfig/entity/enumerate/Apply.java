@@ -2,15 +2,14 @@ package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate;
 
 import lombok.Getter;
 
+@Getter
 public enum Apply {
     CLOSED("0", "已關閉"),
     NOT_PASSED("1", "申請尚未通過"),
     PASSED("2", "申請已通過"),
     ACTIVATING("3", "正在啟用");
 
-    @Getter
     private final String value;
-    @Getter
     private final String applyStatus;
 
     Apply(String value, String applyStatus) {
@@ -28,14 +27,14 @@ public enum Apply {
     }
 
     public static String getApplyName(Apply apply) {
-        return "[" + apply.getApplyStatus() + "]";
+        return apply.getApplyStatus();
     }
 
-    public static Boolean isNotPassed(Apply apply) {
+    public static Boolean isNotPassed(String apply) {
         return apply.equals(Apply.getApplyName(Apply.NOT_PASSED));
     }
 
-    public static Boolean isClosed(Apply apply) {
+    public static Boolean isClosed(String apply) {
         return apply.equals(Apply.getApplyName(Apply.CLOSED));
     }
 }

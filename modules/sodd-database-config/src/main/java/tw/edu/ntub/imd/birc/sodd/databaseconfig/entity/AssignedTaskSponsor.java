@@ -16,15 +16,23 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @EntityListeners(AssignedTaskSponsorListener.class)
-@IdClass(AssignedTaskSponsorId.class)
 @Table(name = "assigned_task_sponsor", schema = Config.DATABASE_NAME)
 public class AssignedTaskSponsor {
+    /**
+     * 暫時查看圖表申請流水號
+     *
+     * @since 1.0.0
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
+
     /**
      * 交辦事項ID
      *
      * @since 1.0.0
      */
-    @Id
     @Column(name = "chart_id", nullable = false)
     private Integer chartId;
     /**
@@ -32,7 +40,6 @@ public class AssignedTaskSponsor {
      *
      * @since 1.0.0
      */
-    @Id
     @Column(name = "sponsor_user_id", length = 254, nullable = false)
     private String sponsorUserId;
     /**

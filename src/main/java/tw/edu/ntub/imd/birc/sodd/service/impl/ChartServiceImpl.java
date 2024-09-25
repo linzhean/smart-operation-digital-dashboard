@@ -1,114 +1,181 @@
 package tw.edu.ntub.imd.birc.sodd.service.impl;
 
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import tw.edu.ntub.birc.common.exception.ProjectException;
+import org.springframework.web.multipart.MultipartFile;
+import tw.edu.ntub.birc.common.util.CollectionUtils;
+import tw.edu.ntub.birc.common.util.StringUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.ChartDAO;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.ChartDashboardDAO;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.ChartGroupDAO;
+import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.*;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.AssignedTaskSponsor;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Chart;
-import tw.edu.ntub.imd.birc.sodd.dto.PythonScript;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ChartDataSource;
+import tw.edu.ntub.imd.birc.sodd.dto.FileMultipartFile;
+import tw.edu.ntub.imd.birc.sodd.dto.file.uploader.MultipartFileUploader;
+import tw.edu.ntub.imd.birc.sodd.dto.file.uploader.UploadResult;
+import tw.edu.ntub.imd.birc.sodd.exception.ChartException;
+import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.ChartService;
 import tw.edu.ntub.imd.birc.sodd.service.GroupService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.ChartTransformer;
+import tw.edu.ntub.imd.birc.sodd.util.sodd.PythonUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
+import java.io.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer> implements ChartService {
     private final ChartDAO chartDAO;
     private final ChartGroupDAO chartGroupDAO;
-    private final GroupService groupService;
     private final ChartDashboardDAO chartDashboardDAO;
+    private final AssignedTaskSponsorDAO sponsorDAO;
+    private final DataSourceDAO dataSourceDAO;
+    private final GroupService groupService;
     private final ChartTransformer transformer;
+    private final MultipartFileUploader multipartFileUploader;
+    private final PythonUtils pythonUtils = new PythonUtils();
 
     public ChartServiceImpl(ChartDAO chartDAO,
                             ChartGroupDAO chartGroupDAO,
-                            GroupService groupService,
                             ChartDashboardDAO chartDashboardDAO,
-                            ChartTransformer transformer) {
+                            AssignedTaskSponsorDAO sponsorDAO,
+                            DataSourceDAO dataSourceDAO,
+                            GroupService groupService,
+                            ChartTransformer transformer,
+                            MultipartFileUploader multipartFileUploader) {
         super(chartDAO, transformer);
         this.chartDAO = chartDAO;
         this.chartGroupDAO = chartGroupDAO;
+        this.sponsorDAO = sponsorDAO;
+        this.dataSourceDAO = dataSourceDAO;
         this.groupService = groupService;
         this.chartDashboardDAO = chartDashboardDAO;
         this.transformer = transformer;
+        this.multipartFileUploader = multipartFileUploader;
     }
 
     @Override
     public ChartBean save(ChartBean chartBean) {
         Chart chart = transformer.transferToEntity(chartBean);
+        try {
+            UploadResult scriptFileResult = multipartFileUploader.upload(
+                    chartBean.getScriptFile(), "script", chartBean.getName());
+            chart.setScriptPath(scriptFileResult.getUrl());
+            UploadResult showcaseImageResult = multipartFileUploader.upload(
+                    chartBean.getImageFile(), "showcaseImage", chartBean.getName());
+            chart.setShowcaseImage(showcaseImageResult.getUrl());
+            Resource photoResource = pythonUtils.genPNG(chart.getScriptPath(), chart.getName());
+//            Resource htmlResource = pythonUtils.genHTML(chart.getScriptPath(), chart.getName());
+//            checkFileOutput(photoResource.getFile(), htmlResource.getFile());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return transformer.transferToBean(chartDAO.save(chart));
+    }
+
+    private void checkFileOutput(File photoFile, File htmlFile) {
+        String photoError = pythonUtils.isValidImageFile(photoFile);
+        if (StringUtils.isNotBlank(photoError)) {
+            throw new ChartException(photoError);
+        }
+        String htmlError = pythonUtils.isValidHTMLFile(htmlFile);
+        if (StringUtils.isNotBlank(htmlError)) {
+            throw new ChartException(htmlError);
+        }
     }
 
     @Override
     public List<ChartBean> searchByDashboardId(Integer dashboardId) {
-        return chartDashboardDAO.findByDashboardIdAndAvailableIsTrue(dashboardId)
+        List<ChartBean> chartBeans = chartDashboardDAO.findByDashboardIdAndAvailableIsTrue(dashboardId)
                 .stream()
                 .map(chartDashboard ->
-                        transformer.transferToBean(chartDAO.getById(chartDashboard.getChartId())))
-                .map(chartBean -> {
-                    try {
-                        chartBean.setChart(generateChart(chartBean.getScriptPath()));
-                    } catch (IOException e) {
-                        throw new ProjectException("圖表生成錯誤") {
-                            @Override
-                            public String getErrorCode() {
-                                return "Chart - Generate Fail";
-                            }
-                        };
-                    }
-                    return chartBean;
-                })
+                        transformer.transferToBean(chartDAO.findById(
+                                chartDashboard.getChartId()).orElseThrow(() -> new NotFoundException("查無此圖表"))))
                 .collect(Collectors.toList());
+        List<AssignedTaskSponsor> canAssignCharts =
+                sponsorDAO.findBySponsorUserIdAndAvailableIsTrue(SecurityUtils.getLoginUserAccount());
+        for (ChartBean chartBean : chartBeans) {
+            chartBean.setChartImage(genChartHTML(chartBean));
+            for (AssignedTaskSponsor sponsor : canAssignCharts) {
+                chartBean.setCanAssign(Objects.equals(chartBean.getId(), sponsor.getChartId()));
+            }
+        }
+        return chartBeans;
     }
 
+    private String genChartPhoto(ChartBean chartBean) {
+        try {
+            String jsonData = dataSourceDAO.getJsonData(ChartDataSource.of(chartBean.getDataSource()));
+            Resource resource = pythonUtils.genPNG(chartBean.getScriptPath(), chartBean.getName());
+            File file = resource.getFile();
+            if (file.exists()) {
+                MultipartFile multipartFile = new FileMultipartFile(resource.getFile());
+                UploadResult uploadResult = multipartFileUploader.upload(
+                        multipartFile, "chart_photo", chartBean.getName());
+                if (!file.delete()) {
+                    throw new ChartException("無法刪除圖表檔案：" + file.getAbsolutePath());
+                }
+                return uploadResult.getUrl();
+            } else {
+                throw new ChartException("圖表檔案未生成");
+            }
+        } catch (Exception e) {
+            throw new ChartException("圖表生成錯誤");
+        }
+    }
+
+
     @Override
-    public List<Integer> searchChartIdsByDashboardId(Integer dashboardId) {
-        return chartDashboardDAO.findByDashboardIdAndAvailableIsTrue(dashboardId)
-                .stream()
-                .map(chartDashboard -> chartDAO.getById(chartDashboard.getChartId()).getId())
-                .collect(Collectors.toList());
+    public String genChartHTML(ChartBean chartBean) {
+        try {
+            String jsonData = dataSourceDAO.getJsonData(ChartDataSource.of(chartBean.getDataSource()));
+            Resource resource = pythonUtils.genHTML(chartBean.getScriptPath(), chartBean.getName(), jsonData);
+            File file = resource.getFile();
+            if (file.exists()) {
+                MultipartFile multipartFile = new FileMultipartFile(resource.getFile());
+                UploadResult uploadResult = multipartFileUploader.upload(
+                        multipartFile, "chart_html", chartBean.getName());
+                if (!file.delete()) {
+                    throw new ChartException("無法刪除圖表檔案：" + file.getAbsolutePath());
+                }
+                return uploadResult.getUrl();
+            } else {
+                throw new ChartException("圖表檔案未生成");
+            }
+        } catch (IOException e) {
+            throw new ChartException("圖表生成錯誤");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<ChartBean> searchByUser(String userId) {
-        return groupService.searchByUserId(userId)
+        List<ChartBean> allCharts = CollectionUtils.map(chartDAO.findByAvailableIsTrue(), transformer::transferToBean);
+        List<Chart> observableCharts = groupService.searchByUserId(userId)
                 .stream()
                 .flatMap(groupBean -> chartGroupDAO.findByGroupIdAndAvailableIsTrue(groupBean.getId()).stream())
-                .map(chartGroup -> transformer.transferToBean(chartDAO.getById(chartGroup.getChartId())))
+                .map(chartGroup -> chartDAO.getById(chartGroup.getChartId()))
                 .collect(Collectors.toList());
+        for (ChartBean chartBean : allCharts) {
+            for (Chart chart : observableCharts) {
+                if (Objects.equals(chartBean.getId(), chart.getId())) {
+                    chartBean.setObservable(true);
+                    break;
+                } else {
+                    chartBean.setObservable(false);
+                }
+            }
+        }
+        return allCharts;
     }
 
-    private Resource generateChart(String filePath) throws IOException {
-        ProcessBuilder pb = new ProcessBuilder("python", filePath);
-        Process process = pb.start();
-        // 等待 Python 腳本執行完成
-        try {
-            process.waitFor();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
-        // 讀取 Python 腳本的輸出
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line;
-        StringBuilder output = new StringBuilder();
-        while ((line = reader.readLine()) != null) {
-            output.append(line).append("\n");
-        }
-
-        String fileName = String.join(PythonScript.of(filePath).getFileName(), LocalDateTime.now().toString());
-        Path htmlFilePath = Paths.get("src/python/file/" + fileName + ".html");
-        return new FileSystemResource(htmlFilePath.toFile());
+    @Override
+    public List<ChartBean> searchByAvailable(Boolean available) {
+        return CollectionUtils.map(chartDAO.findByAvailable(available), transformer::transferToBean);
     }
 }

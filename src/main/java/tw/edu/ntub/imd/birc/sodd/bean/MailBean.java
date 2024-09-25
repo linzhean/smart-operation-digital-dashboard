@@ -3,6 +3,7 @@ package tw.edu.ntub.imd.birc.sodd.bean;
 import lombok.Data;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ProcessStatus;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -13,7 +14,7 @@ import java.util.List;
 public class MailBean {
     @Null(message = "流水號 - 不得填寫")
     private Integer id;
-    @NotNull(message = "交辦事項ID - 未填寫")
+    @Null(message = "交辦事項ID - 不得填寫")
     private Integer assignedTaskId;
     @NotNull(message = "圖表ID - 未填寫")
     private Integer chartId;
@@ -21,8 +22,6 @@ public class MailBean {
     private String name;
     @Null(message = "處理狀態 - 不得填寫")
     private ProcessStatus status;
-    @NotBlank(message = "郵件內容 - 未填寫")
-    private String content;
     @Null(message = "郵件發送人 - 不得填寫")
     private String publisher;
     @NotBlank(message = "郵件接收人 - 未填寫")
@@ -39,5 +38,7 @@ public class MailBean {
     private String modifyId;
     @Null(message = "修改日期 - 不得填寫")
     private LocalDateTime modifyDate;
+    private MailMessageBean firstMessage;
+    @Null(message = "郵件訊息列表 - 不得填寫")
     private List<MailMessageBean> messageList;
 }

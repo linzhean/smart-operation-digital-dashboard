@@ -8,34 +8,40 @@ import tw.edu.ntub.imd.birc.sodd.bean.DashboardBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.service.ChartDashboardService;
 import tw.edu.ntub.imd.birc.sodd.service.DashboardService;
+import tw.edu.ntub.imd.birc.sodd.service.SyncRecordService;
 import tw.edu.ntub.imd.birc.sodd.util.http.BindingResultUtils;
 import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
+import tw.edu.ntub.imd.birc.sodd.util.json.object.SingleValueObjectData;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/dashboard")
 public class DashboardController {
     private final DashboardService dashboardService;
-    private final ChartDashboardService chartDashboardService;
+    private final SyncRecordService syncRecordService;
 
     @PostMapping("")
     public ResponseEntity<String> addDashboard(@RequestBody DashboardBean dashboardBean,
-                                               BindingResult bindingResult) {
+                                               BindingResult bindingResult,
+                                               HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
         dashboardService.save(dashboardBean);
         return ResponseEntityBuilder.success()
                 .message("新增成功")
                 .build();
     }
-    
+
     @GetMapping("")
-    public ResponseEntity<String> searchByUser() {
+    public ResponseEntity<String> searchByUser(HttpServletRequest request) {
         String userId = SecurityUtils.getLoginUserAccount();
         ArrayData arrayData = new ArrayData();
         for (DashboardBean dashboardBean : dashboardService.searchByUser(userId)) {
-            ObjectData objectData = new ObjectData();
+            ObjectData objectData = arrayData.addObject();
             objectData.add("id", dashboardBean.getId());
             objectData.add("name", dashboardBean.getName());
         }
@@ -45,10 +51,20 @@ public class DashboardController {
                 .build();
     }
 
+    @GetMapping("/sync-time")
+    public ResponseEntity<String> getLastSyncTime(HttpServletRequest request) {
+        return ResponseEntityBuilder.success()
+                .message("查詢成功")
+                .data(SingleValueObjectData.create(
+                        "lastSyncTime", syncRecordService.getLastSyncTime().toString()))
+                .build();
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<String> patchDashboard(@PathVariable("id") Integer id,
                                                  @RequestBody DashboardBean dashboardBean,
-                                                 BindingResult bindingResult) {
+                                                 BindingResult bindingResult,
+                                                 HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
         dashboardService.update(id, dashboardBean);
         return ResponseEntityBuilder.success()
@@ -57,7 +73,7 @@ public class DashboardController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delDashboard(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> delDashboard(@PathVariable("id") Integer id, HttpServletRequest request) {
         DashboardBean dashboardBean = new DashboardBean();
         dashboardBean.setAvailable(false);
         dashboardService.update(id, dashboardBean);

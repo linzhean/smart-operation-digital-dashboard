@@ -17,7 +17,7 @@ public class AssignedTaskBean {
     @NotNull(message = "圖表ID - 未填寫")
     private Integer chartId;
     @Size(max = 254, message = "交辦事項名稱 - 不得超過{max}個字")
-    @NotBlank(message = "圖表ID - 未填寫")
+    @NotBlank(message = "交辦事項名稱 - 未填寫")
     private String name;
     private String defaultProcessor;
     @Null(message = "是否啟用 - 不得填寫")

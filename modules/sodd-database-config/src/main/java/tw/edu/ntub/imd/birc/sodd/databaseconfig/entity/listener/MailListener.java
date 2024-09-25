@@ -13,10 +13,16 @@ public class MailListener {
     public void preSave(Mail mail) {
         String userId = SecurityUtils.getLoginUserAccount();
         LocalDateTime now = LocalDateTime.now();
+        if (StringUtils.isBlank(mail.getPublisher())) {
+            mail.setPublisher(userId);
+        }
+        if (mail.getEmailSendTime() == null) {
+            mail.setEmailSendTime(now);
+        }
         if (mail.getAvailable() == null) {
             mail.setAvailable(true);
         }
-        if (StringUtils.isBlank(userId)) {
+        if (StringUtils.isBlank(mail.getCreateId())) {
             mail.setCreateId(userId);
         }
         if (mail.getCreateDate() == null) {

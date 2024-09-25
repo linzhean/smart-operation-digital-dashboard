@@ -5,13 +5,11 @@ import tw.edu.ntub.birc.common.util.CollectionUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.MailMessageBean;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.MailMessageDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.MailMessage;
+import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.MailMessageService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.MailMessageTransformer;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,11 +27,6 @@ public class MailMessageServiceImpl extends BaseServiceImpl<MailMessageBean, Mai
     @Override
     public MailMessageBean save(MailMessageBean mailMessageBean) {
         MailMessage mailMessage = transformer.transferToEntity(mailMessageBean);
-        mailMessageDAO.findByMailId(mailMessageBean.getMailId())
-                .stream()
-                .sorted(Comparator.comparing(MailMessage::getMessageId).reversed())
-                .findFirst()
-                .ifPresent(message -> mailMessage.setMessageId(message.getMessageId()));
         return transformer.transferToBean(mailMessageDAO.save(mailMessage));
     }
 
@@ -48,17 +41,24 @@ public class MailMessageServiceImpl extends BaseServiceImpl<MailMessageBean, Mai
         MailMessage firstMessage = mailMessageList.stream()
                 .filter(message -> message.getMessageId() == null)
                 .findFirst()
-                .get();
-        resultList.add(firstMessage);
-        mailMessageList.remove(firstMessage);
-        if (mailMessageList.isEmpty()) {
-            return CollectionUtils.map(mailMessageList, transformer::transferToBean);
-        }
-        mailMessageList.stream()
-                .sorted(Comparator.comparing(MailMessage::getMessageId))
-                .map(message -> resultList.add(message));
-        return CollectionUtils.map(resultList, transformer::transferToBean);
+                .orElseThrow(() -> new NotFoundException("查無此郵件訊息"));
+        return CollectionUtils.map(searchChildMessage(resultList, firstMessage), transformer::transferToBean);
     }
 
+    private List<MailMessage> searchChildMessage(List<MailMessage> messageList, MailMessage message) {
+        messageList.add(message);
+        Optional<MailMessage> messageOptional = mailMessageDAO
+                .findByMessageIdAndAvailableIsTrue(message.getId())
+                .stream()
+                .filter(messageBean -> Objects.equals(messageBean.getMessageId(), message.getId()))
+                .findAny();
+        messageOptional.ifPresent(mailMessage -> searchChildMessage(messageList, mailMessage));
+        return messageList;
+    }
 
+    @Override
+    public List<MailMessageBean> searchByMessageId(Integer messageId) {
+        return CollectionUtils.map(
+                mailMessageDAO.findByMessageIdAndAvailableIsTrue(messageId), transformer::transferToBean);
+    }
 }

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class ChartDashboardBean {
+    private Integer id;
     private Integer chartId;
     private Integer dashboardId;
     private Boolean available;

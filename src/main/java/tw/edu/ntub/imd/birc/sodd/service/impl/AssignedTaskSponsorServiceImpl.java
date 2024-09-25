@@ -5,19 +5,19 @@ import tw.edu.ntub.birc.common.util.CollectionUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.AssignedTaskSponsorBean;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.AssignedTaskSponsorDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.AssignedTaskSponsor;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.AssignedTaskSponsorId;
 import tw.edu.ntub.imd.birc.sodd.service.AssignedTaskSponsorService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.AssignedTaskSponsorTransformer;
 
 import java.util.List;
 
 @Service
-public class AssignedTaskSponsorServiceImpl extends BaseServiceImpl<AssignedTaskSponsorBean, AssignedTaskSponsor, AssignedTaskSponsorId>
+public class AssignedTaskSponsorServiceImpl extends BaseServiceImpl<AssignedTaskSponsorBean, AssignedTaskSponsor, Integer>
         implements AssignedTaskSponsorService {
     private final AssignedTaskSponsorDAO assignedTaskSponsorDAO;
     private final AssignedTaskSponsorTransformer transformer;
 
-    public AssignedTaskSponsorServiceImpl(AssignedTaskSponsorDAO assignedTaskSponsorDAO, AssignedTaskSponsorTransformer transformer) {
+    public AssignedTaskSponsorServiceImpl(AssignedTaskSponsorDAO assignedTaskSponsorDAO,
+                                          AssignedTaskSponsorTransformer transformer) {
         super(assignedTaskSponsorDAO, transformer);
         this.assignedTaskSponsorDAO = assignedTaskSponsorDAO;
         this.transformer = transformer;
@@ -46,15 +46,5 @@ public class AssignedTaskSponsorServiceImpl extends BaseServiceImpl<AssignedTask
         sponsor.setChartId(chartId);
         sponsor.setSponsorUserId(userId);
         return transformer.transferToBean(assignedTaskSponsorDAO.save(sponsor));
-    }
-
-    @Override
-    public void removeSponsorFromChart(Integer chartId, String userId) {
-        AssignedTaskSponsorBean sponsorBean = new AssignedTaskSponsorBean();
-        sponsorBean.setAvailable(false);
-        AssignedTaskSponsorId sponsorId = new AssignedTaskSponsorId();
-        sponsorId.setSponsorUserId(userId);
-        sponsorId.setChartId(chartId);
-        update(sponsorId, sponsorBean);
     }
 }

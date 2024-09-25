@@ -36,6 +36,13 @@ public class Dashboard {
     @Column(name = "name", length = 254, nullable = false)
     private String name;
     /**
+     * 儀表板說明 (用於輔助儀表板內圖表進行AI建議)
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "description")
+    private String description;
+    /**
      * 是否啟用(0: 不啟用, 1: 啟用)
      *
      * @since 1.0.0

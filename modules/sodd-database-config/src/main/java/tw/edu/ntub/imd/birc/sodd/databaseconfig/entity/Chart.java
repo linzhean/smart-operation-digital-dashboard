@@ -49,6 +49,13 @@ public class Chart {
     @Column(name = "showcase_image", length = 254, nullable = false)
     private String showcaseImage;
     /**
+     * 資料來源(產生圖表的對應資料表)
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "data_source", length = 254, nullable = false)
+    private String dataSource;
+    /**
      * 是否啟用(0: 不啟用 1:啟用)
      *
      * @since 1.0.0

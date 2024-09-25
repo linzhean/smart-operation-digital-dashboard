@@ -3,9 +3,6 @@ package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate;
 import lombok.Getter;
 
 public enum ProcessStatus {
-
-    ASSIGN("0", "交辦"),
-    ASSIGNED("1", "被交辦"),
     PENDING("2", "待處理"),
     SUCCEEDED("3", "已完成");
 
@@ -29,18 +26,14 @@ public enum ProcessStatus {
     }
 
     public static String getProcessStatusName(ProcessStatus processStatus) {
-        return "[" + processStatus.getProcessStatus() + "]";
-    }
-
-    public static Boolean isAssign(ProcessStatus processStatus) {
-        return processStatus.equals(ProcessStatus.getProcessStatusName(ProcessStatus.ASSIGN));
+        return processStatus.getProcessStatus();
     }
 
     public static Boolean isPending(ProcessStatus processStatus) {
-        return processStatus.equals(ProcessStatus.getProcessStatusName(ProcessStatus.PENDING));
+        return processStatus.equals(ProcessStatus.PENDING);
     }
 
     public static Boolean isSucceeded(ProcessStatus processStatus) {
-        return processStatus.equals(ProcessStatus.getProcessStatusName(ProcessStatus.SUCCEEDED));
+        return processStatus.equals(ProcessStatus.SUCCEEDED);
     }
 }

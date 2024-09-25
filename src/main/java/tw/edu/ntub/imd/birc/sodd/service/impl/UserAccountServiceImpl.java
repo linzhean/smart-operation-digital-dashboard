@@ -23,9 +23,12 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.UserGroupDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.specification.UserAccountSpecification;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount_;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
+import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.UserAccountService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.UserAccountTransformer;
-import tw.edu.ntub.imd.birc.sodd.util.EmailTransformUtils;
+import tw.edu.ntub.imd.birc.sodd.util.email.EmailTransformUtils;
+import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 
 import java.util.*;
 
@@ -77,6 +80,9 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
                     userAccount.setUserName((String) payload.get("name"));
                     userAccount.setGmail(email);
                     userAccount.setGoogleId(googleId);
+                    userAccount.setAvailable(true);
+                    userAccount.setIdentity(userAccount.getIdentity() != null ?
+                            userAccount.getIdentity() : Identity.NO_PERMISSION);
 
                     userAccountDAO.save(userAccount);
                 } else {
@@ -87,10 +93,7 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
                     @Override
                     public Collection<? extends GrantedAuthority> getAuthorities() {
                         List<GrantedAuthority> authorities = new ArrayList<>();
-                        userGroupDAO.findByUserIdAndAvailableIsTrue(username)
-                                .stream()
-                                .map(userGroup -> groupDAO.getById(userGroup.getGroupId()).getName())
-                                .forEach(groupName -> authorities.add(new SimpleGrantedAuthority(groupName)));
+                        authorities.add(new SimpleGrantedAuthority(userAccount.getIdentity().getTypeName()));
                         return authorities;
                     }
 
@@ -99,6 +102,7 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
                         return googleId;
                     }
 
+                    @Override
                     public String getUsername() {
                         return userAccount.getUserId();
                     }
@@ -120,7 +124,7 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
 
                     @Override
                     public boolean isEnabled() {
-                        return true;
+                        return userAccount.getAvailable();
                     }
                 };
             }
@@ -145,12 +149,19 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
 
     @Override
     public List<UserAccountBean> searchByUserValue(String departmentId, String name, String identity, Integer nowPage) {
-        Page<UserAccount> page = userAccountDAO.findAll(
+        Page<UserAccount> userAccountPage = userAccountDAO.findAll(
                 specification.checkBlank(departmentId, name, identity),
                 PageRequest.of(nowPage, SIZE, Sort.by(
                         Sort.Order.asc(UserAccount_.IDENTITY),
                         Sort.Order.asc(UserAccount_.DEPARTMENT_ID)
                 )));
-        return CollectionUtils.map(page.getContent(), transformer::transferToBean);
+        return CollectionUtils.map(userAccountPage.getContent(), transformer::transferToBean);
+    }
+
+    @Override
+    public List<UserAccountBean> searchByUserValue(String departmentId, String name, String identity) {
+        List<UserAccount> userAccountList = userAccountDAO.findAll(
+                specification.checkBlank(departmentId, name, identity));
+        return CollectionUtils.map(userAccountList, transformer::transferToBean);
     }
 }

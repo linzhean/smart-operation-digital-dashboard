@@ -5,11 +5,13 @@ import org.springframework.stereotype.Component;
 import tw.edu.ntub.birc.common.util.StringUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Application_;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Application;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Apply;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
 
 import javax.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 @Component
@@ -26,15 +28,16 @@ public class ApplicationSpecification {
             if (!Identity.isAdmin(identity)) {
                 predicates.add(criteriaBuilder.equal(root.get(Application_.CREATE_ID), userId));
             }
-            if (StringUtils.isNotBlank(status)) {
-                predicates.add(criteriaBuilder.equal(root.get(Application_.APPLY_STATUS), status));
+            if (StringUtils.isNotBlank(status) && EnumSet.allOf(Apply.class).contains(Apply.of(status))) {
+                predicates.add(criteriaBuilder.equal(root.get(Application_.APPLY_STATUS), Apply.of(status)));
             }
-            if (startDate != null && endDate != null) {
+            if (StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {
                 LocalDateTime startDateTime = LocalDateTime.parse(startDate);
                 LocalDateTime endDateTime = LocalDateTime.parse(endDate);
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(Application_.CREATE_DATE), startDateTime));
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get(Application_.END_DATE), endDateTime));
             }
+            predicates.add(criteriaBuilder.equal(root.get(Application_.AVAILABLE), true));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }

@@ -8,10 +8,12 @@ import java.time.LocalDateTime;
 
 @Data
 public class UserAccountBean {
-    @Null(message = "email - 不得填寫")
+    @NotBlank(message = "使用者ID - 未填寫")
     private String userId;
-    @Null(message = "姓名 - 不得填寫")
+    @NotBlank(message = "姓名 - 未填寫")
     private String userName;
+    @NotBlank(message = "員工編號 - 未填寫")
+    private String jobNumber;
     @NotBlank(message = "部門代號 - 未填寫")
     private String departmentId;
     private String departmentName;
@@ -33,4 +35,5 @@ public class UserAccountBean {
     private String modifyId;
     @Null(message = "修改日期 - 不得填寫")
     private LocalDateTime modifyDate;
+    private Integer userGroupId;
 }

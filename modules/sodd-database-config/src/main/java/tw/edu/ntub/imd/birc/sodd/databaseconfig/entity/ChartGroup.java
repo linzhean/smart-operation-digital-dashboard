@@ -17,14 +17,21 @@ import java.time.LocalDateTime;
 @Entity
 @EntityListeners(ChartGroupListener.class)
 @Table(name = "chart_group", schema = Config.DATABASE_NAME)
-@IdClass(ChartGroupId.class)
 public class ChartGroup {
+    /**
+     * 圖表 - 群組ID
+     *
+     * @since 1.0.0
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
     /**
      * 圖表ID
      *
      * @since 1.0.0
      */
-    @Id
     @Column(name = "chart_id", nullable = false)
     private Integer chartId;
     /**
@@ -32,7 +39,6 @@ public class ChartGroup {
      *
      * @since 1.0.0
      */
-    @Id
     @Column(name = "group_id", nullable = false)
     private Integer groupId;
     /**

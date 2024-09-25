@@ -4,17 +4,28 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import tw.edu.ntub.birc.common.util.StringUtils;
+import tw.edu.ntub.imd.birc.sodd.bean.AssignedTaskBean;
+import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
 import tw.edu.ntub.imd.birc.sodd.bean.MailBean;
 import tw.edu.ntub.imd.birc.sodd.bean.MailMessageBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Apply;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ProcessStatus;
+import tw.edu.ntub.imd.birc.sodd.exception.BircException;
+import tw.edu.ntub.imd.birc.sodd.exception.DataAlreadyExistException;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
-import tw.edu.ntub.imd.birc.sodd.service.MailMessageService;
-import tw.edu.ntub.imd.birc.sodd.service.MailService;
+import tw.edu.ntub.imd.birc.sodd.service.*;
 import tw.edu.ntub.imd.birc.sodd.util.http.BindingResultUtils;
 import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.EnumSet;
+import java.util.Objects;
+import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
@@ -22,10 +33,19 @@ import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 public class MailController {
     private final MailService mailService;
     private final MailMessageService messageService;
+    private final ChartService chartService;
+    private final AssignedTaskService assignedTaskService;
 
     @PostMapping("")
-    public ResponseEntity<String> sendAssignMail(@RequestBody MailBean mailBean, BindingResult bindingResult) {
+    public ResponseEntity<String> sendAssignMail(@RequestBody MailBean mailBean,
+                                                 BindingResult bindingResult,
+                                                 HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
+        if (StringUtils.isBlank(mailBean.getFirstMessage().getContent())) {
+            return ResponseEntityBuilder.error()
+                    .message("郵件訊息 - 未填寫")
+                    .build();
+        }
         mailService.save(mailBean);
         return ResponseEntityBuilder.success()
                 .message("交辦發送成功")
@@ -33,9 +53,22 @@ public class MailController {
     }
 
     @PostMapping("/message")
-    public ResponseEntity<String> addMessage(@RequestBody MailMessageBean mailMessageBean,
-                                             BindingResult bindingResult) {
+    public ResponseEntity<String> addMessage(@RequestParam("mailId") Integer mailId,
+                                             @Valid @RequestBody MailMessageBean mailMessageBean,
+                                             BindingResult bindingResult,
+                                             HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
+        messageService.getById(mailMessageBean.getMessageId())
+                .orElseThrow(() -> new NotFoundException("查無此訊息"));
+        messageService.searchByMessageId(mailMessageBean.getMessageId())
+                .stream()
+                .filter(messageBean -> Objects.equals(messageBean.getMessageId(), mailMessageBean.getMessageId()))
+                .findAny()
+                .ifPresent(messageBean -> {
+                    throw new DataAlreadyExistException("此則訊息ID已被ID:" +
+                            messageBean.getMessageId() + "使用過了，請傳入新的訊息ID");
+                });
+        mailMessageBean.setMailId(mailId);
         messageService.save(mailMessageBean);
         return ResponseEntityBuilder.success()
                 .message("新增成功")
@@ -43,20 +76,28 @@ public class MailController {
     }
 
     @GetMapping("")
-    public ResponseEntity<String> searchByStatus(@RequestParam("status") String status) {
+    public ResponseEntity<String> searchByStatus(@RequestParam("status") String status,
+                                                 HttpServletRequest request) {
         String userId = SecurityUtils.getLoginUserAccount();
         ArrayData arrayData = new ArrayData();
         for (MailBean mailBean : mailService.searchByStatus(userId, status)) {
+            String chartName = chartService.getById(mailBean.getChartId())
+                    .map(ChartBean::getName)
+                    .orElseThrow(() -> new NotFoundException("查無此圖表"));
             ObjectData objectData = arrayData.addObject();
             objectData.add("id", mailBean.getId());
-            objectData.add("assignedTaskId", mailBean.getAssignedTaskId());
-            objectData.add("chartId", mailBean.getChartId());
+            objectData.add("chartName", chartName);
             objectData.add("name", mailBean.getName());
             objectData.add("status", ProcessStatus.getProcessStatusName(mailBean.getStatus()));
-            objectData.add("content", mailBean.getContent());
-            objectData.add("pubilsher", mailBean.getPublisher());
+            objectData.add("publisher", mailBean.getPublisher());
             objectData.add("receiver", mailBean.getReceiver());
             objectData.add("emailSendTime", mailBean.getEmailSendTime());
+            if (mailBean.getAssignedTaskId() != null) {
+                String assignedTaskName = assignedTaskService.getById(mailBean.getAssignedTaskId())
+                        .map(AssignedTaskBean::getName)
+                        .orElseThrow(() -> new NotFoundException("查無此交辦"));
+                objectData.add("assignedTaskName", assignedTaskName);
+            }
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
@@ -65,19 +106,27 @@ public class MailController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<String> getById(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> getById(@PathVariable("id") Integer id,
+                                          HttpServletRequest request) {
         ObjectData objectData = new ObjectData();
         MailBean mailBean = mailService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此郵件"));
+        String chartName = chartService.getById(mailBean.getChartId())
+                .map(ChartBean::getName)
+                .orElseThrow(() -> new NotFoundException("查無此圖表"));
         objectData.add("id", mailBean.getId());
-        objectData.add("assignedTaskId", mailBean.getAssignedTaskId());
-        objectData.add("chartId", mailBean.getChartId());
+        objectData.add("chartName", chartName);
         objectData.add("name", mailBean.getName());
         objectData.add("status", ProcessStatus.getProcessStatusName(mailBean.getStatus()));
-        objectData.add("content", mailBean.getContent());
         objectData.add("publisher", mailBean.getPublisher());
         objectData.add("receiver", mailBean.getReceiver());
         objectData.add("emailSendTime", mailBean.getEmailSendTime());
+        if (mailBean.getAssignedTaskId() != null) {
+            String assignedTaskName = assignedTaskService.getById(mailBean.getAssignedTaskId())
+                    .map(AssignedTaskBean::getName)
+                    .orElseThrow(() -> new NotFoundException("查無此交辦"));
+            objectData.add("assignedTaskName", assignedTaskName);
+        }
         ArrayData arrayData = objectData.addArray("messageList");
         for (MailMessageBean messageBean : messageService.searchByMailId(id)) {
             ObjectData messageData = arrayData.addObject();
@@ -85,6 +134,8 @@ public class MailController {
             messageData.add("mailId", messageBean.getMailId());
             messageData.add("messageId", messageBean.getMessageId());
             messageData.add("content", messageBean.getContent());
+            messageData.add("createId", messageBean.getCreateId());
+            messageData.add("createDate", messageBean.getCreateDate());
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
@@ -92,17 +143,36 @@ public class MailController {
                 .build();
     }
 
-    @PatchMapping("/message")
-    public ResponseEntity<String> patchMessage(@PathVariable("id") Integer messageId,
-                                               @RequestBody MailMessageBean messageBean) {
+    @PatchMapping("/message/{messageId}")
+    public ResponseEntity<String> patchMessage(@PathVariable("messageId") Integer messageId,
+                                               @RequestBody MailMessageBean messageBean,
+                                               HttpServletRequest request) {
         messageService.update(messageId, messageBean);
         return ResponseEntityBuilder.success()
                 .message("更新成功")
                 .build();
     }
 
+    @PatchMapping("/message/status/{id}")
+    public ResponseEntity<String> changeStatus(@PathVariable("id") Integer mailId,
+                                               HttpServletRequest request) {
+        MailBean mailBean = mailService.getById(mailId)
+                .orElseThrow(() -> new NotFoundException("查無此郵件"));
+        if (!ProcessStatus.isPending(mailBean.getStatus())) {
+            return ResponseEntityBuilder.error()
+                    .message("此郵件已為已完成狀態")
+                    .build();
+        }
+        mailBean.setStatus(ProcessStatus.SUCCEEDED);
+        mailService.update(mailId, mailBean);
+        return ResponseEntityBuilder.success()
+                .message("更新成功")
+                .build();
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delMail(@PathVariable("id") Integer id) {
+    public ResponseEntity<String> delMail(@PathVariable("id") Integer id,
+                                          HttpServletRequest request) {
         MailBean mailBean = mailService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此郵件"));
         if (!ProcessStatus.isSucceeded(mailBean.getStatus())) {

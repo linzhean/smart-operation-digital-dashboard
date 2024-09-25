@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>審核通過通知</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333333;
+            color: #000000;
+        }
+        .notification-container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        .notification-header {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .notification-content {
+            padding: 20px;
+        }
+        .notification-content p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .notification-footer a {
+            background-color: #1e1a1a;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .notification-footer a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="notification-container">
+    <div class="notification-header">審核通過通知</div>
+    <div class="notification-content">
+        <p>親愛的 <span id="username">{{receiver}}</span>,</p>
+        <h3>您的申請已被管理員審核通過。</h3>
+        <p>您現在可以使用我們的數位儀表板系統來管理和查看{{content}}的資料。</p>
+        <p>如有任何問題，請隨時與我們聯繫。</p>
+        <p>此致</p>
+        <p>益張實業股份有限公司-資訊部門</p>
+    </div>
+</div>
+</body>
+</html>
