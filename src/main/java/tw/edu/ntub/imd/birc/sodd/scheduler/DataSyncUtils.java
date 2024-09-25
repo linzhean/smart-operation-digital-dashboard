@@ -73,7 +73,7 @@ public class DataSyncUtils<E> {
         if (applicationContext.containsBean(daoBeanName)) {
             return (BaseDAO) applicationContext.getBean(daoBeanName);
         } else {
-            throw new IllegalArgumentException("No DAO found for entity class: " + entityClass.getSimpleName());
+            throw new IllegalArgumentException("查無此DAO: " + entityClass.getSimpleName());
         }
     }
 

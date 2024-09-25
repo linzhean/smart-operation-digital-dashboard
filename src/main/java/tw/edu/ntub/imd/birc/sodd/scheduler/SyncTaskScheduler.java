@@ -44,7 +44,6 @@ public class SyncTaskScheduler {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         URL resource = classLoader.getResource(packageName);
         File directory = new File(resource.getFile());
-
         List<Class<?>> classes = new ArrayList<>();
         if (directory.exists()) {
             for (String file : directory.list()) {

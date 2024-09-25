@@ -5,8 +5,12 @@ import lombok.Getter;
 @Getter
 public enum PythonScript {
     NO_SUCH_SCRIPT("", ""),
-    TEXT_SCRIPT("test.py", "C:\\Users\\Jerrylin\\IdeaProjects\\sodd-backend\\src\\python\\script\\Test.py"),
-    AI_ASSISTANT("ai_assistant.py", "C:\\Users\\Jerrylin\\IdeaProjects\\sodd-backend\\python\\llama3_ai\\ai_assistant.py");
+    AI_ASSISTANT("ai_assistant.py", "C:\\Users\\Jerrylin" +
+            "\\IdeaProjects\\sodd-backend\\python\\llama3_ai\\ai_assistant.py"),
+    AI_CHAT("ai_chat.py", "C:\\Users\\Jerrylin" +
+            "\\IdeaProjects\\sodd-backend\\python\\llama3_ai\\ai_chat.py"),
+    YIELD_ACHIEVEMENT_RATE("yield_achievement_rate.py", "C:\\Users\\Jerrylin" +
+            "\\IdeaProjects\\sodd-backend\\UploadFile\\file\\script\\產能達成率\\yield_achievement_rate.py");
 
     private final String fileName;
     private final String filePath;

@@ -10,6 +10,7 @@ import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.*;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.AssignedTaskSponsor;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Chart;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ChartDataSource;
 import tw.edu.ntub.imd.birc.sodd.dto.FileMultipartFile;
 import tw.edu.ntub.imd.birc.sodd.dto.file.uploader.MultipartFileUploader;
 import tw.edu.ntub.imd.birc.sodd.dto.file.uploader.UploadResult;
@@ -18,7 +19,7 @@ import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.ChartService;
 import tw.edu.ntub.imd.birc.sodd.service.GroupService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.ChartTransformer;
-import tw.edu.ntub.imd.birc.sodd.util.python.PythonUtils;
+import tw.edu.ntub.imd.birc.sodd.util.sodd.PythonUtils;
 
 import java.io.*;
 import java.util.List;
@@ -31,6 +32,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
     private final ChartGroupDAO chartGroupDAO;
     private final ChartDashboardDAO chartDashboardDAO;
     private final AssignedTaskSponsorDAO sponsorDAO;
+    private final DataSourceDAO dataSourceDAO;
     private final GroupService groupService;
     private final ChartTransformer transformer;
     private final MultipartFileUploader multipartFileUploader;
@@ -40,6 +42,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                             ChartGroupDAO chartGroupDAO,
                             ChartDashboardDAO chartDashboardDAO,
                             AssignedTaskSponsorDAO sponsorDAO,
+                            DataSourceDAO dataSourceDAO,
                             GroupService groupService,
                             ChartTransformer transformer,
                             MultipartFileUploader multipartFileUploader) {
@@ -47,6 +50,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
         this.chartDAO = chartDAO;
         this.chartGroupDAO = chartGroupDAO;
         this.sponsorDAO = sponsorDAO;
+        this.dataSourceDAO = dataSourceDAO;
         this.groupService = groupService;
         this.chartDashboardDAO = chartDashboardDAO;
         this.transformer = transformer;
@@ -64,8 +68,8 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                     chartBean.getImageFile(), "showcaseImage", chartBean.getName());
             chart.setShowcaseImage(showcaseImageResult.getUrl());
             Resource photoResource = pythonUtils.genPNG(chart.getScriptPath(), chart.getName());
-            Resource htmlResource = pythonUtils.genHTML(chart.getScriptPath(), chart.getName());
-            checkFileOutput(photoResource.getFile(), htmlResource.getFile());
+//            Resource htmlResource = pythonUtils.genHTML(chart.getScriptPath(), chart.getName());
+//            checkFileOutput(photoResource.getFile(), htmlResource.getFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -94,7 +98,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
         List<AssignedTaskSponsor> canAssignCharts =
                 sponsorDAO.findBySponsorUserIdAndAvailableIsTrue(SecurityUtils.getLoginUserAccount());
         for (ChartBean chartBean : chartBeans) {
-            chartBean.setChartImage(genChartPhoto(chartBean));
+            chartBean.setChartImage(genChartHTML(chartBean));
             for (AssignedTaskSponsor sponsor : canAssignCharts) {
                 chartBean.setCanAssign(Objects.equals(chartBean.getId(), sponsor.getChartId()));
             }
@@ -104,6 +108,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
 
     private String genChartPhoto(ChartBean chartBean) {
         try {
+            String jsonData = dataSourceDAO.getJsonData(ChartDataSource.of(chartBean.getDataSource()));
             Resource resource = pythonUtils.genPNG(chartBean.getScriptPath(), chartBean.getName());
             File file = resource.getFile();
             if (file.exists()) {
@@ -117,15 +122,17 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
             } else {
                 throw new ChartException("圖表檔案未生成");
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new ChartException("圖表生成錯誤");
         }
     }
 
+
     @Override
     public String genChartHTML(ChartBean chartBean) {
         try {
-            Resource resource = pythonUtils.genHTML(chartBean.getScriptPath(), chartBean.getName());
+            String jsonData = dataSourceDAO.getJsonData(ChartDataSource.of(chartBean.getDataSource()));
+            Resource resource = pythonUtils.genHTML(chartBean.getScriptPath(), chartBean.getName(), jsonData);
             File file = resource.getFile();
             if (file.exists()) {
                 MultipartFile multipartFile = new FileMultipartFile(resource.getFile());
@@ -140,6 +147,8 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
             }
         } catch (IOException e) {
             throw new ChartException("圖表生成錯誤");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -153,7 +162,12 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                 .collect(Collectors.toList());
         for (ChartBean chartBean : allCharts) {
             for (Chart chart : observableCharts) {
-                chartBean.setObservable(Objects.equals(chartBean.getId(), chart.getId()));
+                if (Objects.equals(chartBean.getId(), chart.getId())) {
+                    chartBean.setObservable(true);
+                    break;
+                } else {
+                    chartBean.setObservable(false);
+                }
             }
         }
         return allCharts;
@@ -162,6 +176,6 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
 
     @Override
     public List<ChartBean> searchByAvailable(Boolean available) {
-        return CollectionUtils.map(chartDAO.findByAvailableIsTrue(), transformer::transferToBean);
+        return CollectionUtils.map(chartDAO.findByAvailable(available), transformer::transferToBean);
     }
 }
