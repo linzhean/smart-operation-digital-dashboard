@@ -14,7 +14,5 @@ public interface ChartService extends BaseService<ChartBean, Integer> {
 
     List<ChartBean> searchByUser(String userId);
 
-
-
     List<ChartBean> searchByAvailable(Boolean available);
 }

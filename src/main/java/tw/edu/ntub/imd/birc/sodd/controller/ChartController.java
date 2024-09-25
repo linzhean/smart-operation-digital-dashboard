@@ -24,6 +24,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +50,7 @@ public class ChartController {
                 .message("新增成功")
                 .build();
     }
+
 
     @PostMapping("/dashboard")
     public ResponseEntity<String> setChartInDashboard(@RequestParam("dashboardId") Integer dashboardId,
@@ -76,6 +80,7 @@ public class ChartController {
                 .build();
     }
 
+
     @GetMapping("")
     public ResponseEntity<String> searchByAvailable(@RequestParam("available") Boolean available,
                                                     HttpServletRequest request) {
@@ -91,6 +96,7 @@ public class ChartController {
                 .data(arrayData)
                 .build();
     }
+
 
     @GetMapping("/dashboard")
     public ResponseEntity<String> searchByDashboardId(@RequestParam("dashboardId") Integer dashboardId,

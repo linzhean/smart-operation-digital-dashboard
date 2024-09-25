@@ -15,13 +15,19 @@ public class ChartBean {
     private Integer id;
     @NotBlank(message = "圖表名稱 - 未填寫")
     private String name;
-    @NotNull(message = "生成圖表檔案 - 未填寫")
+    @NotNull(message = "生成圖表檔案 - 未上傳")
     private MultipartFile scriptFile;
     @Null(message = "生成圖表檔案路徑 - 不得填寫")
     private String scriptPath;
+    @NotNull(message = "圖表縮圖檔案 - 未上傳")
     private MultipartFile imageFile;
+    @Null(message = "縮圖檔案路徑 - 不得填寫")
     private String showcaseImage;
+    @Null(message = "資料來源(產生圖表的對應資料表) - 不得填寫")
+    private String dataSource;
+    @Null(message = "靜態圖表 - 不得填寫")
     private String chartImage;
+    @Null(message = "互動式圖表檔案 - 不得填寫")
     private Resource chartHTML;
     @Null(message = "是否可發送交辦 - 不得填寫")
     private Boolean canAssign;
