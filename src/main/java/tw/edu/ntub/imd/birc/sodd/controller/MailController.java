@@ -158,7 +158,7 @@ public class MailController {
                                                HttpServletRequest request) {
         MailBean mailBean = mailService.getById(mailId)
                 .orElseThrow(() -> new NotFoundException("查無此郵件"));
-        if (mailBean.getStatus().equals(ProcessStatus.PENDING)) {
+        if (!ProcessStatus.isPending(mailBean.getStatus())) {
             return ResponseEntityBuilder.error()
                     .message("此郵件已為已完成狀態")
                     .build();

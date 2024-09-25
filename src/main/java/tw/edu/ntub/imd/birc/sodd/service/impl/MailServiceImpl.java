@@ -60,8 +60,8 @@ public class MailServiceImpl extends BaseServiceImpl<MailBean, Mail, Integer> im
             String userMail = userAccountDAO.findById(mailBean.getReceiver())
                     .map(UserAccount::getGmail)
                     .orElseThrow(() -> new NotFoundException("查無此使用者"));
-            emailUtils.sendMail(mailBean.getReceiver(), userMail, "src/main/resources/mail/AssignTaskMail.html",
-                    "數位儀表板交辦事項", firstMes.getContent());
+            emailUtils.sendMail(mailBean.getReceiver(), userMail, "數位儀表板交辦事項",
+                    "src/main/resources/mail/AssignTaskMail.html", firstMes.getContent());
             mail = mailDAO.save(mail);
             firstMes.setMailId(mail.getId());
             messageService.save(firstMes);
