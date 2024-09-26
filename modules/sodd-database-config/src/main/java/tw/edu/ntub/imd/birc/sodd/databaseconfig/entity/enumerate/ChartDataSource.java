@@ -1,6 +1,7 @@
 package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate;
 
 import lombok.Getter;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.views.YieldAchievementRate;
 
 @Getter
 public enum ChartDataSource {
@@ -20,5 +21,14 @@ public enum ChartDataSource {
             }
         }
         return ChartDataSource.NO_SUCH_TABLE;
+    }
+
+    public static Class<?> getChartClass(ChartDataSource chartDataSource) {
+        switch (chartDataSource) {
+            case YIELD_ACHIEVEMENT_RATE:
+                return YieldAchievementRate.class;
+            default:
+                throw new RuntimeException("查無此dataSource對應的資料表");
+        }
     }
 }
