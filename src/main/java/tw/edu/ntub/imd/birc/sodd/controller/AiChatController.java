@@ -2,9 +2,11 @@ package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.imd.birc.sodd.bean.AiChatBean;
+import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.AIGenType;
 import tw.edu.ntub.imd.birc.sodd.service.AiChatService;
 import tw.edu.ntub.imd.birc.sodd.util.http.BindingResultUtils;
@@ -20,6 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/ai")
+@PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
 public class AiChatController {
     private final AiChatService aiChatService;
 

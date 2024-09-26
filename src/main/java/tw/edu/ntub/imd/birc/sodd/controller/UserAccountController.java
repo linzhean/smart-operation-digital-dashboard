@@ -36,6 +36,7 @@ public class UserAccountController {
     private final DepartmentService departmentService;
     private final EmailUtils emailUtils;
 
+    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
     @GetMapping(path = "")
     public ResponseEntity<String> getLoginUser(HttpServletRequest request) {
         ObjectData objectData = new ObjectData();
@@ -138,7 +139,7 @@ public class UserAccountController {
                 .build();
     }
 
-
+    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
     @GetMapping(path = "/all")
     public ResponseEntity<String> searchAllUser(
             @RequestParam(name = "departmentId", required = false) String departmentId,
@@ -191,6 +192,7 @@ public class UserAccountController {
     }
 
 
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @PatchMapping("/admit")
     public ResponseEntity<String> admitUser(@RequestParam("userId") String userId,
                                             HttpServletRequest request) {
@@ -223,7 +225,7 @@ public class UserAccountController {
                 StringUtils.isBlank(userAccountBean.getPosition());
     }
 
-
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @PatchMapping("/able")
     public ResponseEntity<String> setUserAvailable(@RequestParam("userId") String userId,
                                                    HttpServletRequest request) {
@@ -236,7 +238,7 @@ public class UserAccountController {
                 .build();
     }
 
-
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delUserAccount(@PathVariable("id") String userId,
                                                  HttpServletRequest request) {

@@ -2,9 +2,11 @@ package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.imd.birc.sodd.bean.*;
+import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.dto.ListDTO;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.AssignedTaskService;
@@ -32,6 +34,7 @@ public class AssignedTaskController {
     private final ChartService chartService;
     private final UserAccountService userAccountService;
 
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @PostMapping("")
     public ResponseEntity<String> addAssignedTask(@Valid @RequestBody AssignedTaskBean assignedTaskBean,
                                                   BindingResult bindingResult,
@@ -43,6 +46,8 @@ public class AssignedTaskController {
                 .build();
     }
 
+
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @PostMapping("/sponsor")
     public ResponseEntity<String> setSponsorInChart(@RequestParam("chartId") Integer chartId,
                                                     @RequestBody ListDTO listDTO,
@@ -71,6 +76,7 @@ public class AssignedTaskController {
                 .build();
     }
 
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @GetMapping("")
     public ResponseEntity<String> searchAll(HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
@@ -91,6 +97,8 @@ public class AssignedTaskController {
                 .build();
     }
 
+
+    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
     @GetMapping("/sponsor")
     public ResponseEntity<String> searchSponsorByChartId(@RequestParam("chartId") Integer chartId,
                                                          HttpServletRequest request) {
@@ -111,6 +119,7 @@ public class AssignedTaskController {
     }
 
 
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @PatchMapping("/{id}")
     public ResponseEntity<String> patchAssignTask(@PathVariable("id") Integer id,
                                                   @RequestBody AssignedTaskBean assignedTaskBean,
@@ -121,6 +130,7 @@ public class AssignedTaskController {
                 .build();
     }
 
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delAssignTask(@PathVariable("id") Integer id,
                                                 HttpServletRequest request) {

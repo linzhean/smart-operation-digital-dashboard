@@ -2,9 +2,11 @@ package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.imd.birc.sodd.bean.ExportBean;
 import tw.edu.ntub.imd.birc.sodd.bean.UserAccountBean;
+import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.dto.ListDTO;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.ChartService;
@@ -28,6 +30,8 @@ public class ExportController {
     private final UserAccountService userAccountService;
     private final ChartService chartService;
 
+
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @PostMapping("")
     public ResponseEntity<String> setExporterInChart(@RequestParam("chartId") Integer chartId,
                                                      @RequestBody ListDTO listDTO,
@@ -56,6 +60,7 @@ public class ExportController {
                 .build();
     }
 
+    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
     @PostMapping("/export")
     public void exportExcel(@RequestParam("chartId") Integer chartId,
                             HttpServletResponse response,
@@ -63,6 +68,8 @@ public class ExportController {
         exportService.export(chartId, response);
     }
 
+
+    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
     @GetMapping("")
     public ResponseEntity<String> searchByChartId(@RequestParam("chartId") Integer chartId,
                                                   HttpServletRequest request) {

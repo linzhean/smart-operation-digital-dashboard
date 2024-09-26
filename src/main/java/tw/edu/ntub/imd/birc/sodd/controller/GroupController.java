@@ -2,9 +2,11 @@ package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.imd.birc.sodd.bean.*;
+import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.*;
 import tw.edu.ntub.imd.birc.sodd.util.http.BindingResultUtils;
@@ -18,6 +20,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @RestController
 @RequestMapping(path = "/group")
+@PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
 public class GroupController {
     private final GroupService groupService;
     private final UserAccountService userAccountService;
