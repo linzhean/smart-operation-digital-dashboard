@@ -2,15 +2,14 @@ package tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate;
 
 import lombok.Getter;
 
+@Getter
 public enum Identity {
     NO_PERMISSION("0", "無權限"),
     MANAGER("1", "高階主管"),
-    EMPLOYEE("2", "員工"),
+    DEVELOPER("2", "開發者"),
     ADMIN("3", "管理員");
 
-    @Getter
     private final String value;
-    @Getter
     private final String typeName;
 
     Identity(String value, String typeName) {
@@ -47,7 +46,7 @@ public enum Identity {
         return identity.equals(Identity.MANAGER.getTypeName());
     }
 
-    public static boolean isEmployee(String identity) {
-        return identity.equals(Identity.EMPLOYEE.getTypeName());
+    public static boolean isDeveloper(String identity) {
+        return identity.equals(Identity.DEVELOPER.getTypeName());
     }
 }

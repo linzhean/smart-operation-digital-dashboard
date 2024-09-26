@@ -25,7 +25,7 @@ public class ApplicationSpecification {
     ) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if (!Identity.isAdminTypeName(Identity.of(identity).getTypeName())) {
+            if (!Identity.isAdmin(identity)) {
                 predicates.add(criteriaBuilder.equal(root.get(Application_.CREATE_ID), userId));
             }
             if (StringUtils.isNotBlank(status) && EnumSet.allOf(Apply.class).contains(Apply.of(status))) {
@@ -37,6 +37,7 @@ public class ApplicationSpecification {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(Application_.CREATE_DATE), startDateTime));
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get(Application_.END_DATE), endDateTime));
             }
+            predicates.add(criteriaBuilder.equal(root.get(Application_.AVAILABLE), true));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }

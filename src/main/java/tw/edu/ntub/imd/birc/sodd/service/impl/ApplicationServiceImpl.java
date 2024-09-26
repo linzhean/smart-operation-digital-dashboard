@@ -16,6 +16,7 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Apply;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.*;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.ApplicationTransformer;
+import tw.edu.ntub.imd.birc.sodd.util.email.EmailUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -35,6 +36,8 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
     private final GroupService groupService;
     private final ChartService chartService;
     private final ChartGroupService chartGroupService;
+    private final UserAccountService userAccountService;
+    private final EmailUtils emailUtils;
     private final TaskScheduler taskScheduler;
     private ScheduledFuture startTask;
     private ScheduledFuture endTask;
@@ -46,6 +49,8 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
                                   GroupService groupService,
                                   ChartService chartService,
                                   ChartGroupService chartGroupService,
+                                  UserAccountService userAccountService,
+                                  EmailUtils emailUtils,
                                   TaskScheduler taskScheduler) {
         super(applicationDAO, transformer);
         this.applicationDAO = applicationDAO;
@@ -55,6 +60,8 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
         this.groupService = groupService;
         this.chartService = chartService;
         this.chartGroupService = chartGroupService;
+        this.userAccountService = userAccountService;
+        this.emailUtils = emailUtils;
         this.taskScheduler = taskScheduler;
     }
 
@@ -102,7 +109,12 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
     @Override
     public void permitApplication(ApplicationBean applicationBean, String userId) {
         Application application = transformer.transferToEntity(applicationBean);
+        String email = userAccountService.getById(userId)
+                .map(UserAccountBean::getGmail)
+                .orElseThrow(() -> new NotFoundException("查無此使用者"));
         changeApplyStatus(application, Apply.PASSED);
+        emailUtils.sendMail(applicationBean.getApplicant(), email, "申請審核通過通知",
+                "src/main/resources/mail/applicationPermitted.html", null);
         Instant startInstant = application.getStartDate().atZone(ZoneId.systemDefault()).toInstant();
         Instant endInstant = application.getEndDate().atZone(ZoneId.systemDefault()).toInstant();
         // 申請啟用任務裡啟動結束任務

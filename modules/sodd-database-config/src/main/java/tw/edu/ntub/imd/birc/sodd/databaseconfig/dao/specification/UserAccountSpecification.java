@@ -17,7 +17,7 @@ public class UserAccountSpecification {
     private static final EnumSet<Identity> ALLOWED_IDENTITIES = EnumSet.of(
             Identity.NO_PERMISSION,
             Identity.MANAGER,
-            Identity.EMPLOYEE
+            Identity.DEVELOPER
     );
 
     public Specification<UserAccount> checkBlank(
@@ -38,8 +38,6 @@ public class UserAccountSpecification {
                     predicates.add(criteriaBuilder.equal(root.get(UserAccount_.IDENTITY), Identity.NO_PERMISSION));
                 } else if (Identity.isManager(Identity.of(identity).getTypeName())) {
                     predicates.add(criteriaBuilder.equal(root.get(UserAccount_.IDENTITY), Identity.MANAGER));
-                } else if (Identity.isEmployee(Identity.of(identity).getTypeName())) {
-                    predicates.add(criteriaBuilder.equal(root.get(UserAccount_.IDENTITY), Identity.EMPLOYEE));
                 }
             } else {
                 predicates.add(criteriaBuilder.notEqual(root.get(UserAccount_.IDENTITY), Identity.NO_PERMISSION));

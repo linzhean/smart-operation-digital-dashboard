@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServic
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import tw.edu.ntub.imd.birc.sodd.config.properties.FileProperties;
 import tw.edu.ntub.imd.birc.sodd.dto.file.directory.Directory;
 import tw.edu.ntub.imd.birc.sodd.dto.file.directory.DirectoryImpl;
@@ -20,6 +21,7 @@ import tw.edu.ntub.imd.birc.sodd.util.http.ResponseUtils;
 
 import java.nio.file.Paths;
 
+@EnableScheduling
 @SpringBootApplication(exclude = {UserDetailsServiceAutoConfiguration.class})
 public class SoddApplication extends SpringBootServletInitializer {
     @Override

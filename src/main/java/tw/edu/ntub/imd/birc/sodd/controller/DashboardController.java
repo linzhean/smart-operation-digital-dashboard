@@ -8,18 +8,22 @@ import tw.edu.ntub.imd.birc.sodd.bean.DashboardBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.service.ChartDashboardService;
 import tw.edu.ntub.imd.birc.sodd.service.DashboardService;
+import tw.edu.ntub.imd.birc.sodd.service.SyncRecordService;
 import tw.edu.ntub.imd.birc.sodd.util.http.BindingResultUtils;
 import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
+import tw.edu.ntub.imd.birc.sodd.util.json.object.SingleValueObjectData;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/dashboard")
 public class DashboardController {
     private final DashboardService dashboardService;
+    private final SyncRecordService syncRecordService;
 
     @PostMapping("")
     public ResponseEntity<String> addDashboard(@RequestBody DashboardBean dashboardBean,
@@ -44,6 +48,15 @@ public class DashboardController {
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
                 .data(arrayData)
+                .build();
+    }
+
+    @GetMapping("/sync-time")
+    public ResponseEntity<String> getLastSyncTime(HttpServletRequest request) {
+        return ResponseEntityBuilder.success()
+                .message("查詢成功")
+                .data(SingleValueObjectData.create(
+                        "lastSyncTime", syncRecordService.getLastSyncTime().toString()))
                 .build();
     }
 

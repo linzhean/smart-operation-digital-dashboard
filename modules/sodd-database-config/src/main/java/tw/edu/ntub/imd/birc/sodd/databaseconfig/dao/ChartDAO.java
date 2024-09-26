@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface ChartDAO extends BaseDAO<Chart, Integer> {
     List<Chart> findByAvailableIsTrue();
+
+    List<Chart> findByAvailable(Boolean available);
 }

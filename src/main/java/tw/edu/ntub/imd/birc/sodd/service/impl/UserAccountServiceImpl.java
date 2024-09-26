@@ -23,9 +23,12 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.UserGroupDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.specification.UserAccountSpecification;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount_;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
+import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.UserAccountService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.UserAccountTransformer;
-import tw.edu.ntub.imd.birc.sodd.util.EmailTransformUtils;
+import tw.edu.ntub.imd.birc.sodd.util.email.EmailTransformUtils;
+import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
 
 import java.util.*;
 
@@ -78,6 +81,8 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
                     userAccount.setGmail(email);
                     userAccount.setGoogleId(googleId);
                     userAccount.setAvailable(true);
+                    userAccount.setIdentity(userAccount.getIdentity() != null ?
+                            userAccount.getIdentity() : Identity.NO_PERMISSION);
 
                     userAccountDAO.save(userAccount);
                 } else {

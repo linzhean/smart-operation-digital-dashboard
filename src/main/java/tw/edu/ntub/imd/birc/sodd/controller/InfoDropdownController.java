@@ -58,10 +58,8 @@ public class InfoDropdownController {
         EnumSet<Identity> resource = EnumSet.allOf(Identity.class);
         identityObjectData.add("identityList", resource,
                 (contentData, bean) -> {
-                    if (Identity.isManager(bean.getValue()) && Identity.isEmployee(bean.getValue())) {
-                        contentData.add("key", bean.getValue());
-                        contentData.add("value", bean.getTypeName());
-                    }
+                    contentData.add("key", bean.getValue());
+                    contentData.add("value", bean.getTypeName());
                 });
     }
 }

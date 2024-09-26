@@ -31,8 +31,8 @@ public class MailSpecification {
             if (StringUtils.isNotBlank(status) && EnumSet.allOf(ProcessStatus.class).contains(ProcessStatus.of(status))) {
                 predicates.add(criteriaBuilder.equal(root.get(Mail_.STATUS), ProcessStatus.of(status)));
             }
+            predicates.add(criteriaBuilder.equal(root.get(Mail_.AVAILABLE), true));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
-
     }
 }

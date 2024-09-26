@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum PythonGenType {
-    CHART_PNG("png"),
+    CHART_PNG("photo"),
     CHART_HTML("html"),
     AI("ai");
 
@@ -12,5 +12,13 @@ public enum PythonGenType {
 
     PythonGenType(String type) {
         this.type = type;
+    }
+
+    public static Boolean isChartPhoto(String type) {
+        return type.equals(PythonGenType.CHART_PNG.getType());
+    }
+
+    public static Boolean isChartHTML(String type) {
+        return type.equals(PythonGenType.CHART_HTML.getType());
     }
 }

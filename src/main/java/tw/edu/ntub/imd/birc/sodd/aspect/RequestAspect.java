@@ -1,5 +1,7 @@
 package tw.edu.ntub.imd.birc.sodd.aspect;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import lombok.AllArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 import tw.edu.ntub.imd.birc.sodd.service.RequestService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 
 @Aspect
 @Component
@@ -39,7 +42,9 @@ public class RequestAspect {
                     }
                 }
                 if (request != null) {
-                    requestService.addRequestRecord(String.valueOf(responseEntity.getStatusCode()), request);
+                    JsonObject jsonObject = JsonParser.parseString(
+                            (String) Objects.requireNonNull(responseEntity.getBody())).getAsJsonObject();
+                    requestService.addRequestRecord(jsonObject.get("message").getAsString(), request);
                 }
             }
         }

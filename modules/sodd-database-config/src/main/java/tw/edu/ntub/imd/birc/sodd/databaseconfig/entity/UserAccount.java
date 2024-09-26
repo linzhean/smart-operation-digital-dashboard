@@ -57,7 +57,7 @@ public class UserAccount {
     @Column(name = "gmail", length = 254, nullable = false)
     private String gmail;
     /**
-     * 權限(0: 無權限，1: 一般使用者，2: 管理員)
+     * 權限(0: 無權限，1: 高階主管，2: 開發者、3: 管理員)
      *
      * @since 1.0.0
      */
