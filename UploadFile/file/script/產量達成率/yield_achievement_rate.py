@@ -17,19 +17,14 @@ def generate_html_chart(file_name):
     df['date'] = pd.to_datetime(df['date'])
 
     # 將數據轉換為數字型
-    df['productionVolume'] = pd.to_numeric(df['productionVolume'], errors='coerce')
-    df['advanceQuantity'] = pd.to_numeric(df['advanceQuantity'], errors='coerce')
-    df['expectedOutput'] = pd.to_numeric(df['expectedOutput'], errors='coerce')
-
-    # 計算產量達成率
-    df['yieldAchievementRate'] = ((df['productionVolume'] + df['advanceQuantity']) / df['expectedOutput']) * 100
+    product_numbers = df['productNumber']
 
     # 創建圖表
     fig = go.Figure()
 
     # 依照品號進行分組，為每個品號生成一條線
-    for product_number in df['productNumber'].unique():
-        product_data = df[df['productNumber'] == product_number]
+    for product_number in product_numbers.unique():
+        product_data = df[product_numbers == product_number]
 
         # 添加折線圖：品號為名稱，日期為 x 軸，產量達成率為 y 軸
         fig.add_trace(go.Scatter(
@@ -47,9 +42,7 @@ def generate_html_chart(file_name):
         xaxis_title='日期',
         yaxis_title='產量達成率 (%)',
         yaxis=dict(range=[0, 100]),  # 可根據數據調整範圍
-        autosize=False,
-        width=900,
-        height=600
+        autosize=True,
     )
 # 圖表讀資料生成圖表
 
