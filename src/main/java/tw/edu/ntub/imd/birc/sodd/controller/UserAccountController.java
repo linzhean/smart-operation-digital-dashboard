@@ -177,6 +177,14 @@ public class UserAccountController {
                     .build();
         }
         BindingResultUtils.validate(bindingResult);
+        if (Identity.isNoPermission(identity)) {
+            if (userAccountBean.getJobNumber() == null) {
+                return ResponseEntityBuilder.error()
+                        .errorCode("FormValidation - Invalid")
+                        .message("員工編號 - 未填寫")
+                        .build();
+            }
+        }
         try {
             Optional<UserAccountBean> accountBean = userAccountService.getById(userAccountBean.getJobNumber());
             if (accountBean.isPresent()) {
