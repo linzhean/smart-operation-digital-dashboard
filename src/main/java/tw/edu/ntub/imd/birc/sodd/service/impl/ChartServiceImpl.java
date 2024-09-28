@@ -1,5 +1,7 @@
 package tw.edu.ntub.imd.birc.sodd.service.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +13,7 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.*;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.AssignedTaskSponsor;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Chart;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ChartDataSource;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.views.CalJsonToInfo;
 import tw.edu.ntub.imd.birc.sodd.dto.FileMultipartFile;
 import tw.edu.ntub.imd.birc.sodd.dto.file.uploader.MultipartFileUploader;
 import tw.edu.ntub.imd.birc.sodd.dto.file.uploader.UploadResult;
@@ -22,7 +25,9 @@ import tw.edu.ntub.imd.birc.sodd.service.transformer.ChartTransformer;
 import tw.edu.ntub.imd.birc.sodd.util.sodd.PythonUtils;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -59,21 +64,22 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
 
     @Override
     public ChartBean save(ChartBean chartBean) {
-        Chart chart = transformer.transferToEntity(chartBean);
-        try {
-            UploadResult scriptFileResult = multipartFileUploader.upload(
-                    chartBean.getScriptFile(), "script", chartBean.getName());
-            chart.setScriptPath(scriptFileResult.getUrl());
-            UploadResult showcaseImageResult = multipartFileUploader.upload(
-                    chartBean.getImageFile(), "showcaseImage", chartBean.getName());
-            chart.setShowcaseImage(showcaseImageResult.getUrl());
-            Resource photoResource = pythonUtils.genPNG(chart.getScriptPath(), chart.getName());
+//        Chart chart = transformer.transferToEntity(chartBean);
+//        try {
+//            UploadResult scriptFileResult = multipartFileUploader.upload(
+//                    chartBean.getScriptFile(), "script", chartBean.getName());
+//            chart.setScriptPath(scriptFileResult.getUrl());
+//            UploadResult showcaseImageResult = multipartFileUploader.upload(
+//                    chartBean.getImageFile(), "showcaseImage", chartBean.getName());
+//            chart.setShowcaseImage(showcaseImageResult.getUrl());
+//            Resource photoResource = pythonUtils.genPNG(chart.getScriptPath(), chart.getName());
 //            Resource htmlResource = pythonUtils.genHTML(chart.getScriptPath(), chart.getName());
 //            checkFileOutput(photoResource.getFile(), htmlResource.getFile());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return transformer.transferToBean(chartDAO.save(chart));
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//        return transformer.transferToBean(chartDAO.save(chart));
+        return null;
     }
 
     private void checkFileOutput(File photoFile, File htmlFile) {
@@ -106,33 +112,20 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
         return chartBeans;
     }
 
-    private String genChartPhoto(ChartBean chartBean) {
-        try {
-            String jsonData = dataSourceDAO.getJsonData(ChartDataSource.of(chartBean.getDataSource()));
-            Resource resource = pythonUtils.genPNG(chartBean.getScriptPath(), chartBean.getName());
-            File file = resource.getFile();
-            if (file.exists()) {
-                MultipartFile multipartFile = new FileMultipartFile(resource.getFile());
-                UploadResult uploadResult = multipartFileUploader.upload(
-                        multipartFile, "chart_photo", chartBean.getName());
-                if (!file.delete()) {
-                    throw new ChartException("無法刪除圖表檔案：" + file.getAbsolutePath());
-                }
-                return uploadResult.getUrl();
-            } else {
-                throw new ChartException("圖表檔案未生成");
-            }
-        } catch (Exception e) {
-            throw new ChartException("圖表生成錯誤");
-        }
-    }
-
 
     @Override
     public String genChartHTML(ChartBean chartBean) {
         try {
             String jsonData = dataSourceDAO.getJsonData(ChartDataSource.of(chartBean.getDataSource()));
-            Resource resource = pythonUtils.genHTML(chartBean.getScriptPath(), chartBean.getName(), jsonData);
+            CalJsonToInfo calJsonToInfo = ChartDataSource.getCalJsonToInfo(ChartDataSource.of(chartBean.getDataSource()));
+            Gson gson = new Gson();
+            Type mapType = new TypeToken<Map<String, List<Object>>>() {
+            }.getType();
+            Map<String, List<Object>> calculatedData = gson.fromJson(jsonData, mapType);
+            Map<String, List<Object>> newInfoData = calJsonToInfo.calJsonToInfo(calculatedData);
+            calculatedData.putAll(newInfoData);
+            String calculatedJson = gson.toJson(calculatedData);
+            Resource resource = pythonUtils.genHTML(chartBean.getScriptPath(), chartBean.getName(), calculatedJson);
             File file = resource.getFile();
             if (file.exists()) {
                 MultipartFile multipartFile = new FileMultipartFile(resource.getFile());
