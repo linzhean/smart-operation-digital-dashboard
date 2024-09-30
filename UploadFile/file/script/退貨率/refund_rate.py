@@ -22,7 +22,7 @@ def generate_html_chart(file_name):
     df['salesVolume'] = pd.to_numeric(df['salesVolume'], errors='coerce')
     df['refundVolume'] = pd.to_numeric(df['refundVolume'], errors='coerce')
 
-    # 計算退貨率
+    # 計算銷售退貨率
     df['refundRate'] = (df['refundVolume'] / df['salesVolume']) * 100
 
     # 創建圖表
@@ -32,7 +32,7 @@ def generate_html_chart(file_name):
     for product_number in df['productNumber'].unique():
         product_data_data = df[df['productNumber'] == product_number]
 
-        # 添加折線圖：品號為名稱，日期為 x 軸，退貨率為 y 軸
+        # 添加折線圖：品號為名稱，日期為 x 軸，銷售退貨率為 y 軸
         fig.add_trace(go.Scatter(
             x=product_data_data['date'],
             y=product_data_data['refundRate'],
@@ -44,7 +44,7 @@ def generate_html_chart(file_name):
 
     # 設定圖表標題與軸標籤
     fig.update_layout(
-        title='各產線的退貨率折線圖',
+        title='各品號的銷售退貨率折線圖',
         xaxis_title='日期',
         yaxis_title='退貨率 (%)',
         yaxis=dict(range=[0, 100]),  # 可根據數據調整範圍
