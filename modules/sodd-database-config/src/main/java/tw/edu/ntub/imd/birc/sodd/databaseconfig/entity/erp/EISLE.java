@@ -106,12 +106,4 @@ public class EISLE {
     private BigDecimal udf09;
     @Column(name = "UDF10")
     private BigDecimal udf10;
-    /**
-     * 雜湊值(檢查有無需要更新用)
-     *
-     * @since 1.0.0
-     */
-    @Transient
-    @Column(name = "hash", length = 256, nullable = false)
-    private String hash;
 }

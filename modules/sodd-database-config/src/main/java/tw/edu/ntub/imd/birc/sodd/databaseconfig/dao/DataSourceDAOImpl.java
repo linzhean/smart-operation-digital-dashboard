@@ -2,7 +2,6 @@ package tw.edu.ntub.imd.birc.sodd.databaseconfig.dao;
 
 import org.springframework.stereotype.Repository;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ChartDataSource;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.views.YieldAchievementRate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
