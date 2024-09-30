@@ -11,7 +11,7 @@ def generate_html_chart(file_name):
     df = pd.DataFrame(json.loads(data))
 
 
-# 圖表讀資料生成圖表
+    # 圖表讀資料生成圖表
 
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
@@ -43,6 +43,7 @@ def generate_html_chart(file_name):
         yaxis_title='產量達成率 (%)',
         yaxis=dict(range=[0, 100]),  # 可根據數據調整範圍
         autosize=True,
+        responsive=True  # 啟用自適應設計
     )
 # 圖表讀資料生成圖表
 

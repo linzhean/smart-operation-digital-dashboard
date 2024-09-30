@@ -18,26 +18,21 @@ def generate_html_chart(file_name):
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
-    # 將數據轉換為數字型
-    df['totalValidHours'] = pd.to_numeric(df['totalValidHours'], errors='coerce')
-    df['totalHoursInvested'] = pd.to_numeric(df['totalHoursInvested'], errors='coerce')
-
-    # 計算工時效率
-    df['timeEfficiency'] = (df['totalValidHours'] / df['totalHoursInvested']) * 100
+    production_line_names = df['productionLineName']
 
     # 創建圖表
     fig = go.Figure()
 
     # 依照產線進行分組，為每個產線生成一條線
-    for productionline_name in df['productionLineName'].unique():
-        productionline_data = df[df['productionLineName'] == productionline_name]
+    for production_line_name in production_line_names.unique():
+        production_line_data = df[production_line_names == production_line_name]
 
         # 添加折線圖：產線為名稱，日期為 x 軸，工時效率為 y 軸
         fig.add_trace(go.Scatter(
-            x=productionline_data['date'],
-            y=productionline_data['timeEfficiency'],
+            x=production_line_data['date'],
+            y=production_line_data['timeEfficiency'],
             mode='lines+markers',
-            name=productionline_name,  # 產線作為線的名稱
+            name=production_line_name,  # 產線作為線的名稱
             line=dict(width=2),
             marker=dict(size=6)
         ))
@@ -48,9 +43,8 @@ def generate_html_chart(file_name):
         xaxis_title='日期',
         yaxis_title='工時效率 (%)',
         yaxis=dict(range=[0, 100]),  # 可根據數據調整範圍
-        autosize=False,
-        width=900,
-        height=600
+        autosize=True,
+        responsive=True  # 啟用自適應設計
     )
     # 圖表讀資料生成圖表
 

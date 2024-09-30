@@ -18,14 +18,9 @@ def generate_html_chart(file_name):
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
-    # 將數據轉換為數字型
-    df['salesVolume'] = pd.to_numeric(df['salesVolume'], errors='coerce')
-    df['refundVolume'] = pd.to_numeric(df['refundVolume'], errors='coerce')
+    product_numbers = df['productNumber']
 
-    # 計算退貨率
-    df['refundRate'] = (df['refundVolume'] / df['salesVolume']) * 100
-
-    # 創建圖表
+# 創建圖表
     fig = go.Figure()
 
     # 依照品號進行分組，為每個品號生成一條線
@@ -48,7 +43,8 @@ def generate_html_chart(file_name):
         xaxis_title='日期',
         yaxis_title='退貨率 (%)',
         yaxis=dict(range=[0, 100]),  # 可根據數據調整範圍
-        autosize=True
+        autosize=True,
+        responsive=True  # 啟用自適應設計
     )
     # 圖表讀資料生成圖表
 
