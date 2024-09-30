@@ -30,12 +30,12 @@ def generate_html_chart(file_name):
 
     # 依照品號進行分組，為每個品號生成一條線
     for product_number in df['productNumber'].unique():
-        product_data_data = df[df['productNumber'] == product_number]
+        product_data = df[df['productNumber'] == product_number]
 
         # 添加折線圖：品號為名稱，日期為 x 軸，進貨單價為 y 軸
         fig.add_trace(go.Scatter(
-            x=product_data_data['date'],
-            y=product_data_data['purchaseUnitPrice'],
+            x=product_data['date'],
+            y=product_data['purchaseUnitPrice'],
             mode='lines+markers',
             name=product_number,  # 品號作為線的名稱
             line=dict(width=2),
