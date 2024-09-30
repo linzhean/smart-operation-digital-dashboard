@@ -12,39 +12,44 @@ def generate_html_chart(file_name):
 
 
     # 圖表讀資料生成圖表
-    # 資料表 SASLA
-    # 欄位 LF005 productNumber LF015 date LF016 salesVolume LF019 refundVolume
+    # 資料表 EISLJ
+    # 欄位 LF001 date LF002 departmentName LF004 initialHeadcount LF006 resignedHeadcount LF007 endingHeadcount
 
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
-    product_numbers = df['productNumber']
+    # 將數據轉換為數字型
+    df['initialHeadcount'] = pd.to_numeric(df['initialHeadcount'], errors='coerce')
+    df['resignedHeadcount'] = pd.to_numeric(df['resignedHeadcount'], errors='coerce')
+    df['endingHeadcount'] = pd.to_numeric(df['endingHeadcount'], errors='coerce')
 
-# 創建圖表
+# 計算離職率
+    df['turnoverRate'] = (df['resignedHeadcount'] / ((df['initialHeadcount']+df['endingHeadcount'])/2)) * 100
+
+    # 創建圖表
     fig = go.Figure()
 
-    # 依照品號進行分組，為每個品號生成一條線
-    for product_number in product_numbers.unique():
-        product_data_data = df[product_numbers == product_number]
+    # 依照部門進行分組，為每個部門生成一條線
+    for department_name in df['departmentName'].unique():
+        department_data = df[df['departmentName'] == department_name]
 
-        # 添加折線圖：品號為名稱，日期為 x 軸，銷售退貨率為 y 軸
+        # 添加折線圖：部門為名稱，日期為 x 軸，離職率為 y 軸
         fig.add_trace(go.Scatter(
-            x=product_data_data['date'],
-            y=product_data_data['refundRate'],
+            x=department_data['date'],
+            y=department_data['turnoverRate'],
             mode='lines+markers',
-            name=product_number,  # 品號作為線的名稱
+            name=department_name,  # 部門作為線的名稱
             line=dict(width=2),
             marker=dict(size=6)
         ))
 
     # 設定圖表標題與軸標籤
     fig.update_layout(
-        title='各品號的銷售退貨率折線圖',
+        title='各部門的離職率折線圖',
         xaxis_title='日期',
-        yaxis_title='退貨率 (%)',
+        yaxis_title='離職率 (%)',
         yaxis=dict(range=[0, 100]),  # 可根據數據調整範圍
-        autosize=True,
-        responsive=True  # 啟用自適應設計
+        autosize=True
     )
     # 圖表讀資料生成圖表
 
@@ -57,7 +62,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) != 3:
-        print(f"用法: python refund_rate.py"
+        print(f"用法: python turnover_rate.py"
               f"ate.py (filePath, type, fileName) {sys.argv}")
     elif sys.argv[1] == 'html':
         generate_html_chart(sys.argv[2])

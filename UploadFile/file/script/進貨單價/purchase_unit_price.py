@@ -12,25 +12,30 @@ def generate_html_chart(file_name):
 
 
     # 圖表讀資料生成圖表
-    # 資料表 SASLA
-    # 欄位 LF005 productNumber LF015 date LF016 salesVolume LF019 refundVolume
+    # 資料表 EISLD
+    # 欄位 LF005 productNumber LF012 date LF013 purchaseQuantity LF014 purchasePrice
 
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
-    product_numbers = df['productNumber']
+    # 將數據轉換為數字型
+    df['purchaseQuantity'] = pd.to_numeric(df['purchaseQuantity'], errors='coerce')
+    df['purchasePrice'] = pd.to_numeric(df['purchasePrice'], errors='coerce')
 
-# 創建圖表
+    # 計算進貨單價
+    df['purchaseUnitPrice'] = df['purchasePrice'] / df['purchaseQuantity']
+
+    # 創建圖表
     fig = go.Figure()
 
     # 依照品號進行分組，為每個品號生成一條線
-    for product_number in product_numbers.unique():
-        product_data_data = df[product_numbers == product_number]
+    for product_number in df['productNumber'].unique():
+        product_data_data = df[df['productNumber'] == product_number]
 
-        # 添加折線圖：品號為名稱，日期為 x 軸，銷售退貨率為 y 軸
+        # 添加折線圖：品號為名稱，日期為 x 軸，進貨單價為 y 軸
         fig.add_trace(go.Scatter(
             x=product_data_data['date'],
-            y=product_data_data['refundRate'],
+            y=product_data_data['purchaseUnitPrice'],
             mode='lines+markers',
             name=product_number,  # 品號作為線的名稱
             line=dict(width=2),
@@ -39,12 +44,11 @@ def generate_html_chart(file_name):
 
     # 設定圖表標題與軸標籤
     fig.update_layout(
-        title='各品號的銷售退貨率折線圖',
+        title='各品號的進貨單價折線圖',
         xaxis_title='日期',
-        yaxis_title='退貨率 (%)',
-        yaxis=dict(range=[0, 100]),  # 可根據數據調整範圍
-        autosize=True,
-        responsive=True  # 啟用自適應設計
+        yaxis_title='進貨單價 (元)',
+        yaxis=dict(range=[0, 100000]),  # 可根據數據調整範圍
+        autosize=True
     )
     # 圖表讀資料生成圖表
 
@@ -57,7 +61,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) != 3:
-        print(f"用法: python refund_rate.py"
+        print(f"用法: python purchase_unit_price.py"
               f"ate.py (filePath, type, fileName) {sys.argv}")
     elif sys.argv[1] == 'html':
         generate_html_chart(sys.argv[2])
