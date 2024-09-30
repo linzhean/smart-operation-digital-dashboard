@@ -51,7 +51,7 @@ def generate_html_chart(file_name):
 
     # 設定圖表標題與軸標籤
     fig.update_layout(
-        title='各產線的生產成本偏差率折線圖',
+        title='各品號的生產成本偏差率折線圖',
         xaxis_title='日期',
         yaxis_title='生產成本偏差率 (%)',
         yaxis=dict(range=[-100, 100]),  # 可根據數據調整範圍
