@@ -44,7 +44,7 @@ def generate_html_chart(file_name):
 
     # 設定圖表標題與軸標籤
     fig.update_layout(
-        title='各品號的退貨率折線圖',
+        title='各品號的進貨單價折線圖',
         xaxis_title='日期',
         yaxis_title='進貨單價 (元)',
         yaxis=dict(range=[0, 100000]),  # 可根據數據調整範圍
