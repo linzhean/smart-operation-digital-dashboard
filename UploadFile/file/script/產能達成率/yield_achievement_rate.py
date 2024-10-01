@@ -46,7 +46,8 @@ def generate_html_chart(file_name):
         title='各品號的產量達成率折線圖',
         xaxis_title='日期',
         yaxis_title='產量達成率 (%)',
-        yaxis=dict(range=[0, 100]),  # 可根據數據調整範圍
+        xaxis=dict(autorange=True),
+        yaxis=dict(autorange=True),  # 可根據數據調整範圍
         autosize=True
     )
 # 圖表讀資料生成圖表
