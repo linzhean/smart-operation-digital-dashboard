@@ -47,7 +47,8 @@ def generate_html_chart(file_name):
         title='各品號的進貨單價折線圖',
         xaxis_title='日期',
         yaxis_title='進貨單價 (元)',
-        yaxis=dict(range=[0, 100000]),  # 可根據數據調整範圍
+        xaxis=dict(autorange=True),
+        yaxis=dict(autorange=True),  # 可根據數據調整範圍
         autosize=True
     )
     # 圖表讀資料生成圖表
