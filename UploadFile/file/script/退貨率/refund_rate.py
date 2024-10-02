@@ -29,8 +29,8 @@ def generate_html_chart(file_name):
 
         # 添加折線圖：品號為名稱，日期為 x 軸，銷售退貨率為 y 軸
         fig.add_trace(go.Scatter(
-            x=product_data_data['date'],
-            y=product_data_data['refundRate'],
+            x=product_data['date'],
+            y=product_data['refundRate'],
             mode='lines+markers',
             name=product_number,  # 品號作為線的名稱
             line=dict(width=2),

@@ -48,7 +48,8 @@ def generate_html_chart(file_name):
         title='各部門的離職率折線圖',
         xaxis_title='日期',
         yaxis_title='離職率 (%)',
-        yaxis=dict(range=[0, 100]),  # 可根據數據調整範圍
+        xaxis=dict(autorange=True),
+        yaxis=dict(autorange=True),  # 可根據數據調整範圍
         autosize=True
     )
     # 圖表讀資料生成圖表
