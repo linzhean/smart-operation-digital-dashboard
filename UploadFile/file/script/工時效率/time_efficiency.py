@@ -42,9 +42,10 @@ def generate_html_chart(file_name):
         title='各產線的工時效率折線圖',
         xaxis_title='日期',
         yaxis_title='工時效率 (%)',
-        yaxis=dict(range=[0, 100]),  # 可根據數據調整範圍
+        xaxis=dict(autorange=True),
+        yaxis=dict(autorange=True),# 可根據數據調整範圍
         autosize=True,
-        responsive=True  # 啟用自適應設計
+        # responsive=True  # 啟用自適應設計
     )
     # 圖表讀資料生成圖表
 

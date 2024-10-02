@@ -3,13 +3,13 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
 
+
 def generate_html_chart(file_name):
     # 從標準輸入讀取 JSON 字串
     data = sys.stdin.read()
 
     # 將 JSON 轉換為 DataFrame
     df = pd.DataFrame(json.loads(data))
-
 
     # 圖表讀資料生成圖表
 
@@ -41,15 +41,19 @@ def generate_html_chart(file_name):
         title='各品號的產量達成率折線圖',
         xaxis_title='日期',
         yaxis_title='產量達成率 (%)',
-        yaxis=dict(range=[0, 100]),  # 可根據數據調整範圍
+        xaxis=dict(autorange=True),
+        yaxis=dict(autorange=True),# 可根據數據調整範圍
         autosize=True,
-        responsive=True  # 啟用自適應設計
+        width=None,  # 讓其自適應
+        height=None  # 讓其自適應
     )
-# 圖表讀資料生成圖表
 
+    # 啟用自適應設計(但會導致無法跳出程式 not exited)
+    # fig.update_layout(responsive=True)
 
     # 儲存圖表為互動式 HTML
-    pio.write_html(fig, file_name)
+    pio.write_html(fig, file_name, full_html=False)
+
 
 # 這裡直接複製
 if __name__ == "__main__":
