@@ -1,6 +1,5 @@
 package tw.edu.ntub.imd.birc.sodd.service.impl;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tw.edu.ntub.birc.common.util.CollectionUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.MailBean;
@@ -9,6 +8,8 @@ import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.MailDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.UserAccountDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.specification.MailSpecification;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.AssignedTasks;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Chart;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Mail;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount;
 import tw.edu.ntub.imd.birc.sodd.exception.NoPermissionException;
@@ -19,6 +20,7 @@ import tw.edu.ntub.imd.birc.sodd.service.MailService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.MailTransformer;
 import tw.edu.ntub.imd.birc.sodd.util.email.EmailUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -75,5 +77,29 @@ public class MailServiceImpl extends BaseServiceImpl<MailBean, Mail, Integer> im
     public List<MailBean> searchByStatus(String userId, String status) {
         return CollectionUtils.map(
                 mailDAO.findAll(specification.checkBlank(userId, status)), transformer::transferToBean);
+    }
+
+    @Override
+    public void sendSystemAssignedTask(AssignedTasks assignedTasks, Chart chart, BigDecimal ratio, UserAccount userAccount, String status) {
+        MailBean mailBean = new MailBean();
+        mailBean.setAssignedTaskId(assignedTasks.getId());
+        mailBean.setChartId(chart.getId());
+        mailBean.setName(assignedTasks.getName());
+        mailBean.setPublisher(assignedTasks.getDefaultAuditor());
+        mailBean.setReceiver(assignedTasks.getDefaultProcessor());
+        mailBean.setCreateId("system");
+        mailBean.setModifyId("system");
+        MailMessageBean messageBean = new MailMessageBean();
+        messageBean.setContent(String.format(
+                "來自系統的警告！目前的%s為 %s，%s於達成率門檻。請立即檢查並採取措施！", chart.getName(), ratio, status));
+        mailBean.setFirstMessage(messageBean);
+        Mail mail = mailDAO.save(transformer.transferToEntity(mailBean));
+        messageBean.setMailId(mail.getId());
+        messageBean.setCreateId("system");
+        messageBean.setModifyId("system");
+        messageService.save(messageBean);
+        emailUtils.sendMail(userAccount.getUserId(), userAccount.getGmail(),
+                chart.getName() + "資料超過上下限通知",
+                "src/main/resources/mail/AssignTaskMail.html", null);
     }
 }

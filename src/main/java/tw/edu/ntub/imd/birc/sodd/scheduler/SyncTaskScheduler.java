@@ -3,8 +3,15 @@ package tw.edu.ntub.imd.birc.sodd.scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import tw.edu.ntub.imd.birc.sodd.bean.AssignedTaskBean;
+import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
 import tw.edu.ntub.imd.birc.sodd.bean.SyncRecordBean;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ChartDataSource;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.views.CalJsonToInfo;
+import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.scheduler.factory.DataSyncUtilFactory;
+import tw.edu.ntub.imd.birc.sodd.service.AssignedTaskService;
+import tw.edu.ntub.imd.birc.sodd.service.ChartService;
 import tw.edu.ntub.imd.birc.sodd.service.SyncRecordService;
 
 import javax.sql.DataSource;
@@ -13,24 +20,39 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class SyncTaskScheduler {
-    private final DataSource dataSource;
     @Autowired
     private DataSyncUtilFactory dataSyncUtilFactory;
     private final SyncRecordService syncRecordService;
+    private final AssignedTaskService assignedTaskService;
+    private final ChartService chartService;
 
 
-    public SyncTaskScheduler(DataSource dataSource, SyncRecordService syncRecordService) {
-        this.dataSource = dataSource;
+    public SyncTaskScheduler(SyncRecordService syncRecordService,
+                             AssignedTaskService assignedTaskService,
+                             ChartService chartService) {
         this.syncRecordService = syncRecordService;
+        this.assignedTaskService = assignedTaskService;
+        this.chartService = chartService;
     }
 
 
     @Scheduled(fixedRate = 600000)
     public void checkTableUpdates() throws Exception {
-        List<Class<?>> classes = getClasses("tw/edu/ntub/imd/birc/sodd/databaseconfig/entity/erp");
+        syncMSSQLToMySQL();
+        assignedTaskService.checkChartDataIndicators();
+    }
+
+    private void syncMSSQLToMySQL() {
+        List<Class<?>> classes = null;
+        try {
+            classes = getClasses("tw/edu/ntub/imd/birc/sodd/databaseconfig/entity/erp");
+        } catch (Exception e) {
+            throw new RuntimeException("取得/entity/erp內的類別失敗");
+        }
         for (Class<?> c : classes) {
             dataSync(c);
         }
@@ -39,7 +61,7 @@ public class SyncTaskScheduler {
         syncRecordService.save(syncRecordBean);
     }
 
-    public static List<Class<?>> getClasses(String packageName) throws Exception {
+    public List<Class<?>> getClasses(String packageName) throws Exception {
         String path = packageName.replace('/', '.');
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         URL resource = classLoader.getResource(packageName);

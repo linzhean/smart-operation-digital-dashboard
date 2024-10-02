@@ -42,12 +42,33 @@ public class AssignedTasks {
     @Column(name = "name", length = 254, nullable = false)
     private String name;
     /**
-     * 交辦事項
+     * 預設稽核者
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "default_auditor", length = 254, nullable = false)
+    private String defaultAuditor;
+    /**
+     * 預設處理人
      *
      * @since 1.0.0
      */
     @Column(name = "default_processor", length = 254, nullable = false)
     private String defaultProcessor;
+    /**
+     * 上限
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "upper_limit")
+    private Double upperLimit;
+    /**
+     * 下限
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "lower_limit")
+    private Double lowerLimit;
     /**
      * 是否啟用(0: 不啟用，1: 啟用)
      *
