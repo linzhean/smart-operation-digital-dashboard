@@ -77,7 +77,7 @@ public class YieldAchievementRate implements CalJsonToInfo {
                 BigDecimal productionVolume = new BigDecimal(productionVolumes.get(i).toString());
                 BigDecimal advanceQuantity = new BigDecimal(advanceQuantities.get(i).toString());
 
-                // 計算公式: (productionVolumes + expectedOutputs) / productNumbers * 100
+                // 計算公式: (productionVolumes + advanceQuantity) / expectedOutput * 100
                 BigDecimal yieldAchievementRate = (productionVolume.add(advanceQuantity))
                         .divide(expectedOutput, 2, RoundingMode.HALF_UP)
                         .multiply(BigDecimal.valueOf(100));

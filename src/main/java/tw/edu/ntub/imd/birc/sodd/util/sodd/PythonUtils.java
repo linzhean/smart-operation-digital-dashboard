@@ -34,7 +34,7 @@ public class PythonUtils {
 
     public String genAISuggestion(String filePath, String chartData, String description) throws IOException {
         return callPythonScript(new ProcessBuilder(
-                "python", filePath, PythonGenType.AI.getType(), chartData, description));
+                "python", filePath, PythonGenType.AI.getType(), description), chartData);
     }
 
     public String genAIChat(String filePath, String messages) throws IOException {
@@ -42,7 +42,7 @@ public class PythonUtils {
     }
 
     private String callPythonScript(ProcessBuilder pb) throws IOException {
-        return getProcessResposne(pb.start());
+        return getProcessResponse(pb.start());
     }
 
     private String callPythonScript(ProcessBuilder pb, String json) throws IOException {
@@ -53,10 +53,10 @@ public class PythonUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return getProcessResposne(process);
+        return getProcessResponse(process);
     }
 
-    private String getProcessResposne(Process process) throws IOException {
+    private String getProcessResponse(Process process) throws IOException {
         InputStream inputStream = null;
         // 等待 Python 腳本執行完成
         try {

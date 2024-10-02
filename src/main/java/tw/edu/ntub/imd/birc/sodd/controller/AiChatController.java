@@ -41,7 +41,7 @@ public class AiChatController {
     @GetMapping("/suggestion")
     public ResponseEntity<String> getChartSuggestion(@RequestParam("chartId") Integer chartId,
                                                      @RequestParam("dashboardId") Integer dashboardId,
-                                                     HttpServletRequest request) throws IOException {
+                                                     HttpServletRequest request) throws Exception {
         String suggestion = aiChatService.getChartSuggestion(chartId, dashboardId);
         AiChatBean aiChatBean = new AiChatBean();
         aiChatBean.setChartId(chartId);

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface AiChatService extends BaseService<AiChatBean, Integer> {
-    String getChartSuggestion(Integer id, Integer dashboardId) throws IOException;
+    String getChartSuggestion(Integer id, Integer dashboardId) throws Exception;
 
     List<AiChatBean> searchByChartId(Integer chartId);
 
