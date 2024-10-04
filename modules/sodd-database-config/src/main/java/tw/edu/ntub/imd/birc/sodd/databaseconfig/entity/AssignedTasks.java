@@ -19,35 +19,41 @@ import java.time.LocalDateTime;
 @Table(name = "assigned_tasks", schema = Config.DATABASE_NAME)
 public class AssignedTasks {
     /**
-     * 交辦事項ID
-     *
-     * @since 1.0.0
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
-    /**
      * 圖表ID
      *
      * @since 1.0.0
      */
+    @Id
     @Column(name = "chart_id", nullable = false)
     private Integer chartId;
     /**
-     * 交辦事項名稱
+     * 預設稽核者
      *
      * @since 1.0.0
      */
-    @Column(name = "name", length = 254, nullable = false)
-    private String name;
+    @Column(name = "default_auditor", length = 254, nullable = false)
+    private String defaultAuditor;
     /**
-     * 交辦事項
+     * 預設處理人
      *
      * @since 1.0.0
      */
     @Column(name = "default_processor", length = 254, nullable = false)
     private String defaultProcessor;
+    /**
+     * 上限
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "upper_limit")
+    private Double upperLimit;
+    /**
+     * 下限
+     *
+     * @since 1.0.0
+     */
+    @Column(name = "lower_limit")
+    private Double lowerLimit;
     /**
      * 是否啟用(0: 不啟用，1: 啟用)
      *

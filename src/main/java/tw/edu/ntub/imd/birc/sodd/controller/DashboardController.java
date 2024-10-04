@@ -2,6 +2,7 @@ package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.imd.birc.sodd.bean.DashboardBean;
@@ -21,6 +22,7 @@ import java.util.Collections;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/dashboard")
+@PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
 public class DashboardController {
     private final DashboardService dashboardService;
     private final SyncRecordService syncRecordService;

@@ -8,4 +8,6 @@ import java.util.List;
 @Repository
 public interface ExportDAO extends BaseDAO<Export, Integer> {
     List<Export> findByChartIdAndAvailableIsTrue(Integer chartId);
+
+    List<Export> findByExporterAndAvailableIsTrue(String exporter);
 }

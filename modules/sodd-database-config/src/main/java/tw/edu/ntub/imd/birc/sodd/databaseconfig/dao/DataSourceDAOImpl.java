@@ -2,7 +2,6 @@ package tw.edu.ntub.imd.birc.sodd.databaseconfig.dao;
 
 import org.springframework.stereotype.Repository;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ChartDataSource;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.views.YieldAchievementRate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -16,6 +15,7 @@ public class DataSourceDAOImpl implements DataSourceDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Override
     public List<Object[]> searchAll(String viewTableName) {
         String sql = "SELECT * FROM " + viewTableName;
         Query query = entityManager.createNativeQuery(sql);
@@ -25,14 +25,7 @@ public class DataSourceDAOImpl implements DataSourceDAO {
     @Override
     public String getJsonData(ChartDataSource dataSource) throws Exception {
         List<Object[]> resultList = searchAll(dataSource.getValue());
-        switch (dataSource) {
-            case YIELD_ACHIEVEMENT_RATE:
-                return convertToJson(resultList, YieldAchievementRate.class);
-//            case NO_SUCH_TABLE:
-//                throw new RuntimeException("查無 data_source 對應表名");
-            default:
-                throw new RuntimeException("查無 data_source 對應表名");
-        }
+        return convertToJson(resultList, ChartDataSource.getChartClass(dataSource));
     }
 
     public String convertToJson(List<Object[]> data, Class<?> entityClass) {

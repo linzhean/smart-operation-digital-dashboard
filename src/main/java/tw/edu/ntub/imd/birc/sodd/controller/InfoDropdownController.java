@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tw.edu.ntub.birc.common.util.StringUtils;
+import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
 import tw.edu.ntub.imd.birc.sodd.service.DepartmentService;
 import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
@@ -21,6 +22,7 @@ import java.util.EnumSet;
 @AllArgsConstructor
 @RestController
 @RequestMapping(path = "/dropdown")
+@PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
 public class InfoDropdownController {
     private final DepartmentService departmentService;
 

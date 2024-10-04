@@ -2,6 +2,7 @@ package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.birc.common.util.StringUtils;
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 public class ApplicationController {
     private final ApplicationService applicationService;
 
+    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
     @PostMapping("")
     public ResponseEntity<String> addApplication(@RequestBody ApplicationBean applicationBean,
                                                  BindingResult bindingResult,
@@ -35,6 +37,7 @@ public class ApplicationController {
                 .build();
     }
 
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @GetMapping("")
     public ResponseEntity<String> searchApplication(@RequestParam("status") String status,
                                                     @RequestParam(value = "startDate", required = false) String startDate,
@@ -60,6 +63,7 @@ public class ApplicationController {
                 .build();
     }
 
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @GetMapping("/page")
     public ResponseEntity<String> countApplication(@RequestParam("status") String status,
                                                    @RequestParam(value = "startDate", required = false) String startDate,
@@ -74,6 +78,7 @@ public class ApplicationController {
                 .build();
     }
 
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @PatchMapping("/permit/{id}")
     public ResponseEntity<String> permitApplication(@PathVariable("id") Integer id,
                                                     HttpServletRequest request) {
@@ -91,6 +96,8 @@ public class ApplicationController {
                 .build();
     }
 
+
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @PatchMapping("/close/{id}")
     public ResponseEntity<String> closeApplication(@PathVariable("id") Integer id,
                                                    HttpServletRequest request) {
@@ -107,6 +114,7 @@ public class ApplicationController {
                 .build();
     }
 
+    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delApplication(@PathVariable("id") Integer id,
                                                  HttpServletRequest request) {

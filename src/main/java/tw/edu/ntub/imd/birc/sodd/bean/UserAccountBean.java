@@ -12,7 +12,6 @@ public class UserAccountBean {
     private String userId;
     @NotBlank(message = "姓名 - 未填寫")
     private String userName;
-    @NotBlank(message = "員工編號 - 未填寫")
     private String jobNumber;
     @NotBlank(message = "部門代號 - 未填寫")
     private String departmentId;

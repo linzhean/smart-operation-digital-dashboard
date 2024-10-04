@@ -3,6 +3,7 @@ package tw.edu.ntub.imd.birc.sodd.controller;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +41,7 @@ public class ChartController {
     private final ChartDashboardService chartDashboardService;
     private final DashboardService dashboardService;
 
+    @PreAuthorize(SecurityUtils.HAS_DEVELOPER_AUTHORITY)
     @PostMapping("")
     public ResponseEntity<String> addChart(@Valid ChartBean chartBean,
                                            BindingResult bindingResult,
@@ -52,6 +54,7 @@ public class ChartController {
     }
 
 
+    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
     @PostMapping("/dashboard")
     public ResponseEntity<String> setChartInDashboard(@RequestParam("dashboardId") Integer dashboardId,
                                                       @RequestBody ListDTO listDTO,
@@ -81,6 +84,7 @@ public class ChartController {
     }
 
 
+    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
     @GetMapping("")
     public ResponseEntity<String> searchByAvailable(@RequestParam("available") Boolean available,
                                                     HttpServletRequest request) {
@@ -98,6 +102,7 @@ public class ChartController {
     }
 
 
+    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
     @GetMapping("/dashboard")
     public ResponseEntity<String> searchByDashboardId(@RequestParam("dashboardId") Integer dashboardId,
                                                       HttpServletRequest request) {
@@ -116,6 +121,7 @@ public class ChartController {
     }
 
 
+    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
     @GetMapping("/{id}")
     public ResponseEntity<String> getById(@PathVariable("id") Integer id,
                                           HttpServletRequest request) {
@@ -131,6 +137,7 @@ public class ChartController {
     }
 
 
+    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
     @GetMapping("/all")
     public ResponseEntity<String> searchAll(HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
@@ -146,6 +153,8 @@ public class ChartController {
                 .build();
     }
 
+
+    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
     @GetMapping("/available")
     public ResponseEntity<String> searchByUser(HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
@@ -164,6 +173,7 @@ public class ChartController {
     }
 
 
+    @PreAuthorize(SecurityUtils.HAS_DEVELOPER_AUTHORITY)
     @PatchMapping("/{id}")
     public ResponseEntity<String> patchChartAvailable(@PathVariable("id") Integer id,
                                                       HttpServletRequest request) {
