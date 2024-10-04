@@ -57,6 +57,7 @@ public class MailController {
     }
 
     @PostMapping("/message")
+    @SendTo("/topic/newMessage")
     public ResponseEntity<String> addMessage(@RequestParam("mailId") Integer mailId,
                                              @Valid @RequestBody MailMessageBean mailMessageBean,
                                              BindingResult bindingResult,
@@ -74,7 +75,7 @@ public class MailController {
                 });
         mailMessageBean.setMailId(mailId);
         messageService.save(mailMessageBean);
-        messagingTemplate.convertAndSend("/webSocket/newMessage");
+        messagingTemplate.convertAndSend("/topic/newMessage");
         return ResponseEntityBuilder.success()
                 .message("新增成功")
                 .build();
