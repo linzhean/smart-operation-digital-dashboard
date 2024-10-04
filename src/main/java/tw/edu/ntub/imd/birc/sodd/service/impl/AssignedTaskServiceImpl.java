@@ -30,15 +30,13 @@ public class AssignedTaskServiceImpl extends BaseServiceImpl<AssignedTaskBean, A
     private final DataSourceDAO dataSourceDAO;
     private final UserAccountDAO userAccountDAO;
     private final MailService mailService;
-    private final EmailUtils emailUtils;
 
     public AssignedTaskServiceImpl(AssignedTaskDAO assignedTaskDAO,
                                    AssignedTaskTransformer transformer,
                                    ChartDAO chartDAO,
                                    DataSourceDAO dataSourceDAO,
                                    UserAccountDAO userAccountDAO,
-                                   MailService mailService,
-                                   EmailUtils emailUtils) {
+                                   MailService mailService) {
         super(assignedTaskDAO, transformer);
         this.assignedTaskDAO = assignedTaskDAO;
         this.transformer = transformer;
@@ -46,7 +44,6 @@ public class AssignedTaskServiceImpl extends BaseServiceImpl<AssignedTaskBean, A
         this.dataSourceDAO = dataSourceDAO;
         this.userAccountDAO = userAccountDAO;
         this.mailService = mailService;
-        this.emailUtils = emailUtils;
     }
 
 

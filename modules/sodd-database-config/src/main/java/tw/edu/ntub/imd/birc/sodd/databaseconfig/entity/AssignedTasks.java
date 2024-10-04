@@ -19,28 +19,13 @@ import java.time.LocalDateTime;
 @Table(name = "assigned_tasks", schema = Config.DATABASE_NAME)
 public class AssignedTasks {
     /**
-     * 交辦事項ID
-     *
-     * @since 1.0.0
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
-    /**
      * 圖表ID
      *
      * @since 1.0.0
      */
+    @Id
     @Column(name = "chart_id", nullable = false)
     private Integer chartId;
-    /**
-     * 交辦事項名稱
-     *
-     * @since 1.0.0
-     */
-    @Column(name = "name", length = 254, nullable = false)
-    private String name;
     /**
      * 預設稽核者
      *

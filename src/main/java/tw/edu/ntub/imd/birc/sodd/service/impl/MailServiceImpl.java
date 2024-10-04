@@ -82,9 +82,9 @@ public class MailServiceImpl extends BaseServiceImpl<MailBean, Mail, Integer> im
     @Override
     public void sendSystemAssignedTask(AssignedTasks assignedTasks, Chart chart, BigDecimal ratio, UserAccount userAccount, String status) {
         MailBean mailBean = new MailBean();
-        mailBean.setAssignedTaskId(assignedTasks.getId());
+        mailBean.setAssignedTaskId(assignedTasks.getChartId());
         mailBean.setChartId(chart.getId());
-        mailBean.setName(assignedTasks.getName());
+        mailBean.setName(chart.getName());
         mailBean.setPublisher(assignedTasks.getDefaultAuditor());
         mailBean.setReceiver(assignedTasks.getDefaultProcessor());
         mailBean.setCreateId("system");

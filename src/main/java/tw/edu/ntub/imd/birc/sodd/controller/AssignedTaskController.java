@@ -34,18 +34,6 @@ public class AssignedTaskController {
     private final ChartService chartService;
     private final UserAccountService userAccountService;
 
-    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
-    @PostMapping("")
-    public ResponseEntity<String> addAssignedTask(@Valid @RequestBody AssignedTaskBean assignedTaskBean,
-                                                  BindingResult bindingResult,
-                                                  HttpServletRequest request) {
-        BindingResultUtils.validate(bindingResult);
-        taskService.save(assignedTaskBean);
-        return ResponseEntityBuilder.success()
-                .message("新增成功")
-                .build();
-    }
-
 
     @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @PostMapping("/sponsor")
@@ -76,24 +64,26 @@ public class AssignedTaskController {
                 .build();
     }
 
+
     @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
     @GetMapping("")
-    public ResponseEntity<String> searchAll(HttpServletRequest request) {
-        ArrayData arrayData = new ArrayData();
-        for (AssignedTaskBean assignedTaskBean : taskService.searchAll()) {
-            String chartName = chartService.getById(assignedTaskBean.getChartId())
-                    .map(ChartBean::getName)
-                    .orElse("");
-            ObjectData objectData = arrayData.addObject();
-            objectData.add("id", assignedTaskBean.getId());
-            objectData.add("chartId", assignedTaskBean.getChartId());
-            objectData.add("chartName", chartName);
-            objectData.add("name", assignedTaskBean.getName());
-            objectData.add("defaultProcessor", assignedTaskBean.getDefaultProcessor());
-        }
+    public ResponseEntity<String> getById(@RequestParam("chartId") Integer chartId,
+                                          HttpServletRequest request) {
+        ObjectData objectData = new ObjectData();
+        AssignedTaskBean assignedTaskBean = taskService.getById(chartId)
+                .orElseThrow(() -> new NotFoundException("查無此交辦事項"));
+        String chartName = chartService.getById(assignedTaskBean.getChartId())
+                .map(ChartBean::getName)
+                .orElse("");
+        objectData.add("chartId", assignedTaskBean.getChartId());
+        objectData.add("chartName", chartName);
+        objectData.add("defaultAuditor", assignedTaskBean.getDefaultAuditor());
+        objectData.add("defaultProcessor", assignedTaskBean.getDefaultProcessor());
+        objectData.add("upperLimit", assignedTaskBean.getUpperLimit());
+        objectData.add("lowerLimit", assignedTaskBean.getLowerLimit());
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
-                .data(arrayData)
+                .data(objectData)
                 .build();
     }
 
@@ -127,18 +117,6 @@ public class AssignedTaskController {
         taskService.update(id, assignedTaskBean);
         return ResponseEntityBuilder.success()
                 .message("更新成功")
-                .build();
-    }
-
-    @PreAuthorize(SecurityUtils.HAS_ADMIN_AUTHORITY)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> delAssignTask(@PathVariable("id") Integer id,
-                                                HttpServletRequest request) {
-        AssignedTaskBean assignedTaskBean = new AssignedTaskBean();
-        assignedTaskBean.setAvailable(false);
-        taskService.update(id, assignedTaskBean);
-        return ResponseEntityBuilder.success()
-                .message("刪除成功")
                 .build();
     }
 }

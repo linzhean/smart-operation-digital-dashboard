@@ -1,7 +1,9 @@
 package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -38,6 +40,7 @@ public class MailController {
     private final MailMessageService messageService;
     private final ChartService chartService;
     private final AssignedTaskService assignedTaskService;
+    @Autowired
     private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("")
@@ -98,12 +101,6 @@ public class MailController {
             objectData.add("publisher", mailBean.getPublisher());
             objectData.add("receiver", mailBean.getReceiver());
             objectData.add("emailSendTime", mailBean.getEmailSendTime());
-            if (mailBean.getAssignedTaskId() != null) {
-                String assignedTaskName = assignedTaskService.getById(mailBean.getAssignedTaskId())
-                        .map(AssignedTaskBean::getName)
-                        .orElseThrow(() -> new NotFoundException("查無此交辦"));
-                objectData.add("assignedTaskName", assignedTaskName);
-            }
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
@@ -127,12 +124,6 @@ public class MailController {
         objectData.add("publisher", mailBean.getPublisher());
         objectData.add("receiver", mailBean.getReceiver());
         objectData.add("emailSendTime", mailBean.getEmailSendTime());
-        if (mailBean.getAssignedTaskId() != null) {
-            String assignedTaskName = assignedTaskService.getById(mailBean.getAssignedTaskId())
-                    .map(AssignedTaskBean::getName)
-                    .orElseThrow(() -> new NotFoundException("查無此交辦"));
-            objectData.add("assignedTaskName", assignedTaskName);
-        }
         ArrayData arrayData = objectData.addArray("messageList");
         for (MailMessageBean messageBean : messageService.searchByMailId(id)) {
             ObjectData messageData = arrayData.addObject();

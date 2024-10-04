@@ -12,14 +12,11 @@ import java.time.LocalDateTime;
 
 @Data
 public class AssignedTaskBean {
-    @Null(message = "交辦事項流水號 - 不得填寫")
-    private Integer id;
     @NotNull(message = "圖表ID - 未填寫")
     private Integer chartId;
-    @Size(max = 254, message = "交辦事項名稱 - 不得超過{max}個字")
-    @NotBlank(message = "交辦事項名稱 - 未填寫")
-    private String name;
+    @NotBlank(message = "預設稽核人 - 未填寫")
     private String defaultAuditor;
+    @NotBlank(message = "預設處理人 - 未填寫")
     private String defaultProcessor;
     private Double upperLimit;
     private Double lowerLimit;
