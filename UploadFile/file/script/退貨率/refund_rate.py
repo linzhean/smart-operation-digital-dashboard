@@ -25,7 +25,7 @@ def generate_html_chart(file_name):
 
     # 依照品號進行分組，為每個品號生成一條線
     for product_number in product_numbers.unique():
-        product_data_data = df[product_numbers == product_number]
+        product_data = df[product_numbers == product_number]
 
         # 添加折線圖：品號為名稱，日期為 x 軸，銷售退貨率為 y 軸
         fig.add_trace(go.Scatter(
