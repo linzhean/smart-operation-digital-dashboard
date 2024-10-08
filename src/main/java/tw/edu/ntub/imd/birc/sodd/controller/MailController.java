@@ -78,7 +78,7 @@ public class MailController {
                 });
         mailMessageBean.setMailId(mailId);
         messageService.save(mailMessageBean);
-        messagingTemplate.convertAndSend("/topic/newMessage");
+        messagingTemplate.convertAndSend("/topic/newMessage", mailMessageBean);
         return ResponseEntityBuilder.success()
                 .message("新增成功")
                 .build();
