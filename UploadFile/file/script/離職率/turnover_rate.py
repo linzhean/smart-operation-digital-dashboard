@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
 
+
 def generate_html_chart(file_name):
     # 從標準輸入讀取 JSON 字串
     data = sys.stdin.read()
@@ -10,28 +11,26 @@ def generate_html_chart(file_name):
     # 將 JSON 轉換為 DataFrame
     df = pd.DataFrame(json.loads(data))
 
-
     # 圖表讀資料生成圖表
     # 資料表 EISLJ
-    # 欄位 LF001 date LF002 departmentName LF004 initialHeadcount LF006 resignedHeadcount LF007 endingHeadcount
+    # 欄位
+    # LF001 date
+    # LF002 departmentName
+    # LF004 initialHeadcount
+    # LF006 resignedHeadcount
+    # LF007 endingHeadcount
 
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
-    # 將數據轉換為數字型
-    df['initialHeadcount'] = pd.to_numeric(df['initialHeadcount'], errors='coerce')
-    df['resignedHeadcount'] = pd.to_numeric(df['resignedHeadcount'], errors='coerce')
-    df['endingHeadcount'] = pd.to_numeric(df['endingHeadcount'], errors='coerce')
-
-# 計算離職率
-    df['turnoverRate'] = (df['resignedHeadcount'] / ((df['initialHeadcount']+df['endingHeadcount'])/2)) * 100
+    department_names = df['departmentName']
 
     # 創建圖表
     fig = go.Figure()
 
     # 依照部門進行分組，為每個部門生成一條線
-    for department_name in df['departmentName'].unique():
-        department_data = df[df['departmentName'] == department_name]
+    for department_name in department_names.unique():
+        department_data = df[department_names == department_name]
 
         # 添加折線圖：部門為名稱，日期為 x 軸，離職率為 y 軸
         fig.add_trace(go.Scatter(
@@ -54,9 +53,9 @@ def generate_html_chart(file_name):
     )
     # 圖表讀資料生成圖表
 
-
     # 儲存圖表為互動式 HTML
     pio.write_html(fig, file_name)
+
 
 # 這裡直接複製
 if __name__ == "__main__":
