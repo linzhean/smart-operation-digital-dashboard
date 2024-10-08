@@ -106,7 +106,12 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
         for (ChartBean chartBean : chartBeans) {
             chartBean.setChartImage(genChartHTML(chartBean));
             for (AssignedTaskSponsor sponsor : canAssignCharts) {
-                chartBean.setCanAssign(Objects.equals(chartBean.getId(), sponsor.getChartId()));
+                if (Objects.equals(chartBean.getId(), sponsor.getChartId())) {
+                    chartBean.setCanAssign(true);
+                    break;
+                } else {
+                    chartBean.setCanAssign(false);
+                }
             }
         }
         return chartBeans;
