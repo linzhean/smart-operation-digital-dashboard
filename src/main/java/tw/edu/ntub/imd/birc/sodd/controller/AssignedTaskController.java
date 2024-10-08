@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import tw.edu.ntub.birc.common.util.StringUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.*;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.dto.ListDTO;
@@ -113,10 +114,30 @@ public class AssignedTaskController {
     @PatchMapping("/{id}")
     public ResponseEntity<String> patchAssignTask(@PathVariable("id") Integer id,
                                                   @RequestBody AssignedTaskBean assignedTaskBean,
+                                                  BindingResult bindingResult,
                                                   HttpServletRequest request) {
+        BindingResultUtils.validate(bindingResult);
+        String errorMessage = checkLimits(assignedTaskBean);
+        if (StringUtils.isNotBlank(errorMessage)) {
+            return ResponseEntityBuilder.success()
+                    .message(errorMessage)
+                    .build();
+        }
         taskService.update(id, assignedTaskBean);
         return ResponseEntityBuilder.success()
                 .message("更新成功")
                 .build();
+    }
+
+    private String checkLimits(AssignedTaskBean assignedTaskBean) {
+        final double spacing = 0.1;
+        String message = null;
+        if (assignedTaskBean.getUpperLimit() - assignedTaskBean.getLowerLimit() < spacing) {
+            message = "上下限間距不可超過" + spacing;
+        }
+        if (assignedTaskBean.getUpperLimit() <= assignedTaskBean.getLowerLimit()) {
+            message = "上限不可小於等於下限";
+        }
+        return message;
     }
 }
