@@ -16,7 +16,7 @@ import java.util.List;
 public class UserAccountSpecification {
     private static final EnumSet<Identity> ALLOWED_IDENTITIES = EnumSet.of(
             Identity.NO_PERMISSION,
-            Identity.MANAGER,
+            Identity.USER,
             Identity.DEVELOPER
     );
 
@@ -36,8 +36,8 @@ public class UserAccountSpecification {
             if (StringUtils.isNotBlank(identity) && ALLOWED_IDENTITIES.contains(Identity.of(identity))) {
                 if (Identity.isNoPermission(Identity.of(identity).getTypeName())) {
                     predicates.add(criteriaBuilder.equal(root.get(UserAccount_.IDENTITY), Identity.NO_PERMISSION));
-                } else if (Identity.isManager(Identity.of(identity).getTypeName())) {
-                    predicates.add(criteriaBuilder.equal(root.get(UserAccount_.IDENTITY), Identity.MANAGER));
+                } else if (Identity.isUser(Identity.of(identity).getTypeName())) {
+                    predicates.add(criteriaBuilder.equal(root.get(UserAccount_.IDENTITY), Identity.USER));
                 }
             } else {
                 predicates.add(criteriaBuilder.notEqual(root.get(UserAccount_.IDENTITY), Identity.NO_PERMISSION));

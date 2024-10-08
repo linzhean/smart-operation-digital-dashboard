@@ -36,7 +36,7 @@ public class UserAccountController {
     private final DepartmentService departmentService;
     private final EmailUtils emailUtils;
 
-    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
+
     @GetMapping(path = "")
     public ResponseEntity<String> getLoginUser(HttpServletRequest request) {
         ObjectData objectData = new ObjectData();
@@ -88,7 +88,6 @@ public class UserAccountController {
             groupData.add("groupId", groupBean.getId());
             groupData.add("groupName", groupBean.getName());
         }
-
         boolean isSelf = SecurityUtils.getLoginUserAccount().equals(userId) && bean.getCreateDate().equals(bean.getModifyDate());
         data.add("isWriter", isAdmin || isSelf);
         return ResponseEntityBuilder.success()
@@ -218,7 +217,7 @@ public class UserAccountController {
                     .message("僅有無權限才可被開通")
                     .build();
         }
-        bean.setIdentity(Identity.MANAGER);
+        bean.setIdentity(Identity.USER);
         userAccountService.update(userId, bean);
         emailUtils.sendMail(userId, userAccountBean.getGmail(), "審核通過通知",
                 "src/main/resources/mail/adminPermitted.html", null);
