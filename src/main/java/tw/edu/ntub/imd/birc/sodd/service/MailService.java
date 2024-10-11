@@ -11,5 +11,10 @@ import java.util.List;
 public interface MailService extends BaseService<MailBean, Integer> {
     List<MailBean> searchByStatus(String userId, String status);
 
-    void sendSystemAssignedTask(AssignedTasks assignedTasks, Chart chart, BigDecimal ratio, UserAccount userAccount, String status);
+    void sendSystemAssignedTask(AssignedTasks assignedTasks,
+                                Chart chart,
+                                BigDecimal ratio,
+                                UserAccount userAccount,
+                                String status,
+                                Double standard);
 }

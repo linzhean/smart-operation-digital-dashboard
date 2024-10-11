@@ -70,7 +70,7 @@ public class AssignedTaskServiceImpl extends BaseServiceImpl<AssignedTaskBean, A
             Map<String, List<Object>> calculatedData = gson.fromJson(jsonData, mapType);
             Map<String, List<Object>> newDataMap = calJsonToInfo.calJsonToInfo(calculatedData);
             newDataMap.forEach((key, ratios) -> {
-                if (ObjectUtils.isEmpty(assignedTasks)) {
+                if (!ObjectUtils.isEmpty(assignedTasks)) {
                     isExceedLimits(assignedTasks, ratios, chart);
                 }
             });
@@ -78,18 +78,24 @@ public class AssignedTaskServiceImpl extends BaseServiceImpl<AssignedTaskBean, A
     }
 
     private void isExceedLimits(AssignedTasks assignedTasks, List<Object> ratios, Chart chart) {
-        UserAccount userAccount = userAccountDAO.findById(assignedTasks.getDefaultProcessor())
+        UserAccount processor = userAccountDAO.findById(assignedTasks.getDefaultProcessor())
+                .orElseThrow(() -> new NotFoundException("查無此使用者"));
+        UserAccount auditor = userAccountDAO.findById(assignedTasks.getDefaultAuditor())
                 .orElseThrow(() -> new NotFoundException("查無此使用者"));
         for (Object object : ratios) {
             BigDecimal ratio = new BigDecimal(object.toString());
             if (assignedTasks.getUpperLimit() != null) {
                 if (assignedTasks.getUpperLimit() < ratio.doubleValue()) {
-                    mailService.sendSystemAssignedTask(assignedTasks, chart, ratio, userAccount, "高");
+                    mailService.sendSystemAssignedTask(assignedTasks, chart, ratio, processor, "高", assignedTasks.getUpperLimit());
+                    mailService.sendSystemAssignedTask(assignedTasks, chart, ratio, auditor, "高", assignedTasks.getUpperLimit());
+                    break;
                 }
             }
             if (assignedTasks.getLowerLimit() != null) {
                 if (assignedTasks.getLowerLimit() > ratio.doubleValue()) {
-                    mailService.sendSystemAssignedTask(assignedTasks, chart, ratio, userAccount, "低");
+                    mailService.sendSystemAssignedTask(assignedTasks, chart, ratio, processor, "低", assignedTasks.getLowerLimit());
+                    mailService.sendSystemAssignedTask(assignedTasks, chart, ratio, auditor, "低", assignedTasks.getLowerLimit());
+                    break;
                 }
             }
         }
