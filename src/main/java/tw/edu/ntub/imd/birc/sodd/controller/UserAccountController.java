@@ -76,9 +76,7 @@ public class UserAccountController {
                 .orElseThrow(() -> new NotFoundException("找不到此用戶：" + userId));
         ObjectData data = new ObjectData();
         data.add("userName", bean.getUserName());
-        if (isAdmin) {
-            data.add("identity", identity.substring(1, identity.length() - 1));
-        }
+        data.add("identity", identity.substring(1, identity.length() - 1));
         data.add("department", departmentService.getDepartmentMap().getOrDefault(bean.getDepartmentId(), "查無此部門"));
         data.add("gmail", bean.getGmail());
         data.add("position", bean.getPosition());
