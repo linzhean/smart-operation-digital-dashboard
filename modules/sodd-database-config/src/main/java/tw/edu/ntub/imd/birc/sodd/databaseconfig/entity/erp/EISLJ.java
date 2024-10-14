@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 
 @Data
 @Entity
-@IdClass(EISLJPK.class)
+@IdClass(EISLJId.class)
 public class EISLJ {
     @Id
     @Column(name = "COMPANY")

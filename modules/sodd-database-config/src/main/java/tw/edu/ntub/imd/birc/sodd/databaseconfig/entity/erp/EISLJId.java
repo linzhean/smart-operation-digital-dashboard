@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 @Data
 @Entity
-public class EISLJPK implements Serializable {
+public class EISLJId implements Serializable {
     @Id
     @Column(name = "COMPANY")
     private String company;
