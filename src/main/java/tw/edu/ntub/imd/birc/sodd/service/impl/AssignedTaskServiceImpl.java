@@ -79,9 +79,9 @@ public class AssignedTaskServiceImpl extends BaseServiceImpl<AssignedTaskBean, A
 
     private void isExceedLimits(AssignedTasks assignedTasks, List<Object> ratios, Chart chart) {
         UserAccount processor = userAccountDAO.findById(assignedTasks.getDefaultProcessor())
-                .orElseThrow(() -> new NotFoundException("查無此使用者"));
+                .orElseThrow(() -> new NotFoundException("未設定系統自動交辦預設處理人"));
         UserAccount auditor = userAccountDAO.findById(assignedTasks.getDefaultAuditor())
-                .orElseThrow(() -> new NotFoundException("查無此使用者"));
+                .orElseThrow(() -> new NotFoundException("未設定系統自動交辦預設稽核人"));
         for (Object object : ratios) {
             BigDecimal ratio = new BigDecimal(object.toString());
             if (assignedTasks.getUpperLimit() != null) {

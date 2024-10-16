@@ -32,9 +32,10 @@ public class DashboardController {
                                                BindingResult bindingResult,
                                                HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
-        dashboardService.save(dashboardBean);
+        dashboardBean = dashboardService.save(dashboardBean);
         return ResponseEntityBuilder.success()
                 .message("新增成功")
+                .data(SingleValueObjectData.create("dashboardId", dashboardBean.getId()))
                 .build();
     }
 
@@ -75,7 +76,8 @@ public class DashboardController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delDashboard(@PathVariable("id") Integer id, HttpServletRequest request) {
+    public ResponseEntity<String> delDashboard(@PathVariable("id") Integer id,
+                                               HttpServletRequest request) {
         DashboardBean dashboardBean = new DashboardBean();
         dashboardBean.setAvailable(false);
         dashboardService.update(id, dashboardBean);

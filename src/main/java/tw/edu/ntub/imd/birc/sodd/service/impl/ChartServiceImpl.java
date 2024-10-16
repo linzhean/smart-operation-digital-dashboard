@@ -8,10 +8,12 @@ import org.springframework.web.multipart.MultipartFile;
 import tw.edu.ntub.birc.common.util.CollectionUtils;
 import tw.edu.ntub.birc.common.util.StringUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
+import tw.edu.ntub.imd.birc.sodd.bean.ChartDashboardBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.*;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.AssignedTaskSponsor;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Chart;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.ChartDashboard;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ChartDataSource;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.views.CalJsonToInfo;
 import tw.edu.ntub.imd.birc.sodd.dto.FileMultipartFile;
@@ -26,6 +28,7 @@ import tw.edu.ntub.imd.birc.sodd.util.sodd.PythonUtils;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -151,13 +154,17 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
     }
 
     @Override
-    public List<ChartBean> searchByUser(String userId) {
+    public List<ChartBean> searchByUser(String userId, Integer dashboardId) {
         List<ChartBean> allCharts = CollectionUtils.map(chartDAO.findByAvailableIsTrue(), transformer::transferToBean);
         List<Chart> observableCharts = groupService.searchByUserId(userId)
                 .stream()
                 .flatMap(groupBean -> chartGroupDAO.findByGroupIdAndAvailableIsTrue(groupBean.getId()).stream())
                 .map(chartGroup -> chartDAO.getById(chartGroup.getChartId()))
                 .collect(Collectors.toList());
+        List<ChartDashboard> addedCharts = new ArrayList<>();
+        if (dashboardId != null) {
+            addedCharts = chartDashboardDAO.findByDashboardIdAndAvailableIsTrue(dashboardId);
+        }
         for (ChartBean chartBean : allCharts) {
             for (Chart chart : observableCharts) {
                 if (Objects.equals(chartBean.getId(), chart.getId())) {
@@ -165,6 +172,14 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                     break;
                 } else {
                     chartBean.setObservable(false);
+                }
+            }
+            for (ChartDashboard chartDashboard : addedCharts) {
+                if (Objects.equals(chartBean.getId(), chartDashboard.getChartId())) {
+                    chartBean.setIsAdded(true);
+                    break;
+                } else {
+                    chartBean.setIsAdded(false);
                 }
             }
         }

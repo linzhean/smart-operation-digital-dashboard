@@ -72,7 +72,7 @@ public class AiChatServiceImpl extends BaseServiceImpl<AiChatBean, AiChat, Integ
         String calculatedJson = gson.toJson(calculatedData);
         String description = dashboardDAO.findById(dashboardId)
                 .map(Dashboard::getDescription)
-                .orElse("");
+                .orElse("此儀表板尚無說明");
         return pythonUtils.genAISuggestion("python/llama3_ai/ai_suggestions.py", calculatedJson, description);
     }
 
