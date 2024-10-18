@@ -36,7 +36,7 @@ public class UserAccountController {
     private final DepartmentService departmentService;
     private final EmailUtils emailUtils;
 
-    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
+
     @GetMapping(path = "")
     public ResponseEntity<String> getLoginUser(HttpServletRequest request) {
         ObjectData objectData = new ObjectData();
@@ -76,9 +76,7 @@ public class UserAccountController {
                 .orElseThrow(() -> new NotFoundException("找不到此用戶：" + userId));
         ObjectData data = new ObjectData();
         data.add("userName", bean.getUserName());
-        if (isAdmin) {
-            data.add("identity", identity.substring(1, identity.length() - 1));
-        }
+        data.add("identity", identity.substring(1, identity.length() - 1));
         data.add("department", departmentService.getDepartmentMap().getOrDefault(bean.getDepartmentId(), "查無此部門"));
         data.add("gmail", bean.getGmail());
         data.add("position", bean.getPosition());
@@ -88,7 +86,6 @@ public class UserAccountController {
             groupData.add("groupId", groupBean.getId());
             groupData.add("groupName", groupBean.getName());
         }
-
         boolean isSelf = SecurityUtils.getLoginUserAccount().equals(userId) && bean.getCreateDate().equals(bean.getModifyDate());
         data.add("isWriter", isAdmin || isSelf);
         return ResponseEntityBuilder.success()
@@ -117,13 +114,13 @@ public class UserAccountController {
     @GetMapping(path = "/list", params = "nowPage")
     public ResponseEntity<String> searchUserList(
             @RequestParam(name = "departmentId", required = false) String departmentId,
-            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "identity", required = false) String identity,
             @RequestParam(name = "nowPage") Integer nowPage,
             HttpServletRequest request
     ) {
         ArrayData arrayData = new ArrayData();
-        for (UserAccountBean bean : userAccountService.searchByUserValue(departmentId, name, identity, nowPage)) {
+        for (UserAccountBean bean : userAccountService.searchByUserValue(departmentId, keyword, identity, nowPage)) {
             bean.setDepartmentName(departmentService.getDepartmentMap().getOrDefault(bean.getDepartmentId(), ""));
             ObjectData data = arrayData.addObject();
             data.add("userId", bean.getUserId());
@@ -218,7 +215,7 @@ public class UserAccountController {
                     .message("僅有無權限才可被開通")
                     .build();
         }
-        bean.setIdentity(Identity.MANAGER);
+        bean.setIdentity(Identity.USER);
         userAccountService.update(userId, bean);
         emailUtils.sendMail(userId, userAccountBean.getGmail(), "審核通過通知",
                 "src/main/resources/mail/adminPermitted.html", null);

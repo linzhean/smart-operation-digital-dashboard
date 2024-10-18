@@ -11,6 +11,7 @@ public enum ChartDataSource {
     TIME_EFFICIENCY("time_efficiency"),
     SUBCONTRACTING_REFUND_RATE("subcontracting_refund_rate"),
     PURCHASE_UNIT_PRICE("purchase_unit_price"),
+    TURNOVER_RATE("turnover_rate"),
     COST_VARIANCE_RATE("cost_variance_rate");
 
     private final String value;
@@ -42,6 +43,8 @@ public enum ChartDataSource {
                 return CostVarianceRate.class;
             case PURCHASE_UNIT_PRICE:
                 return PurchaseUnitPrice.class;
+            case TURNOVER_RATE:
+                return TurnoverRate.class;
             default:
                 throw new RuntimeException("查無此dataSource對應的資料表");
         }
@@ -61,6 +64,8 @@ public enum ChartDataSource {
                 return new CostVarianceRate();
             case PURCHASE_UNIT_PRICE:
                 return new PurchaseUnitPrice();
+            case TURNOVER_RATE:
+                return new TurnoverRate();
             default:
                 throw new RuntimeException("查無此dataSource對應的資料表");
         }

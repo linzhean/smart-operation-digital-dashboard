@@ -15,6 +15,7 @@ import tw.edu.ntub.imd.birc.sodd.util.json.array.ArrayData;
 import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 import java.util.Optional;
 
 @AllArgsConstructor
@@ -48,6 +49,14 @@ public class GroupController {
                 .orElseThrow(() -> new NotFoundException("查無此使用者: " + userId));
         groupService.getById(groupId)
                 .orElseThrow(() -> new NotFoundException("查無此群組: " + groupId));
+        boolean isAdded = userGroupService.searchUserByGroupId(groupId)
+                .stream()
+                .anyMatch(userAccountBean -> Objects.equals(userAccountBean.getUserId(), userId));
+        if (isAdded) {
+            return ResponseEntityBuilder.success()
+                    .message("此用戶已被新增至群組")
+                    .build();
+        }
         UserGroupBean userGroupBean = new UserGroupBean();
         userGroupBean.setUserId(userId);
         userGroupBean.setGroupId(groupId);
@@ -65,6 +74,14 @@ public class GroupController {
                 .orElseThrow(() -> new NotFoundException("查無此圖表: " + chartId));
         groupService.getById(groupId)
                 .orElseThrow(() -> new NotFoundException("查無此群組: " + groupId));
+        boolean isAdded = chartGroupService.searchChartByGroupId(groupId)
+                .stream()
+                .anyMatch(chartBean -> Objects.equals(chartBean.getId(), chartId));
+        if (isAdded) {
+            return ResponseEntityBuilder.success()
+                    .message("此圖表已被新增到群組了")
+                    .build();
+        }
         ChartGroupBean chartGroupBean = new ChartGroupBean();
         chartGroupBean.setGroupId(groupId);
         chartGroupBean.setChartId(chartId);

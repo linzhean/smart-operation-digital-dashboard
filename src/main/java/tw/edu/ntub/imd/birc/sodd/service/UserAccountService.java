@@ -5,9 +5,9 @@ import tw.edu.ntub.imd.birc.sodd.bean.UserAccountBean;
 import java.util.List;
 
 public interface UserAccountService extends BaseService<UserAccountBean, String> {
-    List<UserAccountBean> searchByUserValue(String departmentId, String name, String identity, Integer nowPage);
+    List<UserAccountBean> searchByUserValue(String departmentId, String keyword, String identity, Integer nowPage);
 
-    List<UserAccountBean> searchByUserValue(String departmentId, String name, String identity);
+    List<UserAccountBean> searchByUserValue(String departmentId, String keyword, String identity);
 
-    Integer countUserList(String departmentId, String identity, String name);
+    Integer countUserList(String departmentId, String identity, String keyword);
 }

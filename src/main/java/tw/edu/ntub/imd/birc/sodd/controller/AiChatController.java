@@ -38,6 +38,7 @@ public class AiChatController {
                 .build();
     }
 
+
     @GetMapping("/suggestion")
     public ResponseEntity<String> getChartSuggestion(@RequestParam("chartId") Integer chartId,
                                                      @RequestParam("dashboardId") Integer dashboardId,

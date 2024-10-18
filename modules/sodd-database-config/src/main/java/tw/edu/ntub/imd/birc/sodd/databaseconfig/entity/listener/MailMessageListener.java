@@ -12,19 +12,18 @@ import java.time.LocalDateTime;
 public class MailMessageListener {
     @PrePersist
     public void preSave(MailMessage mailMessage) {
-        String userId = SecurityUtils.getLoginUserAccount();
         LocalDateTime now = LocalDateTime.now();
         if (mailMessage.getAvailable() == null) {
             mailMessage.setAvailable(true);
         }
         if (StringUtils.isBlank(mailMessage.getCreateId())) {
-            mailMessage.setCreateId(userId);
+            mailMessage.setCreateId(SecurityUtils.getLoginUserAccount());
         }
         if (mailMessage.getCreateDate() == null) {
             mailMessage.setCreateDate(now);
         }
         if (StringUtils.isBlank(mailMessage.getModifyId())) {
-            mailMessage.setModifyId(userId);
+            mailMessage.setModifyId(SecurityUtils.getLoginUserAccount());
         }
         if (mailMessage.getModifyDate() == null) {
             mailMessage.setModifyDate(now);

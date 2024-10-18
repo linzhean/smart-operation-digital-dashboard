@@ -11,10 +11,9 @@ import java.time.LocalDateTime;
 public class MailListener {
     @PrePersist
     public void preSave(Mail mail) {
-        String userId = SecurityUtils.getLoginUserAccount();
         LocalDateTime now = LocalDateTime.now();
         if (StringUtils.isBlank(mail.getPublisher())) {
-            mail.setPublisher(userId);
+            mail.setPublisher(SecurityUtils.getLoginUserAccount());
         }
         if (mail.getEmailSendTime() == null) {
             mail.setEmailSendTime(now);
@@ -23,13 +22,13 @@ public class MailListener {
             mail.setAvailable(true);
         }
         if (StringUtils.isBlank(mail.getCreateId())) {
-            mail.setCreateId(userId);
+            mail.setCreateId(SecurityUtils.getLoginUserAccount());
         }
         if (mail.getCreateDate() == null) {
             mail.setCreateDate(now);
         }
         if (StringUtils.isBlank(mail.getModifyId())) {
-            mail.setModifyId(userId);
+            mail.setModifyId(SecurityUtils.getLoginUserAccount());
         }
         if (mail.getModifyDate() == null) {
             mail.setModifyDate(now);

@@ -38,7 +38,7 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupBean, Group, Integer>
         List<Group> groups = userGroupDAO.findByUserIdAndAvailableIsTrue(userId)
                 .stream()
                 .map(userGroup -> groupDAO.findById(userGroup.getGroupId()).orElse(null))
-                .filter(Objects::nonNull)
+                .filter(group -> group != null && group.getAvailable())
                 .collect(Collectors.toList());
         return CollectionUtils.map(groups, transformer::transferToBean);
     }
