@@ -10,7 +10,6 @@ import tw.edu.ntub.imd.birc.sodd.service.GroupService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.GroupTransformer;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service

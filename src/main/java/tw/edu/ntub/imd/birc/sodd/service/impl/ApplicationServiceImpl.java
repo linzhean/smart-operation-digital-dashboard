@@ -115,8 +115,8 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
         changeApplyStatus(application, Apply.PASSED);
         emailUtils.sendMail(applicationBean.getApplicant(), email, "申請審核通過通知",
                 "src/main/resources/mail/applicationPermitted.html", null);
-        Instant startInstant = application.getStartDate().atZone(ZoneId.systemDefault()).toInstant();
-        Instant endInstant = application.getEndDate().atZone(ZoneId.systemDefault()).toInstant();
+        Instant startInstant = application.getStartDate().atZone(ZoneId.of("Asia/Taipei")).toInstant();
+        Instant endInstant = application.getEndDate().atZone(ZoneId.of("Asia/Taipei")).toInstant();
         // 申請啟用任務裡啟動結束任務
         startTask = taskScheduler.schedule(() -> {
             changeApplyStatus(application, Apply.ACTIVATING);

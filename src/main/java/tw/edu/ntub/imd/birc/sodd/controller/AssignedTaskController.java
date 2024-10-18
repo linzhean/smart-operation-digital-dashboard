@@ -76,10 +76,18 @@ public class AssignedTaskController {
         String chartName = chartService.getById(assignedTaskBean.getChartId())
                 .map(ChartBean::getName)
                 .orElse("");
+        String auditorName = userAccountService.getById(assignedTaskBean.getDefaultAuditor())
+                .map(UserAccountBean::getUserName)
+                .orElse("");
+        String processorName = userAccountService.getById(assignedTaskBean.getDefaultProcessor())
+                .map(UserAccountBean::getUserName)
+                .orElse("");
         objectData.add("chartId", assignedTaskBean.getChartId());
         objectData.add("chartName", chartName);
         objectData.add("defaultAuditor", assignedTaskBean.getDefaultAuditor());
+        objectData.add("auditorName", auditorName);
         objectData.add("defaultProcessor", assignedTaskBean.getDefaultProcessor());
+        objectData.add("processorName", processorName);
         objectData.add("upperLimit", assignedTaskBean.getUpperLimit());
         objectData.add("lowerLimit", assignedTaskBean.getLowerLimit());
         return ResponseEntityBuilder.success()

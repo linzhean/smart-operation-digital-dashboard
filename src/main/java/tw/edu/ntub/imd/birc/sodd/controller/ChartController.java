@@ -117,6 +117,7 @@ public class ChartController {
             objectData.add("name", chartBean.getName());
             objectData.add("chartImage", chartBean.getChartImage());
             objectData.add("canAssign", chartBean.getCanAssign());
+            objectData.add("canExport", chartBean.getCanExport());
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")

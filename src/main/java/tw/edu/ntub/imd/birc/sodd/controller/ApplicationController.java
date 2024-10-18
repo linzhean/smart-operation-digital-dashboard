@@ -54,6 +54,7 @@ public class ApplicationController {
             objectData.add("chartId", applicationBean.getChartId());
             objectData.add("applicant", applicationBean.getApplicant());
             objectData.add("guarantor", applicationBean.getGuarantor());
+            objectData.add("reason", applicationBean.getReason());
             objectData.add("startDate", applicationBean.getStartDate());
             objectData.add("endDate", applicationBean.getEndDate());
         }

@@ -31,6 +31,8 @@ public class ChartBean {
     private Resource chartHTML;
     @Null(message = "是否可發送交辦 - 不得填寫")
     private Boolean canAssign;
+    @Null(message = "是否可匯出 - 不得填寫")
+    private Boolean canExport;
     @Null(message = "是否可視 - 不得填寫")
     private Boolean observable = false;
     @Null(message = "是否已被加到儀表板內 - 不得填寫")

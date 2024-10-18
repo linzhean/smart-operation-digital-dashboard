@@ -23,6 +23,4 @@ public final class SecurityUtils {
     public static boolean isLogin() {
         return SecurityContextHolder.getContext().getAuthentication().isAuthenticated();
     }
-
-
 }

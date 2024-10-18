@@ -8,12 +8,12 @@ import org.springframework.web.multipart.MultipartFile;
 import tw.edu.ntub.birc.common.util.CollectionUtils;
 import tw.edu.ntub.birc.common.util.StringUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
-import tw.edu.ntub.imd.birc.sodd.bean.ChartDashboardBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.*;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.AssignedTaskSponsor;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Chart;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.ChartDashboard;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Export;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ChartDataSource;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.views.CalJsonToInfo;
 import tw.edu.ntub.imd.birc.sodd.dto.FileMultipartFile;
@@ -41,6 +41,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
     private final ChartDashboardDAO chartDashboardDAO;
     private final AssignedTaskSponsorDAO sponsorDAO;
     private final DataSourceDAO dataSourceDAO;
+    private final ExportDAO exportDAO;
     private final GroupService groupService;
     private final ChartTransformer transformer;
     private final MultipartFileUploader multipartFileUploader;
@@ -51,6 +52,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                             ChartDashboardDAO chartDashboardDAO,
                             AssignedTaskSponsorDAO sponsorDAO,
                             DataSourceDAO dataSourceDAO,
+                            ExportDAO exportDAO,
                             GroupService groupService,
                             ChartTransformer transformer,
                             MultipartFileUploader multipartFileUploader) {
@@ -59,6 +61,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
         this.chartGroupDAO = chartGroupDAO;
         this.sponsorDAO = sponsorDAO;
         this.dataSourceDAO = dataSourceDAO;
+        this.exportDAO = exportDAO;
         this.groupService = groupService;
         this.chartDashboardDAO = chartDashboardDAO;
         this.transformer = transformer;
@@ -98,6 +101,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
 
     @Override
     public List<ChartBean> searchByDashboardId(Integer dashboardId) {
+        String userId = SecurityUtils.getLoginUserAccount();
         List<ChartBean> chartBeans = chartDashboardDAO.findByDashboardIdAndAvailableIsTrue(dashboardId)
                 .stream()
                 .map(chartDashboard ->
@@ -105,7 +109,8 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                                 chartDashboard.getChartId()).orElseThrow(() -> new NotFoundException("查無此圖表"))))
                 .collect(Collectors.toList());
         List<AssignedTaskSponsor> canAssignCharts =
-                sponsorDAO.findBySponsorUserIdAndAvailableIsTrue(SecurityUtils.getLoginUserAccount());
+                sponsorDAO.findBySponsorUserIdAndAvailableIsTrue(userId);
+        List<Export> canExportCharts = exportDAO.findByExporterAndAvailableIsTrue(userId);
         for (ChartBean chartBean : chartBeans) {
             chartBean.setChartImage(genChartHTML(chartBean));
             for (AssignedTaskSponsor sponsor : canAssignCharts) {
@@ -114,6 +119,14 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                     break;
                 } else {
                     chartBean.setCanAssign(false);
+                }
+            }
+            for (Export export : canExportCharts) {
+                if (Objects.equals(chartBean.getId(), export.getChartId())) {
+                    chartBean.setCanExport(true);
+                    break;
+                } else {
+                    chartBean.setCanExport(false);
                 }
             }
         }

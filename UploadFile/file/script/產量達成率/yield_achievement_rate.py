@@ -50,7 +50,7 @@ def generate_html_chart(file_name):
     # 啟用自適應設計(但會導致無法跳出程式 not exited)
     # fig.update_layout(responsive=True)
     # 儲存圖表為互動式 HTML
-    pio.write_html(fig, file_name, full_html=False)
+    pio.write_html(fig, file_name)
 
 
 # 這裡直接複製
