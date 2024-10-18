@@ -11,8 +11,6 @@ def generate_html_chart(file_name):
     # 將 JSON 轉換為 DataFrame
     df = pd.DataFrame(json.loads(data))
 
-    # 圖表讀資料生成圖表
-
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
@@ -26,13 +24,17 @@ def generate_html_chart(file_name):
     for product_number in product_numbers.unique():
         product_data = df[product_numbers == product_number]
 
+        # 根據達成率低於 80% 設定顏色為紅色，其他顏色為綠色
+        colors = ['red' if rate < 80 else 'green' for rate in product_data['yieldAchievementRate']]
+
         # 添加長條圖：品號為名稱，日期為 x 軸，產量達成率為 y 軸
         fig.add_trace(go.Bar(
             x=product_data['date'],
             y=product_data['yieldAchievementRate'],
             name=product_number,  # 品號作為長條圖的名稱
             text=product_data['yieldAchievementRate'],  # 在圖表中顯示達成率數字
-            textposition='auto'
+            textposition='auto',
+            marker_color=colors  # 根據達成率設置顏色
         ))
 
     # 設定圖表標題與軸標籤
@@ -47,8 +49,6 @@ def generate_html_chart(file_name):
         height=None  # 讓其自適應
     )
 
-    # 啟用自適應設計(但會導致無法跳出程式 not exited)
-    # fig.update_layout(responsive=True)
     # 儲存圖表為互動式 HTML
     pio.write_html(fig, file_name)
 

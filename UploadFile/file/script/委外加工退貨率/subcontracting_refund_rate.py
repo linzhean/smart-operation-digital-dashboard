@@ -10,44 +10,38 @@ def generate_html_chart(file_name):
     # 將 JSON 轉換為 DataFrame
     df = pd.DataFrame(json.loads(data))
 
-
     # 圖表讀資料生成圖表
     # 資料表 EISLH
     # 欄位 LF005 productNumber LF012 date LF014 processedVolume LF017 refundVolume
 
-    # 將日期轉換為日期格式
-    df['date'] = pd.to_datetime(df['date'])
-
-    product_numbers = df['productNumber']
+    # 設定環狀條形圖的顏色列表
+    colors = ['#3498db', '#e74c3c', '#2ecc71', '#9b59b6', '#f39c12']
 
     # 創建圖表
     fig = go.Figure()
 
-    # 依照品號進行分組，為每個品號生成一條線
-    for product_number in product_numbers.unique():
-        product_data = df[product_numbers == product_number]
+    # 根據產品號碼進行分組
+    for idx, product_number in enumerate(df['productNumber'].unique()):
+        product_data = df[df['productNumber'] == product_number]
 
-        # 添加折線圖：品號為名稱，日期為 x 軸，委外加工退貨率為 y 軸
-        fig.add_trace(go.Scatter(
-            x=product_data['date'],
-            y=product_data['subcontractingRefundRate'],
-            mode='lines+markers',
-            name=product_number,  # 品號作為線的名稱
-            line=dict(width=2),
-            marker=dict(size=6)
+        # 添加環狀條形圖的每一個部分
+        fig.add_trace(go.Barpolar(
+            r=product_data['subcontractingRefundRate'],
+            theta=[idx * 360 / len(df['productNumber'].unique())] * len(product_data),
+            width=[30] * len(product_data),  # 條形圖寬度
+            name=product_number,
+            marker_color=colors[idx % len(colors)]  # 根據索引來選擇顏色
         ))
 
-    # 設定圖表標題與軸標籤
+    # 設定圖表標題與外觀
     fig.update_layout(
-        title='各品號的委外加工退貨率折線圖',
-        xaxis_title='日期',
-        yaxis_title='退貨率 (%)',
-        xaxis=dict(autorange=True),
-        yaxis=dict(autorange=True),  # 可根據數據調整範圍
+        title='各品號的委外加工退貨率環狀條形圖',
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 100])  # 根據退貨率調整範圍
+        ),
+        showlegend=True,
         autosize=True
     )
-    # 圖表讀資料生成圖表
-
 
     # 儲存圖表為互動式 HTML
     pio.write_html(fig, file_name)
@@ -57,8 +51,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) != 3:
-        print(f"用法: python subcontracting_refund_rate.py"
-              f"ate.py (filePath, type, fileName) {sys.argv}")
+        print(f"用法: python subcontracting_refund_rate.py html/photo (fileName) {sys.argv}")
     elif sys.argv[1] == 'html':
         generate_html_chart(sys.argv[2])
     elif sys.argv[1] == 'photo':
