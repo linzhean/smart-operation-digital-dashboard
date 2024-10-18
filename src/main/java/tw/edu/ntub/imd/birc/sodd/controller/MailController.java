@@ -1,7 +1,11 @@
 package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.birc.common.util.StringUtils;
@@ -30,11 +34,14 @@ import java.util.Optional;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/mail")
+@PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
 public class MailController {
     private final MailService mailService;
     private final MailMessageService messageService;
     private final ChartService chartService;
     private final AssignedTaskService assignedTaskService;
+    @Autowired
+    private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("")
     public ResponseEntity<String> sendAssignMail(@RequestBody MailBean mailBean,
@@ -53,6 +60,7 @@ public class MailController {
     }
 
     @PostMapping("/message")
+    @SendTo("/topic/newMessage")
     public ResponseEntity<String> addMessage(@RequestParam("mailId") Integer mailId,
                                              @Valid @RequestBody MailMessageBean mailMessageBean,
                                              BindingResult bindingResult,
@@ -70,6 +78,7 @@ public class MailController {
                 });
         mailMessageBean.setMailId(mailId);
         messageService.save(mailMessageBean);
+        messagingTemplate.convertAndSend("/topic/newMessage");
         return ResponseEntityBuilder.success()
                 .message("新增成功")
                 .build();
@@ -92,12 +101,6 @@ public class MailController {
             objectData.add("publisher", mailBean.getPublisher());
             objectData.add("receiver", mailBean.getReceiver());
             objectData.add("emailSendTime", mailBean.getEmailSendTime());
-            if (mailBean.getAssignedTaskId() != null) {
-                String assignedTaskName = assignedTaskService.getById(mailBean.getAssignedTaskId())
-                        .map(AssignedTaskBean::getName)
-                        .orElseThrow(() -> new NotFoundException("查無此交辦"));
-                objectData.add("assignedTaskName", assignedTaskName);
-            }
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
@@ -121,12 +124,6 @@ public class MailController {
         objectData.add("publisher", mailBean.getPublisher());
         objectData.add("receiver", mailBean.getReceiver());
         objectData.add("emailSendTime", mailBean.getEmailSendTime());
-        if (mailBean.getAssignedTaskId() != null) {
-            String assignedTaskName = assignedTaskService.getById(mailBean.getAssignedTaskId())
-                    .map(AssignedTaskBean::getName)
-                    .orElseThrow(() -> new NotFoundException("查無此交辦"));
-            objectData.add("assignedTaskName", assignedTaskName);
-        }
         ArrayData arrayData = objectData.addArray("messageList");
         for (MailMessageBean messageBean : messageService.searchByMailId(id)) {
             ObjectData messageData = arrayData.addObject();
@@ -161,6 +158,11 @@ public class MailController {
         if (!ProcessStatus.isPending(mailBean.getStatus())) {
             return ResponseEntityBuilder.error()
                     .message("此郵件已為已完成狀態")
+                    .build();
+        }
+        if (mailBean.getPublisher().equals(SecurityUtils.getLoginUserAccount())) {
+            return ResponseEntityBuilder.error()
+                    .message("非發送交辦事項的使用者無法修改為已完成狀態")
                     .build();
         }
         mailBean.setStatus(ProcessStatus.SUCCEEDED);

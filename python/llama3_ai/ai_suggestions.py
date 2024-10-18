@@ -5,11 +5,13 @@ from openai import OpenAI
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
-def generate_ai_suggestion(chart_data, description):
+def generate_ai_suggestion(description):
+    data = sys.stdin.read()
+
     # 初始化 OpenAI 客戶端
     client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
 
-    prompt = f"以下是生產數據表。請分析數據並找出規律或重要資訊。 請用繁體中文且在200字內回答我：\n{chart_data}"
+    prompt = f"以下是生產數據表。請分析數據並找出規律或重要資訊。 請用繁體中文且在200字內回答我：\n{data}"
 
     history = [
         {"role": "system", "content": "你是一個智能助手。"
@@ -35,9 +37,9 @@ def generate_ai_suggestion(chart_data, description):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print(f"用法: python ai_assistant.py (type, chart_data, description) {sys.argv}")
+    if len(sys.argv) != 3:
+        print(f"用法: python ai_assistant.py (type, description) {sys.argv}")
     elif sys.argv[1] == 'ai':
-        generate_ai_suggestion(sys.argv[2], sys.argv[3])
+        generate_ai_suggestion(sys.argv[2])
     else:
         print("無效的參數，請使用 'ai'")

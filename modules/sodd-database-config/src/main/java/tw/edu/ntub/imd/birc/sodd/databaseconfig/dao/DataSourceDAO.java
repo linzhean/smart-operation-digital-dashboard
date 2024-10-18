@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface DataSourceDAO {
     String getJsonData(ChartDataSource dataSource) throws Exception;
+
+    List<Object[]> searchAll(String viewTableName);
 }

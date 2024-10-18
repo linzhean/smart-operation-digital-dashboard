@@ -13,31 +13,29 @@ def generate_html_chart(file_name):
 
     # 圖表讀資料生成圖表
     # 資料表 EISLG
-    # 欄位 LG005 productNumber LG006 date LG008 actualLaborCost LG009 actualMaterialCost LG010 actualManufacturingExpense LG011 actualProcessingCost LG012 standardLaborCost LG013 standardMaterialCost LG014 standardManufacturingExpense LG015 standardProcessingCost
+    # 欄位
+    # LG005 productNumber
+    # LG006 date
+    # LG008 actualLaborCost
+    # LG009 actualMaterialCost
+    # LG010 actualManufacturingExpense
+    # LG011 actualProcessingCost
+    # LG012 standardLaborCost
+    # LG013 standardMaterialCost
+    # LG014 standardManufacturingExpense
+    # LG015 standardProcessingCost
 
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
-    # 將數據轉換為數字型
-    df['actualLaborCost'] = pd.to_numeric(df['actualLaborCost'], errors='coerce')
-    df['actualMaterialCost'] = pd.to_numeric(df['actualMaterialCost'], errors='coerce')
-    df['actualManufacturingExpense'] = pd.to_numeric(df['actualManufacturingExpense'], errors='coerce')
-    df['actualProcessingCost'] = pd.to_numeric(df['actualProcessingCost'], errors='coerce')
-    df['standardLaborCost'] = pd.to_numeric(df['standardLaborCost'], errors='coerce')
-    df['standardMaterialCost'] = pd.to_numeric(df['standardMaterialCost'], errors='coerce')
-    df['standardManufacturingExpense'] = pd.to_numeric(df['standardManufacturingExpense'], errors='coerce')
-    df['standardProcessingCost'] = pd.to_numeric(df['standardProcessingCost'], errors='coerce')
-
-    # 計算生產成本偏差率
-
-    df['costVarianceRate'] = (((df['actualLaborCost']+df['actualMaterialCost']+df['actualManufacturingExpense']+df['actualProcessingCost']) - (df['standardLaborCost']+df['standardMaterialCost']+df['standardManufacturingExpense']+df['standardProcessingCost'])) / (df['standardLaborCost']+df['standardMaterialCost']+df['standardManufacturingExpense']+df['standardProcessingCost'])) * 100
+    product_numbers = df['productNumber']
 
     # 創建圖表
     fig = go.Figure()
 
     # 依照品號進行分組，為每個品號生成一條線
-    for product_number in df['productNumber'].unique():
-        product_data = df[df['productNumber'] == product_number]
+    for product_number in product_numbers.unique():
+        product_data = df[product_numbers == product_number]
 
         # 添加折線圖：品號為名稱，日期為 x 軸，生產成本偏差率為 y 軸
         fig.add_trace(go.Scatter(

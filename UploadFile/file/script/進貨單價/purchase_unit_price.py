@@ -13,24 +13,23 @@ def generate_html_chart(file_name):
 
     # 圖表讀資料生成圖表
     # 資料表 EISLD
-    # 欄位 LF005 productNumber LF012 date LF013 purchaseQuantity LF014 purchasePrice
+    # 欄位
+    # LF005 productNumber
+    # LF012 date
+    # LF013 purchaseQuantity
+    # LF014 purchasePrice
 
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
-    # 將數據轉換為數字型
-    df['purchaseQuantity'] = pd.to_numeric(df['purchaseQuantity'], errors='coerce')
-    df['purchasePrice'] = pd.to_numeric(df['purchasePrice'], errors='coerce')
-
-    # 計算進貨單價
-    df['purchaseUnitPrice'] = df['purchasePrice'] / df['purchaseQuantity']
+    product_numbers = df['productNumber']
 
     # 創建圖表
     fig = go.Figure()
 
     # 依照品號進行分組，為每個品號生成一條線
-    for product_number in df['productNumber'].unique():
-        product_data = df[df['productNumber'] == product_number]
+    for product_number in product_numbers.unique():
+        product_data = df[product_numbers == product_number]
 
         # 添加折線圖：品號為名稱，日期為 x 軸，進貨單價為 y 軸
         fig.add_trace(go.Scatter(

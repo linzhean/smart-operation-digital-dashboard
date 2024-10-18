@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
 
+
 def generate_html_chart(file_name):
     # 從標準輸入讀取 JSON 字串
     data = sys.stdin.read()
@@ -10,26 +11,20 @@ def generate_html_chart(file_name):
     # 將 JSON 轉換為 DataFrame
     df = pd.DataFrame(json.loads(data))
 
-
     # 圖表讀資料生成圖表
 
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
     # 將數據轉換為數字型
-    df['productionVolume'] = pd.to_numeric(df['productionVolume'], errors='coerce')
-    df['advanceQuantity'] = pd.to_numeric(df['advanceQuantity'], errors='coerce')
-    df['expectedOutput'] = pd.to_numeric(df['expectedOutput'], errors='coerce')
-
-    # 計算產量達成率
-    df['yieldAchievementRate'] = ((df['productionVolume'] + df['advanceQuantity']) / df['expectedOutput']) * 100
+    product_numbers = df['productNumber']
 
     # 創建圖表
     fig = go.Figure()
 
     # 依照品號進行分組，為每個品號生成一條線
-    for product_number in df['productNumber'].unique():
-        product_data = df[df['productNumber'] == product_number]
+    for product_number in product_numbers.unique():
+        product_data = df[product_numbers == product_number]
 
         # 添加折線圖：品號為名稱，日期為 x 軸，產量達成率為 y 軸
         fig.add_trace(go.Scatter(
@@ -47,14 +42,18 @@ def generate_html_chart(file_name):
         xaxis_title='日期',
         yaxis_title='產量達成率 (%)',
         xaxis=dict(autorange=True),
-        yaxis=dict(autorange=True),  # 可根據數據調整範圍
-        autosize=True
+        yaxis=dict(autorange=True),# 可根據數據調整範圍
+        autosize=True,
+        width=None,  # 讓其自適應
+        height=None  # 讓其自適應
     )
-    # 圖表讀資料生成圖表
 
+    # 啟用自適應設計(但會導致無法跳出程式 not exited)
+    # fig.update_layout(responsive=True)
 
     # 儲存圖表為互動式 HTML
-    pio.write_html(fig, file_name)
+    pio.write_html(fig, file_name, full_html=False)
+
 
 # 這裡直接複製
 if __name__ == "__main__":
