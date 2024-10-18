@@ -78,7 +78,7 @@ public class MailController {
                 });
         mailMessageBean.setMailId(mailId);
         messageService.save(mailMessageBean);
-        messagingTemplate.convertAndSend("/topic/newMessage");
+        messagingTemplate.convertAndSend("/topic/newMessage", mailMessageBean);
         return ResponseEntityBuilder.success()
                 .message("新增成功")
                 .build();
@@ -90,12 +90,12 @@ public class MailController {
         String userId = SecurityUtils.getLoginUserAccount();
         ArrayData arrayData = new ArrayData();
         for (MailBean mailBean : mailService.searchByStatus(userId, status)) {
-            String chartName = chartService.getById(mailBean.getChartId())
-                    .map(ChartBean::getName)
+            ChartBean chartBean = chartService.getById(mailBean.getChartId())
                     .orElseThrow(() -> new NotFoundException("查無此圖表"));
             ObjectData objectData = arrayData.addObject();
             objectData.add("id", mailBean.getId());
-            objectData.add("chartName", chartName);
+            objectData.add("chartName", chartBean.getName());
+            objectData.add("showcaseImage", chartBean.getShowcaseImage());
             objectData.add("name", mailBean.getName());
             objectData.add("status", ProcessStatus.getProcessStatusName(mailBean.getStatus()));
             objectData.add("publisher", mailBean.getPublisher());

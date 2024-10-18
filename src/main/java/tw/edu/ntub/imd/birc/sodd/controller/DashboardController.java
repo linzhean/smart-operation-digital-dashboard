@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.imd.birc.sodd.bean.DashboardBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
+import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.ChartDashboardService;
 import tw.edu.ntub.imd.birc.sodd.service.DashboardService;
 import tw.edu.ntub.imd.birc.sodd.service.SyncRecordService;
@@ -32,9 +33,10 @@ public class DashboardController {
                                                BindingResult bindingResult,
                                                HttpServletRequest request) {
         BindingResultUtils.validate(bindingResult);
-        dashboardService.save(dashboardBean);
+        dashboardBean = dashboardService.save(dashboardBean);
         return ResponseEntityBuilder.success()
                 .message("新增成功")
+                .data(SingleValueObjectData.create("dashboardId", dashboardBean.getId()))
                 .build();
     }
 
@@ -62,6 +64,20 @@ public class DashboardController {
                 .build();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<String> getById(@PathVariable("id") Integer id) {
+        DashboardBean dashboardBean = dashboardService.findById(id)
+                .orElseThrow(() -> new NotFoundException("查無此儀表板"));
+        ObjectData objectData = new ObjectData();
+        objectData.add("id", dashboardBean.getId());
+        objectData.add("name", dashboardBean.getName());
+        objectData.add("description", dashboardBean.getDescription());
+        return ResponseEntityBuilder.success()
+                .message("查詢成功")
+                .data(objectData)
+                .build();
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<String> patchDashboard(@PathVariable("id") Integer id,
                                                  @RequestBody DashboardBean dashboardBean,
@@ -75,7 +91,8 @@ public class DashboardController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delDashboard(@PathVariable("id") Integer id, HttpServletRequest request) {
+    public ResponseEntity<String> delDashboard(@PathVariable("id") Integer id,
+                                               HttpServletRequest request) {
         DashboardBean dashboardBean = new DashboardBean();
         dashboardBean.setAvailable(false);
         dashboardService.update(id, dashboardBean);

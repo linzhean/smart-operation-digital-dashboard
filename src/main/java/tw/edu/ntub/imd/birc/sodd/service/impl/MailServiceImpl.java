@@ -80,18 +80,24 @@ public class MailServiceImpl extends BaseServiceImpl<MailBean, Mail, Integer> im
     }
 
     @Override
-    public void sendSystemAssignedTask(AssignedTasks assignedTasks, Chart chart, BigDecimal ratio, UserAccount userAccount, String status) {
+    public void sendSystemAssignedTask(AssignedTasks assignedTasks,
+                                       Chart chart,
+                                       BigDecimal ratio,
+                                       UserAccount userAccount,
+                                       String status,
+                                       Double standard) {
         MailBean mailBean = new MailBean();
         mailBean.setAssignedTaskId(assignedTasks.getChartId());
         mailBean.setChartId(chart.getId());
-        mailBean.setName(chart.getName());
+        mailBean.setName("系統警告: " + chart.getName() + "超過標準上下限");
         mailBean.setPublisher(assignedTasks.getDefaultAuditor());
         mailBean.setReceiver(assignedTasks.getDefaultProcessor());
         mailBean.setCreateId("system");
         mailBean.setModifyId("system");
         MailMessageBean messageBean = new MailMessageBean();
         messageBean.setContent(String.format(
-                "來自系統的警告！目前的%s為 %s，%s於達成率門檻。請立即檢查並採取措施！", chart.getName(), ratio, status));
+                "來自系統的警告！目前的%s為 %s，%s於達成率門檻: %s。請立即檢查並採取措施！",
+                chart.getName(), ratio, status, standard));
         mailBean.setFirstMessage(messageBean);
         Mail mail = mailDAO.save(transformer.transferToEntity(mailBean));
         messageBean.setMailId(mail.getId());
@@ -100,6 +106,6 @@ public class MailServiceImpl extends BaseServiceImpl<MailBean, Mail, Integer> im
         messageService.save(messageBean);
         emailUtils.sendMail(userAccount.getUserId(), userAccount.getGmail(),
                 chart.getName() + "資料超過上下限通知",
-                "src/main/resources/mail/AssignTaskMail.html", null);
+                "src/main/resources/mail/AssignTaskMail.html", messageBean.getContent());
     }
 }

@@ -7,11 +7,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tw.edu.ntub.birc.common.exception.ProjectException;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartDashboardBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.dto.ListDTO;
+import tw.edu.ntub.imd.birc.sodd.dto.file.uploader.MultipartFileUploader;
+import tw.edu.ntub.imd.birc.sodd.dto.file.uploader.UploadResult;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.ChartDashboardService;
 import tw.edu.ntub.imd.birc.sodd.service.ChartService;
@@ -40,6 +43,7 @@ public class ChartController {
     private final ChartService chartService;
     private final ChartDashboardService chartDashboardService;
     private final DashboardService dashboardService;
+    private final MultipartFileUploader multipartFileUploader;
 
     @PreAuthorize(SecurityUtils.HAS_DEVELOPER_AUTHORITY)
     @PostMapping("")
@@ -84,7 +88,7 @@ public class ChartController {
     }
 
 
-    @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
+    @PreAuthorize(SecurityUtils.HAS_DEVELOPER_AUTHORITY)
     @GetMapping("")
     public ResponseEntity<String> searchByAvailable(@RequestParam("available") Boolean available,
                                                     HttpServletRequest request) {
@@ -156,15 +160,19 @@ public class ChartController {
 
     @PreAuthorize(SecurityUtils.NOT_NO_PERMISSION_AUTHORITY)
     @GetMapping("/available")
-    public ResponseEntity<String> searchByUser(HttpServletRequest request) {
+    public ResponseEntity<String> searchByUser(@RequestParam(value = "dashboardId", required = false) Integer dashboardId,
+                                               HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
         String userId = SecurityUtils.getLoginUserAccount();
-        for (ChartBean chartBean : chartService.searchByUser(userId)) {
+        for (ChartBean chartBean : chartService.searchByUser(userId, dashboardId)) {
             ObjectData objectData = arrayData.addObject();
             objectData.add("id", chartBean.getId());
             objectData.add("name", chartBean.getName());
             objectData.add("showcaseImage", chartBean.getShowcaseImage());
             objectData.add("observable", chartBean.getObservable());
+            if (dashboardId != null) {
+                objectData.add("isAdded", chartBean.getIsAdded());
+            }
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
@@ -185,4 +193,22 @@ public class ChartController {
                 .message("更新成功")
                 .build();
     }
+
+
+    /**
+     * 更新圖表示意圖用
+     */
+//    @PreAuthorize(SecurityUtils.HAS_DEVELOPER_AUTHORITY)
+//    @PatchMapping("/showcaseImage")
+//    public ResponseEntity<String> uploadShowCaseImage(@RequestParam("chartId") Integer chartId,
+//                                                      @RequestPart("file") MultipartFile multipartFile) {
+//        ChartBean chartBean = chartService.getById(chartId)
+//                .orElseThrow(() -> new NotFoundException(""));
+//        UploadResult uploadResult = multipartFileUploader.upload(multipartFile, "showcaseImage", chartBean.getName());
+//        chartBean.setShowcaseImage(uploadResult.getUrl());
+//        chartService.update(chartId, chartBean);
+//        return ResponseEntityBuilder.success()
+//                .message("更新成功")
+//                .build();
+//    }
 }

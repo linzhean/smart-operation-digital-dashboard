@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum Identity {
     NO_PERMISSION("0", "無權限"),
-    MANAGER("1", "高階主管"),
+    USER("1", "一般使用者"),
     DEVELOPER("2", "開發者"),
     ADMIN("3", "管理員");
 
@@ -42,8 +42,8 @@ public enum Identity {
         return identity.equals(Identity.NO_PERMISSION.getTypeName());
     }
 
-    public static boolean isManager(String identity) {
-        return identity.equals(Identity.MANAGER.getTypeName());
+    public static boolean isUser(String identity) {
+        return identity.equals(Identity.USER.getTypeName());
     }
 
     public static boolean isDeveloper(String identity) {

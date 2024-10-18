@@ -140,17 +140,17 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
     }
 
     @Override
-    public Integer countUserList(String departmentId, String identity, String name) {
+    public Integer countUserList(String departmentId, String identity, String keyword) {
         return userAccountDAO.findAll(
-                        specification.checkBlank(departmentId, identity, name),
+                        specification.checkBlank(departmentId, identity, keyword),
                         PageRequest.of(0, SIZE))
                 .getTotalPages();
     }
 
     @Override
-    public List<UserAccountBean> searchByUserValue(String departmentId, String name, String identity, Integer nowPage) {
+    public List<UserAccountBean> searchByUserValue(String departmentId, String keyword, String identity, Integer nowPage) {
         Page<UserAccount> userAccountPage = userAccountDAO.findAll(
-                specification.checkBlank(departmentId, name, identity),
+                specification.checkBlank(departmentId, keyword, identity),
                 PageRequest.of(nowPage, SIZE, Sort.by(
                         Sort.Order.asc(UserAccount_.IDENTITY),
                         Sort.Order.asc(UserAccount_.DEPARTMENT_ID)
@@ -159,9 +159,9 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
     }
 
     @Override
-    public List<UserAccountBean> searchByUserValue(String departmentId, String name, String identity) {
+    public List<UserAccountBean> searchByUserValue(String departmentId, String keyword, String identity) {
         List<UserAccount> userAccountList = userAccountDAO.findAll(
-                specification.checkBlank(departmentId, name, identity));
+                specification.checkBlank(departmentId, keyword, identity));
         return CollectionUtils.map(userAccountList, transformer::transferToBean);
     }
 }

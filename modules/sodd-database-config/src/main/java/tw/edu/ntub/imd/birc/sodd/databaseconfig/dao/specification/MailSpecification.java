@@ -23,13 +23,18 @@ public class MailSpecification {
     ) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if (StringUtils.isNotBlank(userId)) {
+            if (StringUtils.isNotBlank(status) && EnumSet.allOf(ProcessStatus.class).contains(ProcessStatus.of(status))) {
+                if (ProcessStatus.isAssign(ProcessStatus.of(status))) {
+                    predicates.add(criteriaBuilder.equal(root.get(Mail_.PUBLISHER), userId));
+                } else if (ProcessStatus.isAssigned(ProcessStatus.of(status))) {
+                    predicates.add(criteriaBuilder.equal(root.get(Mail_.RECEIVER), userId));
+                } else {
+                    predicates.add(criteriaBuilder.equal(root.get(Mail_.STATUS), ProcessStatus.of(status)));
+                }
+            } else {
                 Predicate equalReceiver = criteriaBuilder.equal(root.get(Mail_.RECEIVER), userId);
                 Predicate equalPublisher = criteriaBuilder.equal(root.get(Mail_.PUBLISHER), userId);
                 predicates.add(criteriaBuilder.or(equalReceiver, equalPublisher));
-            }
-            if (StringUtils.isNotBlank(status) && EnumSet.allOf(ProcessStatus.class).contains(ProcessStatus.of(status))) {
-                predicates.add(criteriaBuilder.equal(root.get(Mail_.STATUS), ProcessStatus.of(status)));
             }
             predicates.add(criteriaBuilder.equal(root.get(Mail_.AVAILABLE), true));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
