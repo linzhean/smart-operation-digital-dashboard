@@ -32,7 +32,7 @@ public class ChartBean {
     @Null(message = "是否可發送交辦 - 不得填寫")
     private Boolean canAssign;
     @Null(message = "是否可視 - 不得填寫")
-    private Boolean observable;
+    private Boolean observable = false;
     @Null(message = "是否已被加到儀表板內 - 不得填寫")
     private Boolean isAdded;
     @Null(message = "是否啟用 - 不得填寫")

@@ -159,7 +159,8 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
         List<Chart> observableCharts = groupService.searchByUserId(userId)
                 .stream()
                 .flatMap(groupBean -> chartGroupDAO.findByGroupIdAndAvailableIsTrue(groupBean.getId()).stream())
-                .map(chartGroup -> chartDAO.getById(chartGroup.getChartId()))
+                .map(chartGroup -> chartDAO.findByIdAndAvailableIsTrue(chartGroup.getChartId()).orElse(null))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         List<ChartDashboard> addedCharts = new ArrayList<>();
         if (dashboardId != null) {
@@ -167,7 +168,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
         }
         for (ChartBean chartBean : allCharts) {
             for (Chart chart : observableCharts) {
-                if (Objects.equals(chartBean.getId(), chart.getId())) {
+                if (Objects.equals(chartBean.getId(), chart.getId()) && chart.getId() != null) {
                     chartBean.setObservable(true);
                     break;
                 } else {

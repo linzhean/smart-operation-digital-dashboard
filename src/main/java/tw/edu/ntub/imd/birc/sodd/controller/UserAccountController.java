@@ -114,13 +114,13 @@ public class UserAccountController {
     @GetMapping(path = "/list", params = "nowPage")
     public ResponseEntity<String> searchUserList(
             @RequestParam(name = "departmentId", required = false) String departmentId,
-            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "identity", required = false) String identity,
             @RequestParam(name = "nowPage") Integer nowPage,
             HttpServletRequest request
     ) {
         ArrayData arrayData = new ArrayData();
-        for (UserAccountBean bean : userAccountService.searchByUserValue(departmentId, name, identity, nowPage)) {
+        for (UserAccountBean bean : userAccountService.searchByUserValue(departmentId, keyword, identity, nowPage)) {
             bean.setDepartmentName(departmentService.getDepartmentMap().getOrDefault(bean.getDepartmentId(), ""));
             ObjectData data = arrayData.addObject();
             data.add("userId", bean.getUserId());
