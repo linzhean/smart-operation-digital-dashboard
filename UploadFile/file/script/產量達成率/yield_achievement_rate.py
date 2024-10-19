@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
 
-
 def generate_html_chart(file_name):
     # 從標準輸入讀取 JSON 字串
     data = sys.stdin.read()
@@ -24,9 +23,6 @@ def generate_html_chart(file_name):
     for product_number in product_numbers.unique():
         product_data = df[product_numbers == product_number]
 
-        # 根據達成率低於 80% 設定顏色為紅色，其他顏色為綠色
-        colors = ['red' if rate < 80 else 'green' for rate in product_data['yieldAchievementRate']]
-
         # 添加長條圖：品號為名稱，日期為 x 軸，產量達成率為 y 軸
         fig.add_trace(go.Bar(
             x=product_data['date'],
@@ -34,7 +30,15 @@ def generate_html_chart(file_name):
             name=product_number,  # 品號作為長條圖的名稱
             text=product_data['yieldAchievementRate'],  # 在圖表中顯示達成率數字
             textposition='auto',
-            marker_color=colors  # 根據達成率設置顏色
+            marker=dict(
+                color=product_data['yieldAchievementRate'],  # 使用達成率數據來設置顏色
+                colorscale='Teal',  # 設置為藍綠到白色的漸層
+                cmin=product_data['yieldAchievementRate'].min(),  # 設置最小值
+                cmax=product_data['yieldAchievementRate'].max(),  # 設置最大值
+                colorbar=dict(
+                    title="達成率",  # 顏色條標題
+                )
+            )
         ))
 
     # 設定圖表標題與軸標籤
@@ -43,10 +47,8 @@ def generate_html_chart(file_name):
         xaxis_title='日期',
         yaxis_title='產量達成率 (%)',
         xaxis=dict(autorange=True),
-        yaxis=dict(autorange=True),  # 可根據數據調整範圍
-        autosize=True,
-        width=None,  # 讓其自適應
-        height=None  # 讓其自適應
+        yaxis=dict(autorange=True),
+        autosize=True
     )
 
     # 儲存圖表為互動式 HTML

@@ -14,32 +14,26 @@ def generate_html_chart(file_name):
     # 資料表 EISLH
     # 欄位 LF005 productNumber LF012 date LF014 processedVolume LF017 refundVolume
 
-    # 設定環狀條形圖的顏色列表
-    colors = ['#3498db', '#e74c3c', '#2ecc71', '#9b59b6', '#f39c12']
+    # 將每個品號的退貨數量與比率結合，生成新的數據
+    labels = df['productNumber']
+    values = df['subcontractingRefundRate']
 
-    # 創建圖表
+    # 創建環狀條形圖
     fig = go.Figure()
 
-    # 根據產品號碼進行分組
-    for idx, product_number in enumerate(df['productNumber'].unique()):
-        product_data = df[df['productNumber'] == product_number]
-
-        # 添加環狀條形圖的每一個部分
-        fig.add_trace(go.Barpolar(
-            r=product_data['subcontractingRefundRate'],
-            theta=[idx * 360 / len(df['productNumber'].unique())] * len(product_data),
-            width=[30] * len(product_data),  # 條形圖寬度
-            name=product_number,
-            marker_color=colors[idx % len(colors)]  # 根據索引來選擇顏色
-        ))
+    # 添加圓環分段圖
+    fig.add_trace(go.Pie(
+        labels=labels,
+        values=values,
+        hole=0.4,  # 中間的圓孔大小，0 是實心圓，1 是空心圓
+        marker=dict(colors=['#3498db', '#e74c3c', '#2ecc71', '#9b59b6', '#f39c12']),
+        textinfo='label+percent',  # 顯示品號和百分比
+        insidetextorientation='radial'  # 文字方向
+    ))
 
     # 設定圖表標題與外觀
     fig.update_layout(
         title='各品號的委外加工退貨率環狀條形圖',
-        polar=dict(
-            radialaxis=dict(visible=True, range=[0, 100])  # 根據退貨率調整範圍
-        ),
-        showlegend=True,
         autosize=True
     )
 
