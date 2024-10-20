@@ -18,9 +18,7 @@ import tw.edu.ntub.imd.birc.sodd.service.*;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.ApplicationTransformer;
 import tw.edu.ntub.imd.birc.sodd.util.email.EmailUtils;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
@@ -120,16 +118,15 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
         // 申請啟用任務裡啟動結束任務
         startTask = taskScheduler.schedule(() -> {
             changeApplyStatus(application, Apply.ACTIVATING);
-            int groupId = getGroupId(application);
-            int userGroupId = saveUserGroup(userId, groupId);
+            int groupId = saveGroup(application, userId);
             endTask = taskScheduler.schedule(() -> {
                 changeApplyStatus(application, Apply.CLOSED);
-                removeUserGroup(userGroupId, userId, groupId);
+                groupService.delGroup(groupId);
             }, endInstant);
         }, startInstant);
     }
 
-    private int getGroupId(Application application) {
+    private int saveGroup(Application application, String userId) {
         ChartBean chartBean = chartService.getById(application.getChartId())
                 .orElseThrow(() -> new NotFoundException("查無此圖表"));
         GroupBean groupBean = new GroupBean();
@@ -142,6 +139,10 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
         chartGroupBean.setChartId(chartBean.getId());
         chartGroupBean.setGroupId(groupBean.getId());
         chartGroupService.save(chartGroupBean);
+        UserGroupBean userGroupBean = new UserGroupBean();
+        userGroupBean.setUserId(userId);
+        userGroupBean.setGroupId(groupBean.getId());
+        userGroupService.save(userGroupBean);
         return groupBean.getId();
     }
 
@@ -150,21 +151,6 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
         applicationDAO.update(application);
     }
 
-    private int saveUserGroup(String userId, Integer groupId) {
-        UserGroupBean userGroupBean = new UserGroupBean();
-        userGroupBean.setUserId(userId);
-        userGroupBean.setGroupId(groupId);
-        userGroupBean = userGroupService.save(userGroupBean);
-        return userGroupBean.getId();
-    }
-
-    private void removeUserGroup(Integer userGroupId, String userId, Integer groupId) {
-        UserGroupBean userGroupBean = new UserGroupBean();
-        userGroupBean.setAvailable(false);
-        userGroupBean.setModifyId(userId);
-        userGroupService.update(userGroupId, userGroupBean);
-        groupService.delete(groupId);
-    }
 
     @Override
     public void close(Integer id, ApplicationBean applicationBean) {

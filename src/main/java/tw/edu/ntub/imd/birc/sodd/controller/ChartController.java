@@ -189,6 +189,12 @@ public class ChartController {
         ChartBean chartBean = chartService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此圖表"));
         chartBean.setAvailable(!chartBean.getAvailable());
+        if (!chartBean.getAvailable()) {
+            for (ChartDashboardBean chartDashboardBean : chartDashboardService.findByChartId(id)) {
+                chartDashboardBean.setAvailable(false);
+                chartDashboardService.update(chartDashboardBean.getId(), chartDashboardBean);
+            }
+        }
         chartService.update(id, chartBean);
         return ResponseEntityBuilder.success()
                 .message("更新成功")

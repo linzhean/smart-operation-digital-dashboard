@@ -1,6 +1,7 @@
 package tw.edu.ntub.imd.birc.sodd.service.impl;
 
 import org.springframework.stereotype.Service;
+import tw.edu.ntub.birc.common.util.CollectionUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartGroupBean;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.ChartDAO;
@@ -50,5 +51,10 @@ public class ChartGroupServiceImpl extends BaseServiceImpl<ChartGroupBean, Chart
                     return chartBean;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ChartGroupBean> searchChartGroupByGroupId(Integer groupId) {
+        return CollectionUtils.map(chartGroupDAO.findByGroupIdAndAvailableIsTrue(groupId), transformer::transferToBean);
     }
 }

@@ -7,7 +7,6 @@ import tw.edu.ntub.imd.birc.sodd.bean.UserGroupBean;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.UserAccountDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.UserGroupDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.specification.UserGroupSpecification;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserGroup;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.UserGroupService;
@@ -67,5 +66,11 @@ public class UserGroupServiceImpl extends BaseServiceImpl<UserGroupBean, UserGro
                         userAccountDAO.findById(userGroup.getUserId())
                                 .orElseThrow(() -> new NotFoundException("查無此使用者"))))
                 .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<UserGroupBean> searchUserGroupByGroupId(Integer groupId) {
+        return CollectionUtils.map(userGroupDAO.findByGroupIdAndAvailableIsTrue(groupId), transformer::transferToBean);
     }
 }

@@ -7,4 +7,6 @@ import java.util.List;
 public interface GroupService extends BaseService<GroupBean, Integer> {
     List<GroupBean> searchByUserId(String userId);
 
+    void delGroup(Integer groupId);
+
 }

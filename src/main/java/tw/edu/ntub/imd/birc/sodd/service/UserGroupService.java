@@ -9,4 +9,6 @@ public interface UserGroupService extends BaseService<UserGroupBean, Integer> {
     List<UserAccountBean> searchUserByGroupId(Integer groupId, String userName, String department, String position);
 
     List<UserAccountBean> searchUserByGroupId(Integer groupId);
+
+    List<UserGroupBean> searchUserGroupByGroupId(Integer groupId);
 }

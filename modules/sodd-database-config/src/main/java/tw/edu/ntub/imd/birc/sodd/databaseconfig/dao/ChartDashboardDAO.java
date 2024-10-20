@@ -8,4 +8,6 @@ import java.util.List;
 @Repository
 public interface ChartDashboardDAO extends BaseDAO<ChartDashboard, Integer> {
     List<ChartDashboard> findByDashboardIdAndAvailableIsTrue(Integer chartDashboardId);
+
+    List<ChartDashboard> findByChartIdAndAvailableIsTrue(Integer chartDashboardId);
 }
