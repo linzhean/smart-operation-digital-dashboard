@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
 
-
 def generate_html_chart(file_name):
     # 從標準輸入讀取 JSON 字串
     data = sys.stdin.read()
@@ -11,49 +10,49 @@ def generate_html_chart(file_name):
     # 將 JSON 轉換為 DataFrame
     df = pd.DataFrame(json.loads(data))
 
-    # 圖表讀資料生成圖表
-
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
     # 將數據轉換為數字型
     product_numbers = df['productNumber']
 
+    # 依照品號進行分組，並計算每個品號在七天內的平均產量達成率
+    grouped_data = df.groupby('productNumber').agg({
+        'yieldAchievementRate': 'mean'  # 計算每個品號的平均達成率
+    }).reset_index()
+
     # 創建圖表
     fig = go.Figure()
 
-    # 依照品號進行分組，為每個品號生成一條線
-    for product_number in product_numbers.unique():
-        product_data = df[product_numbers == product_number]
-
-        # 添加折線圖：品號為名稱，日期為 x 軸，產量達成率為 y 軸
-        fig.add_trace(go.Scatter(
-            x=product_data['date'],
-            y=product_data['yieldAchievementRate'],
-            mode='lines+markers',
-            name=product_number,  # 品號作為線的名稱
-            line=dict(width=2),
-            marker=dict(size=6)
-        ))
+    # 添加長條圖：品號為 x 軸，七天綜合的產量達成率為 y 軸
+    fig.add_trace(go.Bar(
+        x=grouped_data['productNumber'],
+        y=grouped_data['yieldAchievementRate'],
+        text=grouped_data['yieldAchievementRate'],  # 在圖表中顯示達成率數字
+        textposition='auto',
+        marker=dict(
+            color=grouped_data['yieldAchievementRate'],  # 使用達成率數據來設置顏色
+            colorscale='Teal',  # 設置為藍綠到白色的漸層
+            cmin=grouped_data['yieldAchievementRate'].min(),  # 設置最小值
+            cmax=grouped_data['yieldAchievementRate'].max(),  # 設置最大值
+            colorbar=dict(
+                title="達成率",  # 顏色條標題
+            )
+        )
+    ))
 
     # 設定圖表標題與軸標籤
     fig.update_layout(
-        title='各品號的產量達成率折線圖',
-        xaxis_title='日期',
-        yaxis_title='產量達成率 (%)',
+        title='各品號的七天綜合產量達成率長條圖',
+        xaxis_title='品號',
+        yaxis_title='平均產量達成率 (%)',
         xaxis=dict(autorange=True),
-        yaxis=dict(autorange=True),# 可根據數據調整範圍
-        autosize=True,
-        width=None,  # 讓其自適應
-        height=None  # 讓其自適應
+        yaxis=dict(autorange=True),
+        autosize=True
     )
-
-    # 啟用自適應設計(但會導致無法跳出程式 not exited)
-    # fig.update_layout(responsive=True)
 
     # 儲存圖表為互動式 HTML
     pio.write_html(fig, file_name, full_html=False)
-
 
 # 這裡直接複製
 if __name__ == "__main__":
