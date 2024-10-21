@@ -29,7 +29,7 @@ def generate_html_chart(file_name):
     # 依照產線進行分組，為每個產線生成一條折線
     for production_line_name in production_line_names:
         # 選取對應產線的資料
-        production_line_data = df[production_line_names == production_line_name]
+        production_line_data = df[df['productionLineName'] == production_line_name]
 
         # 添加折線圖：產線為名稱，日期為 x 軸，工時效率為 y 軸
         fig.add_trace(go.Scatter(
