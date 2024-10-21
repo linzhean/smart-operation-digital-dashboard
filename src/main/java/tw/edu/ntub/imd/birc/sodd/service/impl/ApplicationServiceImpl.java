@@ -155,7 +155,12 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
     @Override
     public void close(Integer id, ApplicationBean applicationBean) {
         changeApplyStatus(transformer.transferToEntity(applicationBean), Apply.CLOSED);
-        startTask.cancel(true);
-        endTask.cancel(true);
+        if (startTask != null && !startTask.isDone()) {
+            startTask.cancel(true); // 取消尚未執行的startTask
+        }
+
+        if (endTask != null && !endTask.isDone()) {
+            endTask.cancel(true); // 取消尚未執行的endTask
+        }
     }
 }

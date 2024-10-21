@@ -2,7 +2,6 @@ import json
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
-import numpy as np
 
 def generate_html_chart(file_name):
     # 從標準輸入讀取 JSON 字串

@@ -39,22 +39,20 @@ public class ExportController {
         chartService.getById(chartId)
                 .orElseThrow(() -> new NotFoundException("查無此圖表"));
         List<String> userIds = listDTO.getExporterList();
-        if (!userIds.isEmpty()) {
-            Map<String, Integer> originals = exportService.findByChartId(chartId)
-                    .stream()
-                    .collect(Collectors.toMap(ExportBean::getExporter, ExportBean::getId));
-            for (String userId : userIds) {
-                userAccountService.getById(userId)
-                        .orElseThrow(() -> new NotFoundException("查無此使用者"));
-                if (!originals.containsKey(userId)) {
-                    exportService.save(chartId, userId);
-                }
-                originals.remove(userId);
+        Map<String, Integer> originals = exportService.findByChartId(chartId)
+                .stream()
+                .collect(Collectors.toMap(ExportBean::getExporter, ExportBean::getId));
+        for (String userId : userIds) {
+            userAccountService.getById(userId)
+                    .orElseThrow(() -> new NotFoundException("查無此使用者"));
+            if (!originals.containsKey(userId)) {
+                exportService.save(chartId, userId);
             }
-            ExportBean exportBean = new ExportBean();
-            exportBean.setAvailable(false);
-            originals.forEach((userId, id) -> exportService.update(id, exportBean));
+            originals.remove(userId);
         }
+        ExportBean exportBean = new ExportBean();
+        exportBean.setAvailable(false);
+        originals.forEach((userId, id) -> exportService.update(id, exportBean));
         return ResponseEntityBuilder.success()
                 .message("設定成功")
                 .build();

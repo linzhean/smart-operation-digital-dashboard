@@ -2,8 +2,10 @@ import json
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
+import io
 
 def generate_html_chart(file_name):
+    sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
     # 從標準輸入讀取 JSON 字串
     data = sys.stdin.read()
 
@@ -22,14 +24,14 @@ def generate_html_chart(file_name):
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
-    product_numbers = df['productNumber']
+    product_numbers = df['productNumber'].unique()
 
     # 創建圖表
     fig = go.Figure()
 
     # 依照品號進行分組，為每個品號生成一條線
-    for product_number in product_numbers.unique():
-        product_data = df[product_numbers == product_number]
+    for product_number in product_numbers:
+        product_data = df[df['productNumber'] == product_number]
 
         # 添加折線圖：品號為名稱，日期為 x 軸，進貨單價為 y 軸
         fig.add_trace(go.Scatter(
@@ -48,7 +50,9 @@ def generate_html_chart(file_name):
         yaxis_title='進貨單價 (元)',
         xaxis=dict(autorange=True),
         yaxis=dict(autorange=True),  # 可根據數據調整範圍
-        autosize=True
+        autosize=True,
+        legend_title="品號",  # 顯示圖表旁邊的品號標籤
+        showlegend=True,  # 確保顯示圖例
     )
     # 圖表讀資料生成圖表
 

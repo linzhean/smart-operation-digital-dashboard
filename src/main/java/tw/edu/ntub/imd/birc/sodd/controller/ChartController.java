@@ -66,22 +66,20 @@ public class ChartController {
         dashboardService.getById(dashboardId)
                 .orElseThrow(() -> new NotFoundException("查無此儀表板"));
         List<Integer> chartIds = listDTO.getDashboardCharts();
-        if (!chartIds.isEmpty()) {
-            Map<Integer, Integer> originals = chartDashboardService.findByDashboardId(dashboardId)
-                    .stream()
-                    .collect(Collectors.toMap(ChartDashboardBean::getChartId, ChartDashboardBean::getId));
-            for (Integer chartId : chartIds) {
-                chartService.getById(chartId)
-                        .orElseThrow(() -> new NotFoundException("查無此圖表"));
-                if (!originals.containsKey(chartId)) {
-                    chartDashboardService.save(chartId, dashboardId);
-                }
-                originals.remove(chartId);
+        Map<Integer, Integer> originals = chartDashboardService.findByDashboardId(dashboardId)
+                .stream()
+                .collect(Collectors.toMap(ChartDashboardBean::getChartId, ChartDashboardBean::getId));
+        for (Integer chartId : chartIds) {
+            chartService.getById(chartId)
+                    .orElseThrow(() -> new NotFoundException("查無此圖表"));
+            if (!originals.containsKey(chartId)) {
+                chartDashboardService.save(chartId, dashboardId);
             }
-            ChartDashboardBean chartDashboardBean = new ChartDashboardBean();
-            chartDashboardBean.setAvailable(false);
-            originals.forEach((chartId, id) -> chartDashboardService.update(id, chartDashboardBean));
+            originals.remove(chartId);
         }
+        ChartDashboardBean chartDashboardBean = new ChartDashboardBean();
+        chartDashboardBean.setAvailable(false);
+        originals.forEach((chartId, id) -> chartDashboardService.update(id, chartDashboardBean));
         return ResponseEntityBuilder.success()
                 .message("設定成功")
                 .build();
@@ -90,7 +88,7 @@ public class ChartController {
 
     @PreAuthorize(SecurityUtils.HAS_DEVELOPER_AUTHORITY)
     @GetMapping("")
-    public ResponseEntity<String> searchByAvailable(@RequestParam("available") Boolean available,
+    public ResponseEntity<String> searchByAvailable(@RequestParam(value = "available", required = false) Boolean available,
                                                     HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
         for (ChartBean chartBean : chartService.searchByAvailable(available)) {

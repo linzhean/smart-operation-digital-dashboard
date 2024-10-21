@@ -6,6 +6,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.stereotype.Service;
 import tw.edu.ntub.birc.common.util.CollectionUtils;
+import tw.edu.ntub.birc.common.util.StringUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.AiChatBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.AiChatDAO;
@@ -22,6 +23,7 @@ import tw.edu.ntub.imd.birc.sodd.service.AiChatService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.AiChatTransformer;
 import tw.edu.ntub.imd.birc.sodd.util.sodd.PythonUtils;
 
+import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -72,7 +74,8 @@ public class AiChatServiceImpl extends BaseServiceImpl<AiChatBean, AiChat, Integ
         String calculatedJson = gson.toJson(calculatedData);
         String description = dashboardDAO.findById(dashboardId)
                 .map(Dashboard::getDescription)
-                .orElse("此儀表板尚無說明");
+                .orElse("");
+        description = StringUtils.isNotBlank(description) ? description : "此儀表板尚無說明";
         return pythonUtils.genAISuggestion("python/llama3_ai/ai_suggestions.py", calculatedJson, description);
     }
 

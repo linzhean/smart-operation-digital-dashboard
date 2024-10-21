@@ -13,8 +13,8 @@ def generate_ai_suggestion(messages):
     completion = client.chat.completions.create(
         model="nctu6/Llama3-TAIDE-LX-8B-Chat-Alpha1-GGUF",
         messages=messages,
-        temperature=0.7,
-        max_tokens=150
+        temperature=0.5,
+        max_tokens=1000
     )
 
     response = completion.choices[0].message.content

@@ -203,6 +203,12 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
 
     @Override
     public List<ChartBean> searchByAvailable(Boolean available) {
-        return CollectionUtils.map(chartDAO.findByAvailable(available), transformer::transferToBean);
+        List<Chart> chartList = new ArrayList<>();
+        if (available != null) {
+            chartList = chartDAO.findByAvailable(available);
+        } else {
+            chartList = chartDAO.findAll();
+        }
+        return CollectionUtils.map(chartList, transformer::transferToBean);
     }
 }
