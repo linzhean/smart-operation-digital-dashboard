@@ -68,6 +68,7 @@ public class AiChatController {
             objectData.add("chartId", aiChatBean.getChartId());
             objectData.add("messageId", aiChatBean.getMessageId());
             objectData.add("content", aiChatBean.getContent());
+            objectData.add("generator", aiChatBean.getGenerator().getType());
             objectData.add("createDate", aiChatBean.getCreateDate());
         }
         return ResponseEntityBuilder.success()
