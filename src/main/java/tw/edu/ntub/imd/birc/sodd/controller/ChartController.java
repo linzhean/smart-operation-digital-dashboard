@@ -7,14 +7,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import tw.edu.ntub.birc.common.exception.ProjectException;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartDashboardBean;
 import tw.edu.ntub.imd.birc.sodd.config.util.SecurityUtils;
 import tw.edu.ntub.imd.birc.sodd.dto.ListDTO;
-import tw.edu.ntub.imd.birc.sodd.dto.file.uploader.MultipartFileUploader;
-import tw.edu.ntub.imd.birc.sodd.dto.file.uploader.UploadResult;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.ChartDashboardService;
 import tw.edu.ntub.imd.birc.sodd.service.ChartService;
@@ -26,12 +22,6 @@ import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,7 +33,6 @@ public class ChartController {
     private final ChartService chartService;
     private final ChartDashboardService chartDashboardService;
     private final DashboardService dashboardService;
-    private final MultipartFileUploader multipartFileUploader;
 
     @PreAuthorize(SecurityUtils.HAS_DEVELOPER_AUTHORITY)
     @PostMapping("")
@@ -198,22 +187,4 @@ public class ChartController {
                 .message("更新成功")
                 .build();
     }
-
-
-    /**
-     * 更新圖表示意圖用
-     */
-//    @PreAuthorize(SecurityUtils.HAS_DEVELOPER_AUTHORITY)
-//    @PatchMapping("/showcaseImage")
-//    public ResponseEntity<String> uploadShowCaseImage(@RequestParam("chartId") Integer chartId,
-//                                                      @RequestPart("file") MultipartFile multipartFile) {
-//        ChartBean chartBean = chartService.getById(chartId)
-//                .orElseThrow(() -> new NotFoundException(""));
-//        UploadResult uploadResult = multipartFileUploader.upload(multipartFile, "showcaseImage", chartBean.getName());
-//        chartBean.setShowcaseImage(uploadResult.getUrl());
-//        chartService.update(chartId, chartBean);
-//        return ResponseEntityBuilder.success()
-//                .message("更新成功")
-//                .build();
-//    }
 }
