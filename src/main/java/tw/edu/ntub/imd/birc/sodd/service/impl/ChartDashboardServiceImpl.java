@@ -69,4 +69,11 @@ public class ChartDashboardServiceImpl extends BaseServiceImpl<ChartDashboardBea
         return CollectionUtils.map(
                 chartDashboardDAO.findByDashboardIdAndAvailableIsTrue(dashboardId), transformer::transferToBean);
     }
+
+    @Override
+    public List<ChartDashboardBean> findByChartId(Integer chartId) {
+        return CollectionUtils.map(
+                chartDashboardDAO.findByChartIdAndAvailableIsTrue(chartId), transformer::transferToBean);
+
+    }
 }

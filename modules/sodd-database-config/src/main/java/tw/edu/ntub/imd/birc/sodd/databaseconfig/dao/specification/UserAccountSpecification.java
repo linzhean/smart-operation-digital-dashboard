@@ -31,8 +31,8 @@ public class UserAccountSpecification {
                 predicates.add(criteriaBuilder.equal(root.get(UserAccount_.DEPARTMENT_ID), departmentId));
             }
             if (StringUtils.isNotBlank(keyword)) {
-                Predicate idPredicate = criteriaBuilder.like(root.get(UserAccount_.USER_ID), keyword);
-                Predicate namePredicate = criteriaBuilder.like(root.get(UserAccount_.USER_NAME), keyword);
+                Predicate idPredicate = criteriaBuilder.like(root.get(UserAccount_.USER_ID), "%" + keyword + "%");
+                Predicate namePredicate = criteriaBuilder.like(root.get(UserAccount_.USER_NAME), "%" + keyword + "%");
                 predicates.add(criteriaBuilder.or(idPredicate, namePredicate));
             }
             if (StringUtils.isNotBlank(identity) && ALLOWED_IDENTITIES.contains(Identity.of(identity))) {

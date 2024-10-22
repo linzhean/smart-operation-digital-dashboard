@@ -2,9 +2,12 @@ import json
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
+import matplotlib.pyplot as plt
 import numpy as np
+import io
 
 def generate_html_chart(file_name):
+    sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
     # 從標準輸入讀取 JSON 字串
     data = sys.stdin.read()
 
@@ -19,35 +22,19 @@ def generate_html_chart(file_name):
     labels = df['productNumber']
     values = df['subcontractingRefundRate']
 
-    # 定義顏色
-    colors = ['#f1c40f', '#e67e22', '#3498db', '#1abc9c', '#2ecc71']
+    # 生成顏色
+    colors = [f'rgba({int(r*255)}, {int(g*255)}, {int(b*255)}, 1)' for r, g, b in
+              np.random.rand(len(labels), 3)]  # 隨機生成顏色
 
-    # 創建空白圖表
-    fig = go.Figure()
-
-    # 繪製多層環狀條形圖
-    for i, (label, value) in enumerate(zip(labels, values)):
-        # 添加每個產品的環狀弧線
-        fig.add_trace(go.Scatterpolar(
-            r=[0.9 - i * 0.15, 0.9 - i * 0.15],  # 每層的半徑
-            theta=[0, value * 360],  # 根據數值設定角度範圍
-            mode='lines',
-            line=dict(color=colors[i], width=18),  # 設定弧線的顏色與粗細
-            hoverinfo='text',
-            text=f'{label}: {value:.2f}%',  # 顯示標籤與數值
-            showlegend=False
-        ))
+    # 繪製環狀圖
+    fig = go.Figure(data=[go.Pie(labels=labels,
+                                 values=values,
+                                 hole=0.4,  # 設定為環狀圖
+                                 textinfo='label+percent',  # 顯示標籤和百分比
+                                 marker=dict(colors=colors))])  # 使用隨機顏色
 
     # 設定圖表的佈局
-    fig.update_layout(
-        title='各品號的委外加工退貨率環狀條形圖',
-        polar=dict(
-            radialaxis=dict(visible=False),
-            angularaxis=dict(visible=False)
-        ),
-        showlegend=False,
-        autosize=True
-    )
+    fig.update_layout(title='各品號的委外加工退貨率環狀圖')
 
     # 儲存圖表為互動式 HTML
     pio.write_html(fig, file_name)

@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ChartGroupService extends BaseService<ChartGroupBean, Integer> {
     List<ChartBean> searchChartByGroupId(Integer groupId);
+
+    List<ChartGroupBean> searchChartGroupByGroupId(Integer groupId);
 }

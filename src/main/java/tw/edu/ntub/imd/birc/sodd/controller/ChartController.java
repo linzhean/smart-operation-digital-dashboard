@@ -66,22 +66,20 @@ public class ChartController {
         dashboardService.getById(dashboardId)
                 .orElseThrow(() -> new NotFoundException("查無此儀表板"));
         List<Integer> chartIds = listDTO.getDashboardCharts();
-        if (!chartIds.isEmpty()) {
-            Map<Integer, Integer> originals = chartDashboardService.findByDashboardId(dashboardId)
-                    .stream()
-                    .collect(Collectors.toMap(ChartDashboardBean::getChartId, ChartDashboardBean::getId));
-            for (Integer chartId : chartIds) {
-                chartService.getById(chartId)
-                        .orElseThrow(() -> new NotFoundException("查無此圖表"));
-                if (!originals.containsKey(chartId)) {
-                    chartDashboardService.save(chartId, dashboardId);
-                }
-                originals.remove(chartId);
+        Map<Integer, Integer> originals = chartDashboardService.findByDashboardId(dashboardId)
+                .stream()
+                .collect(Collectors.toMap(ChartDashboardBean::getChartId, ChartDashboardBean::getId));
+        for (Integer chartId : chartIds) {
+            chartService.getById(chartId)
+                    .orElseThrow(() -> new NotFoundException("查無此圖表"));
+            if (!originals.containsKey(chartId)) {
+                chartDashboardService.save(chartId, dashboardId);
             }
-            ChartDashboardBean chartDashboardBean = new ChartDashboardBean();
-            chartDashboardBean.setAvailable(false);
-            originals.forEach((chartId, id) -> chartDashboardService.update(id, chartDashboardBean));
+            originals.remove(chartId);
         }
+        ChartDashboardBean chartDashboardBean = new ChartDashboardBean();
+        chartDashboardBean.setAvailable(false);
+        originals.forEach((chartId, id) -> chartDashboardService.update(id, chartDashboardBean));
         return ResponseEntityBuilder.success()
                 .message("設定成功")
                 .build();
@@ -90,7 +88,7 @@ public class ChartController {
 
     @PreAuthorize(SecurityUtils.HAS_DEVELOPER_AUTHORITY)
     @GetMapping("")
-    public ResponseEntity<String> searchByAvailable(@RequestParam("available") Boolean available,
+    public ResponseEntity<String> searchByAvailable(@RequestParam(value = "available", required = false) Boolean available,
                                                     HttpServletRequest request) {
         ArrayData arrayData = new ArrayData();
         for (ChartBean chartBean : chartService.searchByAvailable(available)) {
@@ -117,6 +115,7 @@ public class ChartController {
             objectData.add("name", chartBean.getName());
             objectData.add("chartImage", chartBean.getChartImage());
             objectData.add("canAssign", chartBean.getCanAssign());
+            objectData.add("canExport", chartBean.getCanExport());
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
@@ -188,6 +187,12 @@ public class ChartController {
         ChartBean chartBean = chartService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此圖表"));
         chartBean.setAvailable(!chartBean.getAvailable());
+        if (!chartBean.getAvailable()) {
+            for (ChartDashboardBean chartDashboardBean : chartDashboardService.findByChartId(id)) {
+                chartDashboardBean.setAvailable(false);
+                chartDashboardService.update(chartDashboardBean.getId(), chartDashboardBean);
+            }
+        }
         chartService.update(id, chartBean);
         return ResponseEntityBuilder.success()
                 .message("更新成功")

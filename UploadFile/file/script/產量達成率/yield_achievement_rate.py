@@ -13,6 +13,9 @@ def generate_html_chart(file_name):
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
+    # 篩選最近七天的數據
+    df = df[df['date'] >= pd.to_datetime('today') - pd.Timedelta(days=7)]
+
     # 將數據轉換為數字型
     product_numbers = df['productNumber']
 
@@ -52,7 +55,7 @@ def generate_html_chart(file_name):
     )
 
     # 儲存圖表為互動式 HTML
-    pio.write_html(fig, file_name, full_html=False)
+    pio.write_html(fig, file_name)
 
 # 這裡直接複製
 if __name__ == "__main__":

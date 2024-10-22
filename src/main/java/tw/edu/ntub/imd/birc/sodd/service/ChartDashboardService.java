@@ -8,4 +8,6 @@ public interface ChartDashboardService extends BaseService<ChartDashboardBean, I
     ChartDashboardBean save(Integer chartId, Integer dashboardId);
 
     List<ChartDashboardBean> findByDashboardId(Integer dashboardId);
+
+    List<ChartDashboardBean> findByChartId(Integer chartId);
 }

@@ -44,22 +44,20 @@ public class AssignedTaskController {
         chartService.getById(chartId)
                 .orElseThrow(() -> new NotFoundException("查無此圖表"));
         List<String> userIds = listDTO.getSponsorList();
-        if (!userIds.isEmpty()) {
-            Map<String, Integer> originalIds = sponsorService.findByChartId(chartId)
-                    .stream()
-                    .collect(Collectors.toMap(AssignedTaskSponsorBean::getSponsorUserId, AssignedTaskSponsorBean::getId));
-            for (String userId : userIds) {
-                userAccountService.getById(userId)
-                        .orElseThrow(() -> new NotFoundException("查無此使用者"));
-                if (!originalIds.containsKey(userId)) {
-                    sponsorService.save(chartId, userId);
-                }
-                originalIds.remove(userId);
+        Map<String, Integer> originalIds = sponsorService.findByChartId(chartId)
+                .stream()
+                .collect(Collectors.toMap(AssignedTaskSponsorBean::getSponsorUserId, AssignedTaskSponsorBean::getId));
+        for (String userId : userIds) {
+            userAccountService.getById(userId)
+                    .orElseThrow(() -> new NotFoundException("查無此使用者"));
+            if (!originalIds.containsKey(userId)) {
+                sponsorService.save(chartId, userId);
             }
-            AssignedTaskSponsorBean sponsorBean = new AssignedTaskSponsorBean();
-            sponsorBean.setAvailable(false);
-            originalIds.forEach((userId, id) -> sponsorService.update(id, sponsorBean));
+            originalIds.remove(userId);
         }
+        AssignedTaskSponsorBean sponsorBean = new AssignedTaskSponsorBean();
+        sponsorBean.setAvailable(false);
+        originalIds.forEach((userId, id) -> sponsorService.update(id, sponsorBean));
         return ResponseEntityBuilder.success()
                 .message("設定成功")
                 .build();
@@ -76,10 +74,18 @@ public class AssignedTaskController {
         String chartName = chartService.getById(assignedTaskBean.getChartId())
                 .map(ChartBean::getName)
                 .orElse("");
+        String auditorName = userAccountService.getById(assignedTaskBean.getDefaultAuditor())
+                .map(UserAccountBean::getUserName)
+                .orElse("");
+        String processorName = userAccountService.getById(assignedTaskBean.getDefaultProcessor())
+                .map(UserAccountBean::getUserName)
+                .orElse("");
         objectData.add("chartId", assignedTaskBean.getChartId());
         objectData.add("chartName", chartName);
         objectData.add("defaultAuditor", assignedTaskBean.getDefaultAuditor());
+        objectData.add("auditorName", auditorName);
         objectData.add("defaultProcessor", assignedTaskBean.getDefaultProcessor());
+        objectData.add("processorName", processorName);
         objectData.add("upperLimit", assignedTaskBean.getUpperLimit());
         objectData.add("lowerLimit", assignedTaskBean.getLowerLimit());
         return ResponseEntityBuilder.success()

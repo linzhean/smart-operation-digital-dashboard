@@ -1,31 +1,35 @@
 import json
+import io
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
 
+
 def generate_html_chart(file_name):
+    sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
     # 從標準輸入讀取 JSON 字串
     data = sys.stdin.read()
 
-    # 將 JSON 轉換為 DataFrame
+    # 將字典轉換為 DataFrame
     df = pd.DataFrame(json.loads(data))
 
-
-# 圖表讀資料生成圖表
-# 資料表 EISLF
-# 欄位 LF001 productionLineName LF002 date LF005 totalValidHours LF006 totalHoursInvested
+    # 圖表讀資料生成圖表
+    # 資料表 EISLF
+    # 欄位 LF001 productionLineName LF002 date LF005 totalValidHours LF006 totalHoursInvested
 
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
-    production_line_names = df['productionLineName']
+    # 取得所有的產線名稱
+    production_line_names = df['productionLineName'].unique()
 
     # 創建圖表
     fig = go.Figure()
 
-    # 依照產線進行分組，為每個產線生成一條線
-    for production_line_name in production_line_names.unique():
-        production_line_data = df[production_line_names == production_line_name]
+    # 依照產線進行分組，為每個產線生成一條折線
+    for production_line_name in production_line_names:
+        # 選取對應產線的資料
+        production_line_data = df[df['productionLineName'] == production_line_name]
 
         # 添加折線圖：產線為名稱，日期為 x 軸，工時效率為 y 軸
         fig.add_trace(go.Scatter(
@@ -43,15 +47,15 @@ def generate_html_chart(file_name):
         xaxis_title='日期',
         yaxis_title='工時效率 (%)',
         xaxis=dict(autorange=True),
-        yaxis=dict(autorange=True),# 可根據數據調整範圍
+        yaxis=dict(autorange=True),
         autosize=True,
-        # responsive=True  # 啟用自適應設計
+        legend_title="產線名稱",  # 顯示圖表旁邊的產線名稱標籤
+        showlegend=True,  # 確保顯示圖例
     )
-    # 圖表讀資料生成圖表
-
 
     # 儲存圖表為互動式 HTML
     pio.write_html(fig, file_name)
+
 
 # 這裡直接複製
 if __name__ == "__main__":

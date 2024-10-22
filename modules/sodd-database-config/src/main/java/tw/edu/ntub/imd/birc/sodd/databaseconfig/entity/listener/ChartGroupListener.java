@@ -11,7 +11,12 @@ import java.time.LocalDateTime;
 public class ChartGroupListener {
     @PrePersist
     public void preSave(ChartGroup chartGroup) {
-        String userId = SecurityUtils.getLoginUserAccount();
+        String userId = null;
+        try {
+            userId = SecurityUtils.getLoginUserAccount();
+        } catch (NullPointerException e) {
+            userId = "system";
+        }
         LocalDateTime now = LocalDateTime.now();
         if (chartGroup.getAvailable() == null) {
             chartGroup.setAvailable(true);

@@ -2,9 +2,11 @@ import json
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
+import io
 
 
 def generate_html_chart(file_name):
+    sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
     # 從標準輸入讀取 JSON 字串
     data = sys.stdin.read()
 
@@ -23,14 +25,14 @@ def generate_html_chart(file_name):
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
-    department_names = df['departmentName']
+    department_names = df['departmentName'].unique()
 
     # 創建圖表
     fig = go.Figure()
 
     # 依照部門進行分組，為每個部門生成一條線
-    for department_name in department_names.unique():
-        department_data = df[department_names == department_name]
+    for department_name in department_names:
+        department_data = df[df['departmentName'] == department_name]
 
         # 添加折線圖：部門為名稱，日期為 x 軸，離職率為 y 軸
         fig.add_trace(go.Scatter(
@@ -49,7 +51,9 @@ def generate_html_chart(file_name):
         yaxis_title='離職率 (%)',
         xaxis=dict(autorange=True),
         yaxis=dict(autorange=True),  # 可根據數據調整範圍
-        autosize=True
+        autosize=True,
+        legend_title="部門",  # 顯示圖表旁邊的部門標籤
+        showlegend=True,  # 確保顯示圖例
     )
     # 圖表讀資料生成圖表
 

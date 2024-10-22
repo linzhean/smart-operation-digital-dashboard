@@ -14,6 +14,5 @@ public interface ChartDAO extends BaseDAO<Chart, Integer> {
 
     List<Chart> findByAvailable(Boolean available);
 
-
     Optional<Chart> findByIdAndAvailableIsTrue(Integer id);
 }

@@ -185,9 +185,7 @@ public class GroupController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delGroup(@PathVariable("id") Integer id, HttpServletRequest request) {
-        GroupBean groupBean = new GroupBean();
-        groupBean.setAvailable(false);
-        groupService.update(id, groupBean);
+        groupService.delGroup(id);
         return ResponseEntityBuilder.success()
                 .message("刪除成功")
                 .build();
