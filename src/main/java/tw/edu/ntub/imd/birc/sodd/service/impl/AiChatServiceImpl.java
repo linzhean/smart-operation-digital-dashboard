@@ -16,6 +16,7 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.DataSourceDAO;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.AiChat;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Chart;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Dashboard;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.AIGenType;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.ChartDataSource;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.views.CalJsonToInfo;
 import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
@@ -110,7 +111,14 @@ public class AiChatServiceImpl extends BaseServiceImpl<AiChatBean, AiChat, Integ
         String jsonString = "\"" + jsonArray.toString()
                 .replace("\\", "\\\\")
                 .replace("\"", "\\\"") + "\"";
-        return pythonUtils.genAIChat("python/llama3_ai/ai_chat.py", jsonString);
+        String newChat = pythonUtils.genAIChat("python/llama3_ai/ai_chat.py", jsonString);
+        AiChatBean newChatBean = new AiChatBean();
+        newChatBean.setChartId(aiChatBean.getChartId());
+        newChatBean.setMessageId(aiChatBean.getMessageId());
+        newChatBean.setContent(newChat);
+        newChatBean.setGenerator(AIGenType.AI);
+        save(newChatBean);
+        return newChat;
     }
 
 

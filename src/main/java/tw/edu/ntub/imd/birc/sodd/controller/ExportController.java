@@ -84,6 +84,7 @@ public class ExportController {
         }
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
+                .data(arrayData)
                 .build();
     }
 }

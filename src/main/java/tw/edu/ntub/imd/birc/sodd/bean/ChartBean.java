@@ -30,9 +30,9 @@ public class ChartBean {
     @Null(message = "互動式圖表檔案 - 不得填寫")
     private Resource chartHTML;
     @Null(message = "是否可發送交辦 - 不得填寫")
-    private Boolean canAssign;
+    private Boolean canAssign = false;
     @Null(message = "是否可匯出 - 不得填寫")
-    private Boolean canExport;
+    private Boolean canExport = false;
     @Null(message = "是否可視 - 不得填寫")
     private Boolean observable = false;
     @Null(message = "是否已被加到儀表板內 - 不得填寫")
