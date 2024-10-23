@@ -54,7 +54,7 @@ public class SubcontractingRefundRate implements CalJsonToInfo{
                 BigDecimal refundVolume = new BigDecimal(refundVolumes.get(i).toString());
 
                 // 計算公式: refundVolume / salesVolume * 100
-                BigDecimal subcontractingRefundRate = processVolume.divide(refundVolume, 2, RoundingMode.HALF_UP)
+                BigDecimal subcontractingRefundRate = refundVolume.divide(processVolume, 2, RoundingMode.HALF_UP)
                         .multiply(BigDecimal.valueOf(100));
 
                 subcontractingRefundRates.add(subcontractingRefundRate);

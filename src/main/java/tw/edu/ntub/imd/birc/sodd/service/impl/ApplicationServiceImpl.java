@@ -122,6 +122,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
             endTask = taskScheduler.schedule(() -> {
                 changeApplyStatus(application, Apply.CLOSED);
                 groupService.delGroup(groupId);
+                groupService.checkNotAccessibleChart(userId);
             }, endInstant);
         }, startInstant);
     }
@@ -130,10 +131,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
         ChartBean chartBean = chartService.getById(application.getChartId())
                 .orElseThrow(() -> new NotFoundException("查無此圖表"));
         GroupBean groupBean = new GroupBean();
-        groupBean.setName(application.getApplicant() + " "
-                + chartBean.getName() + " "
-                + application.getStartDate() + "/"
-                + application.getEndDate());    // 申請臨時群組格式 申請人 圖表名 開始日/結束日
+        groupBean.setName("申請 - " + application.getApplicant());
         groupBean = groupService.save(groupBean);
         ChartGroupBean chartGroupBean = new ChartGroupBean();
         chartGroupBean.setChartId(chartBean.getId());
