@@ -2,35 +2,39 @@ package tw.edu.ntub.imd.birc.sodd.service.impl;
 
 import org.springframework.stereotype.Service;
 import tw.edu.ntub.birc.common.util.CollectionUtils;
-import tw.edu.ntub.imd.birc.sodd.bean.ChartGroupBean;
 import tw.edu.ntub.imd.birc.sodd.bean.GroupBean;
-import tw.edu.ntub.imd.birc.sodd.bean.UserGroupBean;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.ChartGroupDAO;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.GroupDAO;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.UserGroupDAO;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.ChartGroup;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.Group;
-import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserGroup;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.*;
+import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.*;
 import tw.edu.ntub.imd.birc.sodd.service.GroupService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.GroupTransformer;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class GroupServiceImpl extends BaseServiceImpl<GroupBean, Group, Integer> implements GroupService {
     private final GroupDAO groupDAO;
     private final UserGroupDAO userGroupDAO;
-    private final GroupTransformer transformer;
     private final ChartGroupDAO chartGroupDAO;
+    private final ChartDAO chartDAO;
+    private final ChartDashboardDAO chartDashboardDAO;
+    private final GroupTransformer transformer;
 
-    public GroupServiceImpl(GroupDAO groupDAO, UserGroupDAO userGroupDAO, GroupTransformer transformer,
-                            ChartGroupDAO chartGroupDAO) {
+    public GroupServiceImpl(GroupDAO groupDAO,
+                            UserGroupDAO userGroupDAO,
+                            GroupTransformer transformer,
+                            ChartGroupDAO chartGroupDAO,
+                            ChartDAO chartDAO,
+                            ChartDashboardDAO chartDashboardDAO) {
         super(groupDAO, transformer);
         this.groupDAO = groupDAO;
         this.userGroupDAO = userGroupDAO;
         this.transformer = transformer;
         this.chartGroupDAO = chartGroupDAO;
+        this.chartDAO = chartDAO;
+        this.chartDashboardDAO = chartDashboardDAO;
     }
 
 
@@ -63,6 +67,34 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupBean, Group, Integer>
             chartGroupDAO.update(chartGroup);
         }
         update(groupId, groupBean);
+    }
+
+    @Override
+    public void checkNotAccessibleChart(String userId) {
+        List<Chart> observableCharts = searchByUserId(userId)
+                .stream()
+                .flatMap(groupBean -> chartGroupDAO.findByGroupIdAndAvailableIsTrue(groupBean.getId()).stream())
+                .map(chartGroup -> chartDAO.findByIdAndAvailableIsTrue(chartGroup.getChartId()).orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        List<ChartDashboard> chartDashboards = chartDashboardDAO.findByCreateIdAndAvailableIsTrue(userId);
+        // 取得所有 observableCharts 的 chartId
+        Set<Integer> observableChartIds = observableCharts.stream()
+                .map(Chart::getId)
+                .collect(Collectors.toSet());
+
+        // 找出無法配對的 chartDashboard
+        List<ChartDashboard> unmatchableDashboards = chartDashboards.stream()
+                .filter(chartDashboard -> !observableChartIds.contains(chartDashboard.getChartId()))
+                .collect(Collectors.toList());
+
+        // 輸出無法配對的 chartDashboard
+        if (!unmatchableDashboards.isEmpty()) {
+            unmatchableDashboards.forEach(unmatched -> {
+                unmatched.setAvailable(false);
+                chartDashboardDAO.update(unmatched);
+            });
+        }
     }
 
     @Override

@@ -164,9 +164,11 @@ public class GroupController {
     @DeleteMapping("/user")
     public ResponseEntity<String> removeUserFromGroup(@RequestParam("userGroupId") Integer userGroupId,
                                                       HttpServletRequest request) {
-        UserGroupBean userGroupBean = new UserGroupBean();
+        UserGroupBean userGroupBean = userGroupService.getById(userGroupId)
+                .orElseThrow(() -> new NotFoundException("查無群組內此使用者"));
         userGroupBean.setAvailable(false);
         userGroupService.update(userGroupId, userGroupBean);
+        groupService.checkNotAccessibleChart(SecurityUtils.getLoginUserAccount());
         return ResponseEntityBuilder.success()
                 .message("移除成功")
                 .build();
@@ -175,9 +177,11 @@ public class GroupController {
     @DeleteMapping("/chart")
     public ResponseEntity<String> removeChartFromGroup(@RequestParam("userGroupId") Integer chartGroupId,
                                                        HttpServletRequest request) {
-        ChartGroupBean chartGroupBean = new ChartGroupBean();
+        ChartGroupBean chartGroupBean = chartGroupService.getById(chartGroupId)
+                .orElseThrow(() -> new NotFoundException("查無群組內此圖表"));
         chartGroupBean.setAvailable(false);
         chartGroupService.update(chartGroupId, chartGroupBean);
+        groupService.checkNotAccessibleChart(SecurityUtils.getLoginUserAccount());
         return ResponseEntityBuilder.success()
                 .message("移除成功")
                 .build();
@@ -186,6 +190,7 @@ public class GroupController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delGroup(@PathVariable("id") Integer id, HttpServletRequest request) {
         groupService.delGroup(id);
+        groupService.checkNotAccessibleChart(SecurityUtils.getLoginUserAccount());
         return ResponseEntityBuilder.success()
                 .message("刪除成功")
                 .build();

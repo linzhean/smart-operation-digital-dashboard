@@ -10,4 +10,6 @@ public interface ChartDashboardDAO extends BaseDAO<ChartDashboard, Integer> {
     List<ChartDashboard> findByDashboardIdAndAvailableIsTrue(Integer chartDashboardId);
 
     List<ChartDashboard> findByChartIdAndAvailableIsTrue(Integer chartDashboardId);
+
+    List<ChartDashboard> findByCreateIdAndAvailableIsTrue(String createId);
 }
