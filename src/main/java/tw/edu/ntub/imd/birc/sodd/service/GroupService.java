@@ -9,4 +9,5 @@ public interface GroupService extends BaseService<GroupBean, Integer> {
 
     void delGroup(Integer groupId);
 
+    void checkNotAccessibleChart(String userId);
 }

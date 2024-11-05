@@ -52,7 +52,7 @@ public class EmailUtils {
         } catch (MessagingException e) {
             throw new UnknownException(e);
         } catch (IOException e) {
-            throw new RuntimeException("檔案讀取失敗");
+            throw new RuntimeException("檔案讀取失敗 " + e);
         }
     }
 

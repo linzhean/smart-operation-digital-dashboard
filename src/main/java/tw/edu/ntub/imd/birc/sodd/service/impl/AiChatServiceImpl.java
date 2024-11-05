@@ -99,7 +99,7 @@ public class AiChatServiceImpl extends BaseServiceImpl<AiChatBean, AiChat, Integ
 
     @Override
     public String getNewChat(AiChatBean aiChatBean) throws IOException {
-        save(aiChatBean);
+        AiChatBean userChatBean = save(aiChatBean);
         JSONArray jsonArray = new JSONArray();
         List<AiChatBean> aiChatList = searchByChartId(aiChatBean.getChartId());
         for (AiChatBean chatBean : aiChatList) {
@@ -113,8 +113,8 @@ public class AiChatServiceImpl extends BaseServiceImpl<AiChatBean, AiChat, Integ
                 .replace("\"", "\\\"") + "\"";
         String newChat = pythonUtils.genAIChat("python/llama3_ai/ai_chat.py", jsonString);
         AiChatBean newChatBean = new AiChatBean();
-        newChatBean.setChartId(aiChatBean.getChartId());
-        newChatBean.setMessageId(aiChatBean.getMessageId());
+        newChatBean.setChartId(userChatBean.getChartId());
+        newChatBean.setMessageId(userChatBean.getId());
         newChatBean.setContent(newChat);
         newChatBean.setGenerator(AIGenType.AI);
         save(newChatBean);
@@ -127,8 +127,7 @@ public class AiChatServiceImpl extends BaseServiceImpl<AiChatBean, AiChat, Integ
         Optional<AiChat> messageOptional = aiChatDAO
                 .findByMessageIdAndAvailableIsTrue(message.getId())
                 .stream()
-                .filter(messageBean -> Objects.equals(messageBean.getMessageId(), message.getId()))
-                .findAny();
+                .findFirst();
         messageOptional.ifPresent(mailMessage -> searchChildMessage(messageList, mailMessage));
         return messageList;
     }

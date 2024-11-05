@@ -48,10 +48,13 @@ public class AiChatController {
         aiChatBean.setChartId(chartId);
         aiChatBean.setContent(suggestion);
         aiChatBean.setGenerator(AIGenType.AI);
-        aiChatService.save(aiChatBean);
+        aiChatBean = aiChatService.save(aiChatBean);
+        ObjectData objectData = new ObjectData();
+        objectData.add("id", aiChatBean.getId());
+        objectData.add("suggestion", suggestion);
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
-                .data(SingleValueObjectData.create("suggestion", suggestion))
+                .data(objectData)
                 .build();
     }
 
@@ -65,6 +68,7 @@ public class AiChatController {
             objectData.add("chartId", aiChatBean.getChartId());
             objectData.add("messageId", aiChatBean.getMessageId());
             objectData.add("content", aiChatBean.getContent());
+            objectData.add("generator", aiChatBean.getGenerator().getType());
             objectData.add("createDate", aiChatBean.getCreateDate());
         }
         return ResponseEntityBuilder.success()

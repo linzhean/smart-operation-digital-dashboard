@@ -264,8 +264,9 @@ HELP.md
 
 application-local.*
 /src/main/resources/openapi.yaml
-key-cabinet-backend/modules/sodd-config/.gradle
-key-cabinet-backend/modules/sodd-database-config/.gradle
-key-cabinet-backend/modules/sodd-database-config/src/generated/
+sodd-backend/modules/sodd-config/.gradle
+sodd-backend/modules/sodd-database-config/.gradle
+sodd-backend/modules/sodd-database-config/src/generated/
 modules/sodd-database-config/src/generated
+UploadFile/file/chart_html
 
