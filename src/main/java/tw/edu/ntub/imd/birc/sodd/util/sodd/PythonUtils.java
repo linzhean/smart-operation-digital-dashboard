@@ -1,5 +1,6 @@
 package tw.edu.ntub.imd.birc.sodd.util.sodd;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -14,11 +15,12 @@ import java.nio.file.Paths;
 
 @Component
 public class PythonUtils {
-    private String path = "C:\\Users\\Jerrylin\\IdeaProjects\\sodd-backend\\python\\";
+    @Value("${sodd.python.file-path}")
+    private String path;
 
     public Resource genHTML(String filePath, String chartName, String data) throws IOException {
         String fileName = path + chartName + ".html";
-        callPythonScript(new ProcessBuilder(
+        String output = callPythonScript(new ProcessBuilder(
                 "python", filePath, PythonGenType.CHART_HTML.getType(), fileName), data);
         Path htmlFilePath = Paths.get(fileName);
         return new FileSystemResource(htmlFilePath.toFile());
@@ -38,7 +40,8 @@ public class PythonUtils {
     }
 
     public String genAIChat(String filePath, String messages) throws IOException {
-        return callPythonScript(new ProcessBuilder("python", filePath, PythonGenType.AI.getType(), messages));
+        return callPythonScript(new ProcessBuilder(
+                "python", filePath, PythonGenType.AI.getType(), messages));
     }
 
     private String callPythonScript(ProcessBuilder pb) throws IOException {
@@ -46,6 +49,7 @@ public class PythonUtils {
     }
 
     private String callPythonScript(ProcessBuilder pb, String json) throws IOException {
+        System.out.println("srgv: " + pb.command());
         Process process = pb.start();
         try (OutputStream os = process.getOutputStream()) {
             os.write(json.getBytes());

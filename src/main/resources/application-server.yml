@@ -1,5 +1,5 @@
 server:
-  path: https://smart-operation-digital-dashboard.ntubimdbirc.tw
+  path: https://smart-digital-dashboard.ntubimdbirc.tw/backend
   image:
     name: image
     path: 'C:\sodd-backend\UploadFile\${server.image.name}\'

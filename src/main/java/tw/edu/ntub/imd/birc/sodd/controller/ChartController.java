@@ -22,8 +22,10 @@ import tw.edu.ntub.imd.birc.sodd.util.json.object.ObjectData;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -52,8 +54,7 @@ public class ChartController {
     public ResponseEntity<String> setChartInDashboard(@RequestParam("dashboardId") Integer dashboardId,
                                                       @RequestBody ListDTO listDTO,
                                                       HttpServletRequest request) {
-        dashboardService.getById(dashboardId)
-                .orElseThrow(() -> new NotFoundException("查無此儀表板"));
+        dashboardService.getById(dashboardId).orElseThrow(() -> new NotFoundException("查無此儀表板"));
         List<Integer> chartIds = listDTO.getDashboardCharts();
         Map<Integer, Integer> originals = chartDashboardService.findByDashboardId(dashboardId)
                 .stream()

@@ -45,7 +45,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
     private final GroupService groupService;
     private final ChartTransformer transformer;
     private final MultipartFileUploader multipartFileUploader;
-    private final PythonUtils pythonUtils = new PythonUtils();
+    private final PythonUtils pythonUtils;
 
     public ChartServiceImpl(ChartDAO chartDAO,
                             ChartGroupDAO chartGroupDAO,
@@ -55,7 +55,8 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                             ExportDAO exportDAO,
                             GroupService groupService,
                             ChartTransformer transformer,
-                            MultipartFileUploader multipartFileUploader) {
+                            MultipartFileUploader multipartFileUploader,
+                            PythonUtils pythonUtils) {
         super(chartDAO, transformer);
         this.chartDAO = chartDAO;
         this.chartGroupDAO = chartGroupDAO;
@@ -66,6 +67,7 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
         this.chartDashboardDAO = chartDashboardDAO;
         this.transformer = transformer;
         this.multipartFileUploader = multipartFileUploader;
+        this.pythonUtils = pythonUtils;
     }
 
     @Override
@@ -157,10 +159,10 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                 }
                 return uploadResult.getUrl();
             } else {
-                throw new ChartException("圖表檔案未生成");
+                throw new ChartException("圖表檔案未生成 " + resource.getFilename());
             }
         } catch (IOException e) {
-            throw new ChartException("圖表生成錯誤");
+            throw new ChartException("圖表生成錯誤" + e);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
