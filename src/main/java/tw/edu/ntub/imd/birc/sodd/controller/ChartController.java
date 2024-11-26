@@ -104,6 +104,7 @@ public class ChartController {
             objectData.add("id", chartBean.getId());
             objectData.add("name", chartBean.getName());
             objectData.add("chartImage", chartBean.getChartImage());
+            objectData.add("chartData", chartBean.getChartData());
             objectData.add("canAssign", chartBean.getCanAssign());
             objectData.add("canExport", chartBean.getCanExport());
         }
@@ -121,8 +122,10 @@ public class ChartController {
         ObjectData objectData = new ObjectData();
         ChartBean chartBean = chartService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此圖表"));
+        String calculatedJson = chartService.getCalculateJson(chartBean);
         objectData.add("name", chartBean.getName());
-        objectData.add("chartHTML", chartService.genChartHTML(chartBean));
+        objectData.add("chartData", chartService.getCalculateJson(chartBean));
+        objectData.add("chartHTML", chartService.genChartHTML(chartBean, calculatedJson));
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
                 .data(objectData)

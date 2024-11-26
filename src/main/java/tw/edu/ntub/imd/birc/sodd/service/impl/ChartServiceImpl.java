@@ -114,7 +114,9 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
                 sponsorDAO.findBySponsorUserIdAndAvailableIsTrue(userId);
         List<Export> canExportCharts = exportDAO.findByExporterAndAvailableIsTrue(userId);
         for (ChartBean chartBean : chartBeans) {
-            chartBean.setChartImage(genChartHTML(chartBean));
+            String calculatedJson = getCalculateJson(chartBean);
+            chartBean.setChartData(calculatedJson);
+            chartBean.setChartImage(genChartHTML(chartBean, calculatedJson));
             for (AssignedTaskSponsor sponsor : canAssignCharts) {
                 if (Objects.equals(chartBean.getId(), sponsor.getChartId())) {
                     chartBean.setCanAssign(true);
@@ -135,19 +137,28 @@ public class ChartServiceImpl extends BaseServiceImpl<ChartBean, Chart, Integer>
         return chartBeans;
     }
 
+    @Override
+    public String getCalculateJson(ChartBean chartBean) {
+        String jsonData = null;
+        try {
+            jsonData = dataSourceDAO.getJsonData(ChartDataSource.of(chartBean.getDataSource()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        CalJsonToInfo calJsonToInfo = ChartDataSource.getCalJsonToInfo(ChartDataSource.of(chartBean.getDataSource()));
+        Gson gson = new Gson();
+        Type mapType = new TypeToken<Map<String, List<Object>>>() {
+        }.getType();
+        Map<String, List<Object>> calculatedData = gson.fromJson(jsonData, mapType);
+        Map<String, List<Object>> newInfoData = calJsonToInfo.calJsonToInfo(calculatedData);
+        calculatedData.putAll(newInfoData);
+        return gson.toJson(calculatedData);
+    }
+
 
     @Override
-    public String genChartHTML(ChartBean chartBean) {
+    public String genChartHTML(ChartBean chartBean, String calculatedJson) {
         try {
-            String jsonData = dataSourceDAO.getJsonData(ChartDataSource.of(chartBean.getDataSource()));
-            CalJsonToInfo calJsonToInfo = ChartDataSource.getCalJsonToInfo(ChartDataSource.of(chartBean.getDataSource()));
-            Gson gson = new Gson();
-            Type mapType = new TypeToken<Map<String, List<Object>>>() {
-            }.getType();
-            Map<String, List<Object>> calculatedData = gson.fromJson(jsonData, mapType);
-            Map<String, List<Object>> newInfoData = calJsonToInfo.calJsonToInfo(calculatedData);
-            calculatedData.putAll(newInfoData);
-            String calculatedJson = gson.toJson(calculatedData);
             Resource resource = pythonUtils.genHTML(chartBean.getScriptPath(), chartBean.getName(), calculatedJson);
             File file = resource.getFile();
             if (file.exists()) {
