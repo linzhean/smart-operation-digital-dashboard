@@ -7,6 +7,7 @@ sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 
 def generate_ai_suggestion(messages):
+    sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
     # 初始化 OpenAI 客戶端
     client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
 
