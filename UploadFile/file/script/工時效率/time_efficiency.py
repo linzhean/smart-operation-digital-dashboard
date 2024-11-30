@@ -46,24 +46,21 @@ def generate_html_chart(file_name):
             marker=dict(size=6)
         ))
 
-    # 添加峰值與谷值的標記
+    # 添加峰值標記
     fig.add_trace(go.Scatter(
         x=df['date'].iloc[peak_locations],
         y=df['timeEfficiency'].iloc[peak_locations],
-        mode='markers+text',
+        mode='markers',
         marker=dict(size=10, color='green', symbol='triangle-up'),
-        text=["峰值" for _ in peak_locations],
-        textposition="top center",
         name="峰值"
     ))
 
+    # 添加谷值標記
     fig.add_trace(go.Scatter(
         x=df['date'].iloc[trough_locations],
         y=df['timeEfficiency'].iloc[trough_locations],
-        mode='markers+text',
+        mode='markers',
         marker=dict(size=10, color='red', symbol='triangle-down'),
-        text=["谷值" for _ in trough_locations],
-        textposition="bottom center",
         name="谷值"
     ))
 
