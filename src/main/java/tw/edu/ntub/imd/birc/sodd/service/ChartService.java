@@ -7,7 +7,9 @@ import java.util.List;
 public interface ChartService extends BaseService<ChartBean, Integer> {
     List<ChartBean> searchByDashboardId(Integer dashboardId);
 
-    String genChartHTML(ChartBean chartBean);
+    String getCalculateJson(ChartBean chartBean);
+
+    String genChartHTML(ChartBean chartBean, String calculatedJson);
 
     List<ChartBean> searchByUser(String userId, Integer dashboardId);
 

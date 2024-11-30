@@ -1,10 +1,8 @@
 package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import tw.edu.ntub.imd.birc.sodd.bean.ChartBean;
@@ -52,8 +50,7 @@ public class ChartController {
     public ResponseEntity<String> setChartInDashboard(@RequestParam("dashboardId") Integer dashboardId,
                                                       @RequestBody ListDTO listDTO,
                                                       HttpServletRequest request) {
-        dashboardService.getById(dashboardId)
-                .orElseThrow(() -> new NotFoundException("查無此儀表板"));
+        dashboardService.getById(dashboardId).orElseThrow(() -> new NotFoundException("查無此儀表板"));
         List<Integer> chartIds = listDTO.getDashboardCharts();
         Map<Integer, Integer> originals = chartDashboardService.findByDashboardId(dashboardId)
                 .stream()
@@ -103,6 +100,7 @@ public class ChartController {
             objectData.add("id", chartBean.getId());
             objectData.add("name", chartBean.getName());
             objectData.add("chartImage", chartBean.getChartImage());
+            objectData.add("chartData", chartBean.getChartData());
             objectData.add("canAssign", chartBean.getCanAssign());
             objectData.add("canExport", chartBean.getCanExport());
         }
@@ -120,8 +118,10 @@ public class ChartController {
         ObjectData objectData = new ObjectData();
         ChartBean chartBean = chartService.getById(id)
                 .orElseThrow(() -> new NotFoundException("查無此圖表"));
+        String calculatedJson = chartService.getCalculateJson(chartBean);
         objectData.add("name", chartBean.getName());
-        objectData.add("chartHTML", chartService.genChartHTML(chartBean));
+        objectData.add("chartData", chartService.getCalculateJson(chartBean));
+        objectData.add("chartHTML", chartService.genChartHTML(chartBean, calculatedJson));
         return ResponseEntityBuilder.success()
                 .message("查詢成功")
                 .data(objectData)

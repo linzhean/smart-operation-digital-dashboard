@@ -130,9 +130,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-                "https://smart-operation-digital-dashboard.kuohao.wtf",
-                "http://140.131.114.166:8080",
-                "http://localhost:3000"
+                "https://smart-digital-dashboard.ntubimdbirc.tw"
 //                "*"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));

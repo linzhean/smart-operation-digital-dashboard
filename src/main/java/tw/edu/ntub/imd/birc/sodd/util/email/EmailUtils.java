@@ -46,7 +46,6 @@ public class EmailUtils {
             try {
                 mailSender.send(mimeMessageHelper.getMimeMessage());
             } catch (Exception e) {
-                System.err.println(e.toString());
                 throw new NotFoundException("Email格式錯誤，請重新確認");
             }
         } catch (MessagingException e) {

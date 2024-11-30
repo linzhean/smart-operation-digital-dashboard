@@ -27,6 +27,8 @@ public class ChartBean {
     private String dataSource;
     @Null(message = "靜態圖表 - 不得填寫")
     private String chartImage;
+    @Null(message = "圖表資料 - 不得填寫")
+    private String chartData;
     @Null(message = "互動式圖表檔案 - 不得填寫")
     private Resource chartHTML;
     @Null(message = "是否可發送交辦 - 不得填寫")
