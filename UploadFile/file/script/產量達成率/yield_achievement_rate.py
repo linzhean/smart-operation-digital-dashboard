@@ -10,6 +10,15 @@ def generate_html_chart(file_name):
     # 將 JSON 轉換為 DataFrame
     df = pd.DataFrame(json.loads(data))
 
+    # 圖表讀資料生成圖表
+    # 資料表 EISLE
+    # 欄位
+    # LE005 productNumber
+    # LE010 date
+    # LE011 expectedOutput
+    # LE012 productionVolume
+    # LE012 advanceQuantity
+
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
@@ -46,7 +55,7 @@ def generate_html_chart(file_name):
 
     # 設定圖表標題與軸標籤
     fig.update_layout(
-        title='各品號的七天綜合產量達成率長條圖',
+        title='各品號的近七天綜合產量達成率長條圖',
         xaxis_title='品號',
         yaxis_title='平均產量達成率 (%)',
         xaxis=dict(autorange=True),
