@@ -2,7 +2,6 @@ import json
 import io
 import pandas as pd
 import plotly.graph_objects as go
-import numpy as np
 import plotly.io as pio
 
 
@@ -21,17 +20,13 @@ def generate_html_chart(file_name):
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
-    # 計算峰值與谷值
-    data = df['timeEfficiency'].values
-    doublediff = np.diff(np.sign(np.diff(data)))
-    peak_locations = np.where(doublediff == -2)[0] + 1
-    trough_locations = np.where(doublediff == 2)[0] + 1
+    # 取得所有的產線名稱
+    production_line_names = df['productionLineName'].unique()
 
     # 創建圖表
     fig = go.Figure()
 
     # 依照產線進行分組，為每個產線生成一條折線
-    production_line_names = df['productionLineName'].unique()
     for production_line_name in production_line_names:
         # 選取對應產線的資料
         production_line_data = df[df['productionLineName'] == production_line_name]
@@ -46,35 +41,21 @@ def generate_html_chart(file_name):
             marker=dict(size=6)
         ))
 
-    # 添加峰值標記
-    fig.add_trace(go.Scatter(
-        x=df['date'].iloc[peak_locations],
-        y=df['timeEfficiency'].iloc[peak_locations],
-        mode='markers',
-        marker=dict(size=10, color='green', symbol='triangle-up'),
-        name="峰值"
-    ))
-
-    # 添加谷值標記
-    fig.add_trace(go.Scatter(
-        x=df['date'].iloc[trough_locations],
-        y=df['timeEfficiency'].iloc[trough_locations],
-        mode='markers',
-        marker=dict(size=10, color='red', symbol='triangle-down'),
-        name="谷值"
-    ))
-
     # 設定圖表標題與軸標籤
     fig.update_layout(
         title='各產線的工時效率折線圖',
         xaxis_title='日期',
         yaxis_title='工時效率 (%)',
+        xaxis=dict(autorange=True),
+        yaxis=dict(autorange=True),
+        autosize=True,
         legend_title="產線名稱",  # 顯示圖表旁邊的產線名稱標籤
-        showlegend=True,    # 確保顯示圖例
+        showlegend=True,  # 確保顯示圖例
     )
 
     # 儲存圖表為互動式 HTML
     pio.write_html(fig, file_name)
+
 
 # 這裡直接複製
 if __name__ == "__main__":
