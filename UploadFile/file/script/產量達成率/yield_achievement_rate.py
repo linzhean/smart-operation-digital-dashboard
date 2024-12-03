@@ -56,7 +56,7 @@ def generate_html_chart(file_name):
     # 設定圖表標題與軸標籤
     fig.update_layout(
         title='各品號的近七天綜合產量達成率長條圖',
-        xaxis_title='品號',
+        xaxis_title='品名',
         yaxis_title='平均產量達成率 (%)',
         xaxis=dict(autorange=True),
         yaxis=dict(autorange=True),
