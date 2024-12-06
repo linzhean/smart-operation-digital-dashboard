@@ -24,13 +24,14 @@ def generate_html_chart(file_name):
     # 確保日期欄位格式正確
     df['date'] = pd.to_datetime(df['date'])
 
-    # 篩選最近七天的數據
-    df = df[df['date'] >= pd.to_datetime('today') - pd.Timedelta(days=7)]
+    # 篩選最近七天的數據，如果某些品號沒有數據，保留為空
+    recent_data = df[df['date'] >= pd.to_datetime('today') - pd.Timedelta(days=7)]
 
-    # 依照品號進行分組，並計算平均達成率
-    grouped_data = df.groupby('productNumber').agg({
+    # 確保每個品號都有一列，沒有數據的補 0
+    all_product_numbers = df['productNumber'].unique()
+    grouped_data = recent_data.groupby('productNumber').agg({
         'yieldAchievementRate': 'mean'  # 計算每個品名的平均達成率
-    }).reset_index()
+    }).reindex(all_product_numbers, fill_value=0).reset_index()  # 填充缺失值為 0
 
     # 創建圖表
     fig = go.Figure()
