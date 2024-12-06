@@ -4,7 +4,9 @@ import plotly.graph_objects as go
 import plotly.io as pio
 
 def generate_html_chart(file_name):
-    # 從標準輸入讀取 JSON 字串
+    import sys
+
+    # 從標準輸入讀取 JSON 字串，確保使用 UTF-8 編碼
     data = sys.stdin.read()
 
     # 將 JSON 轉換為 DataFrame
@@ -19,16 +21,13 @@ def generate_html_chart(file_name):
     # LE012 productionVolume
     # LE012 advanceQuantity
 
-    # 將日期轉換為日期格式
+    # 確保日期欄位格式正確
     df['date'] = pd.to_datetime(df['date'])
 
     # 篩選最近七天的數據
     df = df[df['date'] >= pd.to_datetime('today') - pd.Timedelta(days=7)]
 
-    # 將數據轉換為數字型
-    product_numbers = df['productNumber']
-
-    # 依照品號進行分組，並計算每個品號在七天內的平均產量達成率
+    # 依照品號進行分組，並計算平均達成率
     grouped_data = df.groupby('productNumber').agg({
         'yieldAchievementRate': 'mean'  # 計算每個品名的平均達成率
     }).reset_index()
@@ -40,24 +39,28 @@ def generate_html_chart(file_name):
     fig.add_trace(go.Bar(
         x=grouped_data['productNumber'],
         y=grouped_data['yieldAchievementRate'],
-        text=grouped_data['yieldAchievementRate'],  # 在圖表中顯示達成率數字
+        text=grouped_data['yieldAchievementRate'],  # 顯示達成率數字
         textposition='auto',
         marker=dict(
-            color=grouped_data['yieldAchievementRate'],  # 使用達成率數據來設置顏色
-            colorscale='Teal',  # 設置為藍綠到白色的漸層
-            cmin=grouped_data['yieldAchievementRate'].min(),  # 設置最小值
-            cmax=grouped_data['yieldAchievementRate'].max(),  # 設置最大值
+            color=grouped_data['yieldAchievementRate'],  # 根據達成率設置顏色
+            colorscale='Teal',  # 藍綠漸層
+            cmin=grouped_data['yieldAchievementRate'].min(),
+            cmax=grouped_data['yieldAchievementRate'].max(),
             colorbar=dict(
                 title="達成率",  # 顏色條標題
             )
         )
     ))
 
-    # 設定圖表標題與軸標籤
+    # 設定中文字體
     fig.update_layout(
         title='各產品的近七天綜合產量達成率長條圖',
         xaxis_title='品名',
         yaxis_title='平均產量達成率 (%)',
+        font=dict(
+            family="Microsoft JhengHei, PingFang TC, Arial",  # 中文字體
+            size=14
+        ),
         xaxis=dict(autorange=True),
         yaxis=dict(autorange=True),
         autosize=True
@@ -71,7 +74,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) != 3:
-        print(f"用法: python yield_achievement_rate.py (filePath, type, fileName) {sys.argv}")
+        print(f"用法: python yield_achievement_rate.py html|photo file_name")
     elif sys.argv[1] == 'html':
         generate_html_chart(sys.argv[2])
     elif sys.argv[1] == 'photo':
