@@ -30,13 +30,13 @@ def generate_html_chart(file_name):
 
     # 依照品號進行分組，並計算每個品號在七天內的平均產量達成率
     grouped_data = df.groupby('productNumber').agg({
-        'yieldAchievementRate': 'mean'  # 計算每個品號的平均達成率
+        'yieldAchievementRate': 'mean'  # 計算每個品名的平均達成率
     }).reset_index()
 
     # 創建圖表
     fig = go.Figure()
 
-    # 添加長條圖：品號為 x 軸，七天綜合的產量達成率為 y 軸
+    # 添加長條圖：品名為 x 軸，七天綜合的產量達成率為 y 軸
     fig.add_trace(go.Bar(
         x=grouped_data['productNumber'],
         y=grouped_data['yieldAchievementRate'],
@@ -55,7 +55,7 @@ def generate_html_chart(file_name):
 
     # 設定圖表標題與軸標籤
     fig.update_layout(
-        title='各品號的近七天綜合產量達成率長條圖',
+        title='各產品的近七天綜合產量達成率長條圖',
         xaxis_title='品名',
         yaxis_title='平均產量達成率 (%)',
         xaxis=dict(autorange=True),
