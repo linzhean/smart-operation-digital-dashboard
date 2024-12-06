@@ -17,7 +17,7 @@ def generate_html_chart(file_name):
     # 資料表 EISLH
     # 欄位 LF005 productNumber LF012 date LF014 processedVolume LF017 refundVolume
 
-    # 將每個品號的退貨數量與比率結合，生成新的數據
+    # 將每個產品的退貨數量與比率結合，生成新的數據
     labels = df['productNumber']
     values = df['subcontractingRefundRate']
 
@@ -33,7 +33,7 @@ def generate_html_chart(file_name):
                                  marker=dict(colors=colors))])  # 使用隨機顏色
 
     # 設定圖表的佈局
-    fig.update_layout(title='各品號的委外加工退貨率環狀圖')
+    fig.update_layout(title='各產品的委外加工退貨率環狀圖')
 
     # 儲存圖表為互動式 HTML
     pio.write_html(fig, file_name)
