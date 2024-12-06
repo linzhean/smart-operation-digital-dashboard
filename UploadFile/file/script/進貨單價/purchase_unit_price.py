@@ -29,29 +29,29 @@ def generate_html_chart(file_name):
     # 創建圖表
     fig = go.Figure()
 
-    # 依照品號進行分組，為每個品號生成一條線
+    # 依照品名進行分組，為每個品名生成一條線
     for product_number in product_numbers:
         product_data = df[df['productNumber'] == product_number]
 
-        # 添加折線圖：品號為名稱，日期為 x 軸，進貨單價為 y 軸
+        # 添加折線圖：品名為名稱，日期為 x 軸，進貨單價為 y 軸
         fig.add_trace(go.Scatter(
             x=product_data['date'],
             y=product_data['purchaseUnitPrice'],
             mode='lines+markers',
-            name=product_number,  # 品號作為線的名稱
+            name=product_number,  # 品名作為線的名稱
             line=dict(width=2),
             marker=dict(size=6)
         ))
 
     # 設定圖表標題與軸標籤
     fig.update_layout(
-        title='各品號的進貨單價折線圖',
+        title='各產品的進貨單價折線圖',
         xaxis_title='日期',
         yaxis_title='進貨單價 (元)',
         xaxis=dict(autorange=True),
         yaxis=dict(autorange=True),  # 可根據數據調整範圍
         autosize=True,
-        legend_title="品號",  # 顯示圖表旁邊的品號標籤
+        legend_title="品名",  # 顯示圖表旁邊的品名標籤
         showlegend=True,  # 確保顯示圖例
     )
     # 圖表讀資料生成圖表
