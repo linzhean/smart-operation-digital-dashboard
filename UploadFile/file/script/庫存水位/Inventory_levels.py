@@ -24,6 +24,10 @@ def generate_html_chart(file_name):
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
+    # 設定篩選近一個月數據的日期範圍
+    recent_date = df['date'].max()
+    start_date = recent_date - pd.Timedelta(days=30)
+
     product_numbers = df['productNumber'].unique()
 
     # 創建圖表
@@ -33,7 +37,6 @@ def generate_html_chart(file_name):
     for product_number in product_numbers:
         product_data = df[df['productNumber'] == product_number]
 
-        # 添加折線圖：品名為名稱，日期為 x 軸，庫存水位為 y 軸
         fig.add_trace(go.Scatter(
             x=product_data['date'],
             y=product_data['inventoryLevels'],
@@ -48,14 +51,17 @@ def generate_html_chart(file_name):
         title='各產品的庫存水位折線圖',
         xaxis_title='日期',
         yaxis_title='庫存水位 (%)',
-        xaxis=dict(autorange=True),
-        yaxis=dict(autorange=True),  # 可根據數據調整範圍
+        xaxis=dict(
+            autorange=False,
+            range=[start_date, recent_date],  # 預設顯示近一個月數據
+            rangeslider=dict(visible=True),  # 添加滑動條
+            type="date"
+        ),
+        yaxis=dict(autorange=True),
         autosize=True,
-        legend_title="品名",  # 顯示圖表旁邊的品名標籤
-        showlegend=True,  # 確保顯示圖例
+        legend_title="品名",
+        showlegend=True
     )
-    # 圖表讀資料生成圖表
-
 
     # 儲存圖表為互動式 HTML
     pio.write_html(fig, file_name)
