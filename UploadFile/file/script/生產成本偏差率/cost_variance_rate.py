@@ -11,7 +11,6 @@ def generate_html_chart(file_name):
 
     # 將 JSON 轉換為 DataFrame
     df = pd.DataFrame(json.loads(data))
-
     # 圖表讀資料生成圖表
     # 資料表 EISLG
     # 欄位
@@ -28,6 +27,10 @@ def generate_html_chart(file_name):
 
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
+
+    # 計算最近一個月的日期範圍
+    recent_date = df['date'].max()
+    start_date = recent_date - pd.Timedelta(days=30)
 
     product_numbers = df['productNumber'].unique()
 
@@ -53,15 +56,18 @@ def generate_html_chart(file_name):
         title='各產品的生產成本偏差率折線圖',
         xaxis_title='日期',
         yaxis_title='生產成本偏差率 (%)',
-        xaxis=dict(autorange=True),
-        yaxis=dict(autorange=True),  # 可根據數據調整範圍
+        xaxis=dict(
+            autorange=False,  # 禁用自動範圍
+            range=[start_date, recent_date],  # 聚焦近一個月的範圍
+            rangeslider=dict(visible=True),  # 啟用滑動條
+            type="date"  # 設定 x 軸類型為日期
+        ),
+        yaxis=dict(autorange=True),  # 根據數據調整 Y 軸範圍
         autosize=True,
         legend_title="品名",  # 顯示圖表旁邊的品名標籤
-        showlegend=True,  # 確保顯示圖例
+        showlegend=True  # 確保顯示圖例
     )
     # 圖表讀資料生成圖表
-
-
     # 儲存圖表為互動式 HTML
     pio.write_html(fig, file_name)
 
