@@ -20,6 +20,10 @@ def generate_html_chart(file_name):
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
+    # 計算最近一個月的日期範圍
+    recent_date = df['date'].max()
+    start_date = recent_date - pd.Timedelta(days=30)
+
     product_numbers = df['productNumber'].unique()
 
     # 創建圖表
@@ -28,7 +32,6 @@ def generate_html_chart(file_name):
     # 依照品名進行分組，為每個品名生成一條線
     for product_number in product_numbers:
         product_data = df[df['productNumber'] == product_number]
-
 
         # 添加折線圖：品名為名稱，日期為 x 軸，銷售退貨率為 y 軸
         fig.add_trace(go.Scatter(
@@ -40,17 +43,21 @@ def generate_html_chart(file_name):
             marker=dict(size=6)
         ))
 
-
     # 設定圖表標題與軸標籤
     fig.update_layout(
         title='各產品的銷售退貨率折線圖',
         xaxis_title='日期',
         yaxis_title='退貨率 (%)',
-        xaxis=dict(autorange=True),
-        yaxis=dict(autorange=True),  # 可根據數據調整範圍
+        xaxis=dict(
+            autorange=False,  # 設定自動範圍為 False
+            range=[start_date, recent_date],  # 聚焦近一個月
+            rangeslider=dict(visible=True),  # 啟用滑動條功能
+            type="date"
+        ),
+        yaxis=dict(autorange=True),  # 讓 Y 軸根據數據自動調整
         autosize=True,
         legend_title="品名",  # 顯示圖表旁邊的品名標籤
-        showlegend=True,  # 確保顯示圖例
+        showlegend=True  # 確保顯示圖例
     )
     # 圖表讀資料生成圖表
     # 儲存圖表為互動式 HTML
