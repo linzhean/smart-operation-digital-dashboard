@@ -20,7 +20,6 @@ def generate_html_chart(file_name):
     # TA011 grossDemand
     # TA012 stocks
 
-
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
@@ -59,8 +58,10 @@ def generate_html_chart(file_name):
         ),
         yaxis=dict(autorange=True),
         autosize=True,
-        legend_title="品名",
-        showlegend=True
+        legend=dict(  # 自定義圖例
+            title_text="品名",
+            itemsizing='constant'  # 禁用下拉選單
+        )
     )
 
     # 儲存圖表為互動式 HTML
