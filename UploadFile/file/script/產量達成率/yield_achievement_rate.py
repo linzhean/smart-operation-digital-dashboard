@@ -24,14 +24,17 @@ def generate_html_chart(file_name):
     # 確保日期欄位格式正確
     df['date'] = pd.to_datetime(df['date'])
 
-    # 篩選最近七天的數據，如果某些品號沒有數據，保留為空
+    # 修正品名亂碼（如果需要，保證編碼一致性）
+    df['productNumber'] = df['productNumber'].astype(str)
+
+    # 篩選最近七天的數據
     recent_data = df[df['date'] >= pd.to_datetime('today') - pd.Timedelta(days=7)]
 
     # 確保每個品號都有一列，沒有數據的補 0
     all_product_numbers = df['productNumber'].unique()
     grouped_data = recent_data.groupby('productNumber').agg({
         'yieldAchievementRate': 'mean'  # 計算每個品名的平均達成率
-    }).reindex(all_product_numbers, fill_value=0).reset_index()  # 填充缺失值為 0
+    }).reindex(all_product_numbers, fill_value=0).reset_index()
 
     # 創建圖表
     fig = go.Figure()
@@ -40,7 +43,7 @@ def generate_html_chart(file_name):
     fig.add_trace(go.Bar(
         x=grouped_data['productNumber'],
         y=grouped_data['yieldAchievementRate'],
-        text=grouped_data['yieldAchievementRate'],  # 顯示達成率數字
+        text=grouped_data['yieldAchievementRate'].round(2),  # 顯示達成率，保留兩位小數
         textposition='auto',
         marker=dict(
             color=grouped_data['yieldAchievementRate'],  # 根據達成率設置顏色
@@ -53,17 +56,22 @@ def generate_html_chart(file_name):
         )
     ))
 
-    # 設定中文字體
+    # 設定中文字體與 X 軸標籤顯示
     fig.update_layout(
         title='各產品的近七天綜合產量達成率長條圖',
         xaxis_title='品名',
         yaxis_title='平均產量達成率 (%)',
         font=dict(
-            family="Microsoft JhengHei, PingFang TC, Arial",  # 中文字體
+            family="Microsoft JhengHei, PingFang TC, Arial, sans-serif",  # 中文字體
             size=14
         ),
-        xaxis=dict(autorange=True),
-        yaxis=dict(autorange=True),
+        xaxis=dict(
+            tickangle=45,  # 標籤旋轉 45 度
+            tickmode='linear'  # 確保所有標籤均顯示
+        ),
+        yaxis=dict(
+            autorange=True
+        ),
         autosize=True
     )
 
