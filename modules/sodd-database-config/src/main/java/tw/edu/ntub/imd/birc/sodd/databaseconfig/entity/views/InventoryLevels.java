@@ -12,15 +12,15 @@ import java.util.*;
 @Data
 @Entity
 @Table(name = "inventory_levels", schema = Config.DATABASE_NAME)
-public class InventoryLevels implements CalJsonToInfo{
-/**
- * 流水號
- *
- * @since 1.0.0
- */
-@Id
-@Column(name = "id")
-private String id;
+public class InventoryLevels implements CalJsonToInfo {
+    /**
+     * 流水號
+     *
+     * @since 1.0.0
+     */
+    @Id
+    @Column(name = "id")
+    private String id;
     /**
      * @since 1.0.0
      */
@@ -70,7 +70,8 @@ private String id;
         }
 
         // 新增計算結果到返回的資料中
-        entityListData.put("inventoryRate", inventoryRateList);
-        return entityListData;
+        Map<String, List<Object>> newDataMap = new HashMap<>();
+        entityListData.put("inventoryLevels", inventoryRateList);
+        return newDataMap;
     }
 }

@@ -137,6 +137,27 @@ Configuration:
             modulate: true
         DefaultRolloverStrategy:
           max: 5
+      - name: DBBPRollingFile
+        Append: false
+        fileName: ${path}${sys:file.separator}${filename}-dbbp.log
+        filePattern: ${path}${sys:file.separator}dbbp${sys:file.separator}%d{yyyy-MM-dd}${sys:file.separator}%d{HH-mm-ss}.log
+        Filters:
+          ThresholdFilter:
+            - level: info
+        #          RegexFilter:
+        #            regex: ".*dao\\.findAll.*"
+        #            onMatch: accept
+        #            onMismatch: deny
+        PatternLayout:
+          pattern: '%d{yyyy/MM/dd HH:mm:ss}  %style{%p}{INFO=yellow} --- [%15.15t] %-40.40c{1.} : %m%n'
+        Policies:
+          SizeBasedTriggeringPolicy:
+            size: 128MB
+          TimeBasedTriggeringPolicy:
+            interval: 3600
+            modulate: true
+        DefaultRolloverStrategy:
+          max: 5
   Loggers:
     Root:
       level: info
@@ -151,5 +172,7 @@ Configuration:
         - ref: WarnRollingFile
     Logger:
       name: log4jdbc.log4j2
-      level: info
       additivity: false
+      level: info
+      AppenderRef:
+        - ref: DBBPRollingFile

@@ -86,7 +86,7 @@ public class PythonUtils {
             return "此程式未能輸出靜態圖表檔案";
         }
         try {
-            BufferedImage image = ImageIO.read(file); // 如果能成功讀取且不為 null，則是有效圖像文件
+            BufferedImage image = ImageIO.read(file); // 如果能成功讀取且不為 null，則是有效圖像文件D
             if (image == null) {
                 return "此程式未能輸出靜態圖表檔案";
             }

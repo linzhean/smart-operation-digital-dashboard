@@ -108,6 +108,7 @@ public class AiChatServiceImpl extends BaseServiceImpl<AiChatBean, AiChat, Integ
         AiChatBean userChatBean = save(aiChatBean);
         JSONArray jsonArray = new JSONArray();
         List<AiChatBean> aiChatList = searchByChartId(aiChatBean.getChartId());
+        aiChatList.add(userChatBean);
         for (AiChatBean chatBean : aiChatList) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("role", chatBean.getGenerator().getType());
