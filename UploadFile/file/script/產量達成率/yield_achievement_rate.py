@@ -52,6 +52,12 @@ def generate_html_chart(file_name):
             cmax=grouped_data['yieldAchievementRate'].max(),
             colorbar=dict(
                 title="達成率",  # 顏色條標題
+                len=0.9,  # 增大顏色條長度
+                thickness=30,  # 增大顏色條寬度
+                x=1.2,  # 調整顏色條位置，向右移動
+                y=0.5,  # 調整顏色條垂直位置
+                titlefont=dict(size=16),  # 顏色條標題字型大小
+                tickfont=dict(size=12)  # 顏色條刻度字型大小
             )
         )
     ))
@@ -63,7 +69,7 @@ def generate_html_chart(file_name):
         yaxis_title='平均產量達成率 (%)',
         font=dict(
             family="Microsoft JhengHei, PingFang TC, Arial, sans-serif",  # 中文字體
-            size=14
+            size=12
         ),
         xaxis=dict(
             tickangle=45,  # 標籤旋轉 45 度
@@ -72,6 +78,7 @@ def generate_html_chart(file_name):
         yaxis=dict(
             autorange=True
         ),
+        margin=dict(l=50, r=150, t=50, b=50),  # 增加圖表右邊距碼
         autosize=True
     )
 
