@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
 import io
+import sys
 
 def generate_html_chart(file_name):
     sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
@@ -59,7 +60,15 @@ def generate_html_chart(file_name):
         ),
         yaxis=dict(autorange=True),  # 根據數據調整 Y 軸範圍
         autosize=True,
-        legend_title="品名",  # 顯示圖表旁邊的品名標籤
+        legend=dict(
+            title="品名",
+            orientation="v",  # 垂直排列
+            yanchor="top",
+            y=1,
+            xanchor="left",
+            x=1.05,  # 將圖例移動到圖表右側
+            font=dict(size=10)  # 調整文字大小
+        ),
         showlegend=True  # 確保顯示圖例
     )
     # 圖表讀資料生成圖表
