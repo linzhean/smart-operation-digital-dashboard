@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tw.edu.ntub.birc.common.util.CollectionUtils;
 import tw.edu.ntub.birc.common.util.StringUtils;
@@ -24,13 +25,18 @@ import tw.edu.ntub.imd.birc.sodd.service.AiChatService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.AiChatTransformer;
 import tw.edu.ntub.imd.birc.sodd.util.sodd.PythonUtils;
 
-import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 
 @Service
 public class AiChatServiceImpl extends BaseServiceImpl<AiChatBean, AiChat, Integer> implements AiChatService {
+    @Value("${sodd.python.ai-suggestion}")
+    private String aiSuggestionPath;
+
+    @Value("${sodd.python.ai-chat}")
+    private String aiChatPath;
+
     private final AiChatDAO aiChatDAO;
     private final DashboardDAO dashboardDAO;
     private final ChartDAO chartDAO;
@@ -77,7 +83,7 @@ public class AiChatServiceImpl extends BaseServiceImpl<AiChatBean, AiChat, Integ
                 .map(Dashboard::getDescription)
                 .orElse("");
         description = StringUtils.isNotBlank(description) ? description : "此儀表板尚無說明";
-        return pythonUtils.genAISuggestion("python/llama3_ai/ai_suggestions.py", calculatedJson, description);
+        return pythonUtils.genAISuggestion(aiSuggestionPath, calculatedJson, description);
     }
 
 
@@ -102,6 +108,7 @@ public class AiChatServiceImpl extends BaseServiceImpl<AiChatBean, AiChat, Integ
         AiChatBean userChatBean = save(aiChatBean);
         JSONArray jsonArray = new JSONArray();
         List<AiChatBean> aiChatList = searchByChartId(aiChatBean.getChartId());
+        aiChatList.add(userChatBean);
         for (AiChatBean chatBean : aiChatList) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("role", chatBean.getGenerator().getType());
@@ -111,7 +118,7 @@ public class AiChatServiceImpl extends BaseServiceImpl<AiChatBean, AiChat, Integ
         String jsonString = "\"" + jsonArray.toString()
                 .replace("\\", "\\\\")
                 .replace("\"", "\\\"") + "\"";
-        String newChat = pythonUtils.genAIChat("python/llama3_ai/ai_chat.py", jsonString);
+        String newChat = pythonUtils.genAIChat(aiChatPath, jsonString);
         AiChatBean newChatBean = new AiChatBean();
         newChatBean.setChartId(userChatBean.getChartId());
         newChatBean.setMessageId(userChatBean.getId());

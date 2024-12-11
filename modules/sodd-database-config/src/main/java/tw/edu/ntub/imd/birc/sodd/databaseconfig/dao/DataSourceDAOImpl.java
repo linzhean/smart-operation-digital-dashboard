@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,10 @@ public class DataSourceDAOImpl implements DataSourceDAO {
         List<String> fieldNames = new ArrayList<>();
 
         for (Field field : fields) {
+            // 過濾掉 static 和 final 修飾的字段
+            if (Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())) {
+                continue;
+            }
             fieldNames.add(field.getName());
         }
 

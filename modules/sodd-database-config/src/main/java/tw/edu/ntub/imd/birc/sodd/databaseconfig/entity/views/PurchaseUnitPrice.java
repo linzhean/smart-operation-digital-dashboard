@@ -53,9 +53,8 @@ public class PurchaseUnitPrice implements CalJsonToInfo{
                 BigDecimal purchaseQuantity = new BigDecimal(purchaseQuantitys.get(i).toString());
                 BigDecimal purchasePrice = new BigDecimal(purchasePrices.get(i).toString());
 
-                // 計算公式: purchaseQuantity / purchasePrice
-                BigDecimal purchaseUnitPrice = purchaseQuantity.divide(purchasePrice, 2, RoundingMode.HALF_UP);
-
+                // 計算公式: purchasePrice / purchaseQuantity
+                BigDecimal purchaseUnitPrice = purchasePrice.divide(purchaseQuantity, 2, RoundingMode.HALF_UP);
                 purchaseUnitPrices.add(purchaseUnitPrice);
             }
 

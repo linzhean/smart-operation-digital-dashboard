@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
 import io
+import sys
 
 def generate_html_chart(file_name):
     sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
@@ -11,7 +12,6 @@ def generate_html_chart(file_name):
 
     # 將 JSON 轉換為 DataFrame
     df = pd.DataFrame(json.loads(data))
-
 
     # 圖表讀資料生成圖表
     # 資料表 EISLD
@@ -24,39 +24,54 @@ def generate_html_chart(file_name):
     # 將日期轉換為日期格式
     df['date'] = pd.to_datetime(df['date'])
 
+    # 計算最近一個月的日期範圍
+    recent_date = df['date'].max()
+    start_date = recent_date - pd.Timedelta(days=30)
+
     product_numbers = df['productNumber'].unique()
 
     # 創建圖表
     fig = go.Figure()
 
-    # 依照品號進行分組，為每個品號生成一條線
+    # 依照品名進行分組，為每個品名生成一條線
     for product_number in product_numbers:
         product_data = df[df['productNumber'] == product_number]
 
-        # 添加折線圖：品號為名稱，日期為 x 軸，進貨單價為 y 軸
+        # 添加折線圖：品名為名稱，日期為 x 軸，進貨單價為 y 軸
         fig.add_trace(go.Scatter(
             x=product_data['date'],
             y=product_data['purchaseUnitPrice'],
             mode='lines+markers',
-            name=product_number,  # 品號作為線的名稱
+            name=product_number,  # 品名作為線的名稱
             line=dict(width=2),
             marker=dict(size=6)
         ))
 
     # 設定圖表標題與軸標籤
     fig.update_layout(
-        title='各品號的進貨單價折線圖',
+        title='各產品的進貨單價折線圖',
         xaxis_title='日期',
         yaxis_title='進貨單價 (元)',
-        xaxis=dict(autorange=True),
-        yaxis=dict(autorange=True),  # 可根據數據調整範圍
+        xaxis=dict(
+            autorange=False,  # 禁用自動範圍
+            range=[start_date, recent_date],  # 聚焦近一個月的範圍
+            rangeslider=dict(visible=True),  # 啟用滑動條
+            type="date"  # 設定 x 軸類型為日期
+        ),
+        yaxis=dict(autorange=True),  # 根據數據調整 Y 軸範圍
         autosize=True,
-        legend_title="品號",  # 顯示圖表旁邊的品號標籤
-        showlegend=True,  # 確保顯示圖例
+        legend=dict(
+            title="品名",
+            orientation="v",  # 垂直排列
+            yanchor="top",
+            y=1,
+            xanchor="left",
+            x=1.05,  # 將圖例移動到圖表右側
+            font=dict(size=10)  # 調整文字大小
+        ),
+        showlegend=True  # 確保顯示圖例
     )
     # 圖表讀資料生成圖表
-
-
     # 儲存圖表為互動式 HTML
     pio.write_html(fig, file_name)
 

@@ -1,5 +1,7 @@
 package tw.edu.ntub.imd.birc.sodd.scheduler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.BaseDAO;
@@ -14,6 +16,8 @@ public class DataSyncUtils<E> {
     private ApplicationContext applicationContext;
     private JdbcTemplate jdbcTemplate;
     private final Class<E> entityClass;
+    private final Logger logger = LogManager.getLogger(DataSyncUtils.class);
+
 
     public DataSyncUtils(Class<E> entityClass) {
         this.entityClass = entityClass;
@@ -22,9 +26,39 @@ public class DataSyncUtils<E> {
     public void syncAllData() {
         String tableName = entityClass.getSimpleName();
         BaseDAO<E, Integer> dao = (BaseDAO<E, Integer>) getDAOForEntityClass(entityClass);
+        if (dao == null) {
+            logger.error("DAO is null for entity class: {}", entityClass.getSimpleName());
+            return;
+        }
+
+        List<E> results = dao.findAll();
+        results.forEach(e -> logger.info(entityToString(e)));
         dao.deleteAll();
+
         List<E> entityList = getEntityList(tableName);
         dao.saveAll(entityList);
+    }
+
+    private String entityToString(E entity) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(entity.getClass().getSimpleName()).append(" {");
+        Field[] fields = entity.getClass().getDeclaredFields();
+
+        for (Field field : fields) {
+            field.setAccessible(true); // 確保可以訪問 private 屬性
+            try {
+                Object value = field.get(entity);
+                sb.append(field.getName()).append("=").append(value).append(", ");
+            } catch (IllegalAccessException ex) {
+                logger.error("Failed to access field: {}", field.getName(), ex);
+            }
+        }
+
+        if (fields.length > 0) {
+            sb.setLength(sb.length() - 2); // 移除最後的 ", "
+        }
+        sb.append("}");
+        return sb.toString();
     }
 
     public List<E> getEntityList(String tableName) {
