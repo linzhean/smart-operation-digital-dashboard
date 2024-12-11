@@ -4,8 +4,8 @@ import plotly.graph_objects as go
 import plotly.io as pio
 import io
 
-
 def generate_html_chart(file_name):
+    import sys
     sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
     # 從標準輸入讀取 JSON 字串
     data = sys.stdin.read()
@@ -56,13 +56,21 @@ def generate_html_chart(file_name):
         ),
         yaxis=dict(autorange=True),  # 讓 Y 軸根據數據自動調整
         autosize=True,
-        legend_title="品名",  # 顯示圖表旁邊的品名標籤
+        legend=dict(
+            title="品名",
+            orientation="v",  # 垂直排列
+            yanchor="top",
+            y=1,
+            xanchor="left",
+            x=1.05,  # 將圖例移動到圖表右側
+            font=dict(size=10)  # 調整文字大小
+        ),
         showlegend=True  # 確保顯示圖例
     )
+
     # 圖表讀資料生成圖表
     # 儲存圖表為互動式 HTML
     pio.write_html(fig, file_name)
-
 
 # 這裡直接複製
 if __name__ == "__main__":
