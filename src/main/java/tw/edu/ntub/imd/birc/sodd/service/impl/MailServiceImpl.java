@@ -1,5 +1,6 @@
 package tw.edu.ntub.imd.birc.sodd.service.impl;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tw.edu.ntub.birc.common.util.CollectionUtils;
 import tw.edu.ntub.imd.birc.sodd.bean.MailBean;
@@ -32,7 +33,8 @@ public class MailServiceImpl extends BaseServiceImpl<MailBean, Mail, Integer> im
     private final UserAccountDAO userAccountDAO;
     private final EmailUtils emailUtils;
     private final MailSpecification specification;
-
+    @Value("${sodd.mail.template.AssignTaskMail}")
+    private String mailPath;
     public MailServiceImpl(MailDAO mailDAO,
                            MailTransformer transformer,
                            AssignedTaskSponsorService sponsorService,
@@ -63,7 +65,7 @@ public class MailServiceImpl extends BaseServiceImpl<MailBean, Mail, Integer> im
                     .map(UserAccount::getGmail)
                     .orElseThrow(() -> new NotFoundException("查無此使用者"));
             emailUtils.sendMail(mailBean.getReceiver(), userMail, "數位儀表板交辦事項",
-                    "src/main/resources/mail/AssignTaskMail.html", firstMes.getContent());
+                    mailPath, firstMes.getContent());
             mail = mailDAO.save(mail);
             firstMes.setMailId(mail.getId());
             messageService.save(firstMes);
@@ -106,6 +108,6 @@ public class MailServiceImpl extends BaseServiceImpl<MailBean, Mail, Integer> im
         messageService.save(messageBean);
         emailUtils.sendMail(userAccount.getUserId(), userAccount.getGmail(),
                 chart.getName() + "資料超過上下限通知",
-                "src/main/resources/mail/AssignTaskMail.html", messageBean.getContent());
+                mailPath, messageBean.getContent());
     }
 }
