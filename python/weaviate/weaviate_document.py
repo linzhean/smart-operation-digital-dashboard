@@ -85,5 +85,5 @@ def process_all_pdfs_in_folder(folder_path):
 
 # Step 5: 執行主程序
 if __name__ == "__main__":
-    folder_path = r'C:\\Users\\Jerrylin\\python-project\\weaviate\\company_file'  # 你的 PDF 文件夾路徑
+    folder_path = r'C:\\Users\\Jerrylin\\python-project\\weaviate\\company_file'  # PDF 文件夾路徑
     process_all_pdfs_in_folder(folder_path)
