@@ -170,6 +170,7 @@ Configuration:
         - ref: InfoRollingFile
         - ref: TraceRollingFile
         - ref: WarnRollingFile
+        - ref: DBBPRollingFile
     Logger:
       name: log4jdbc.log4j2
       additivity: false

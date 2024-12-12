@@ -1,6 +1,7 @@
 package tw.edu.ntub.imd.birc.sodd.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,8 +35,6 @@ public class UserAccountController {
     private final UserAccountService userAccountService;
     private final GroupService groupService;
     private final DepartmentService departmentService;
-    private final EmailUtils emailUtils;
-
 
     @GetMapping(path = "")
     public ResponseEntity<String> getLoginUser(HttpServletRequest request) {
@@ -217,8 +216,7 @@ public class UserAccountController {
         }
         bean.setIdentity(Identity.USER);
         userAccountService.update(userId, bean);
-        emailUtils.sendMail(userId, userAccountBean.getGmail(), "審核通過通知",
-                "src/main/resources/mail/adminPermitted.html", null);
+        userAccountService.sendMail(userId, userAccountBean.getGmail());
         return ResponseEntityBuilder.success()
                 .message("核准成功")
                 .build();

@@ -1,5 +1,6 @@
 package tw.edu.ntub.imd.birc.sodd.service.impl;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -39,6 +40,9 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
     private final TaskScheduler taskScheduler;
     private ScheduledFuture startTask;
     private ScheduledFuture endTask;
+
+    @Value("${sodd.mail.template.applicationPermitted}")
+    private String mailPath;
 
     public ApplicationServiceImpl(ApplicationDAO applicationDAO,
                                   ApplicationTransformer transformer,
@@ -112,7 +116,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl<ApplicationBean, App
                 .orElseThrow(() -> new NotFoundException("查無此使用者"));
         changeApplyStatus(application, Apply.PASSED);
         emailUtils.sendMail(applicationBean.getApplicant(), email, "申請審核通過通知",
-                "src/main/resources/mail/applicationPermitted.html", null);
+                mailPath, null);
         Instant startInstant = application.getStartDate().atZone(ZoneId.of("Asia/Taipei")).toInstant();
         Instant endInstant = application.getEndDate().atZone(ZoneId.of("Asia/Taipei")).toInstant();
         // 申請啟用任務裡啟動結束任務

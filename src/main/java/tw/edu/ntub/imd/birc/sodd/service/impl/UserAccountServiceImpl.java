@@ -24,11 +24,10 @@ import tw.edu.ntub.imd.birc.sodd.databaseconfig.dao.specification.UserAccountSpe
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.UserAccount_;
 import tw.edu.ntub.imd.birc.sodd.databaseconfig.entity.enumerate.Identity;
-import tw.edu.ntub.imd.birc.sodd.exception.NotFoundException;
 import tw.edu.ntub.imd.birc.sodd.service.UserAccountService;
 import tw.edu.ntub.imd.birc.sodd.service.transformer.UserAccountTransformer;
 import tw.edu.ntub.imd.birc.sodd.util.email.EmailTransformUtils;
-import tw.edu.ntub.imd.birc.sodd.util.http.ResponseEntityBuilder;
+import tw.edu.ntub.imd.birc.sodd.util.email.EmailUtils;
 
 import java.util.*;
 
@@ -41,6 +40,9 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
     private final GroupDAO groupDAO;
     private final UserAccountTransformer transformer;
     private final UserAccountSpecification specification;
+    private final EmailUtils emailUtils;
+    @Value("${sodd.mail.template.adminPermitted}")
+    private String mailPath;
     @Value("${google.clientId}")
     private String clientId;
 
@@ -48,13 +50,15 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
                                   UserGroupDAO userGroupDAO,
                                   GroupDAO groupDAO,
                                   UserAccountTransformer transformer,
-                                  UserAccountSpecification specification) {
+                                  UserAccountSpecification specification,
+                                  EmailUtils emailUtils) {
         super(userAccountDAO, transformer);
         this.userAccountDAO = userAccountDAO;
         this.userGroupDAO = userGroupDAO;
         this.groupDAO = groupDAO;
         this.transformer = transformer;
         this.specification = specification;
+        this.emailUtils = emailUtils;
     }
 
     @Override
@@ -145,6 +149,11 @@ public class UserAccountServiceImpl extends BaseServiceImpl<UserAccountBean, Use
                         specification.checkBlank(departmentId, identity, keyword),
                         PageRequest.of(0, SIZE))
                 .getTotalPages();
+    }
+
+    @Override
+    public void sendMail(String userId, String email) {
+        emailUtils.sendMail(userId, email, "審核通過通知", mailPath, null);
     }
 
     @Override

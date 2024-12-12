@@ -10,4 +10,6 @@ public interface UserAccountService extends BaseService<UserAccountBean, String>
     List<UserAccountBean> searchByUserValue(String departmentId, String keyword, String identity);
 
     Integer countUserList(String departmentId, String identity, String keyword);
+
+    void sendMail(String userId, String email);
 }
